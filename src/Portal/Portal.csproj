@@ -19,6 +19,8 @@
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm"/>
         <PackageReference Include="HotAvalonia" />
+        <PackageReference Include="ReactiveUI" />
+        <PackageReference Include="ReactiveUI.Fody" />
     </ItemGroup>
 
     <ItemGroup>

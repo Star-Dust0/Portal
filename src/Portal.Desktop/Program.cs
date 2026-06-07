@@ -14,7 +14,7 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        Initializer.Program("Portal");
+        Initializer.Program("Portal", "xyz.tiouo.Portal");
         Logger.Info("应用程序启动 Main()");
         
         try
@@ -34,7 +34,6 @@ sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
 #if DEBUG
-            .WithDeveloperTools()
             .UseHotReload()
 #endif
             .WithInterFont()
