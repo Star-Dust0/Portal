@@ -13,12 +13,13 @@
     d:DesignWidth="800"
     mc:Ignorable="d"
     x:Class="Portal.Views.MainWindow"
+    x:DataType="views:MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:entries="clr-namespace:Tio.Avalonia.Standard.Tab.Entries;assembly=Tio.Avalonia.Standard.Tab"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
-    xmlns:views="using:Portal.Views"
-    xmlns:vm="using:Portal.ViewModels"
+    xmlns:views="clr-namespace:Portal.Views"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <tio:TioWindow.Resources>
         <SolidColorBrush Color="Transparent" x:Key="TitleBarBackgroundColor" />
@@ -39,6 +40,40 @@
                     Text="Portal"
                     VerticalAlignment="Center" />
             </StackPanel>
+            <ScrollViewer>
+                <DockPanel>
+                    <tio:SelectionList ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}">
+                        <tio:SelectionList.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </tio:SelectionList.ItemsPanel>
+                        <tio:SelectionList.ItemTemplate>
+                            <DataTemplate DataType="entries:TabEntry">
+                                <Border Background="White" CornerRadius="{DynamicResource TioCornerRadius}">
+                                    <DockPanel>
+                                        <ContentControl Content="{Binding Content}" />
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </tio:SelectionList.ItemTemplate>
+                    </tio:SelectionList>
+                    <Button
+                        Classes="tab-add-btn"
+                        Click="Button_OnClick"
+                        CornerRadius="7"
+                        DockPanel.Dock="Right"
+                        Height="22"
+                        Margin="0,0,8,0"
+                        Theme="{StaticResource TransparentButton}"
+                        Width="22">
+                        <PathIcon
+                            Data="F1 M1024,1024z M0,0z M512,832A32,32,0,0,0,544,800L544,544 800,544A32,32,0,0,0,800,480L544,480 544,224A32,32,0,0,0,480,224L480,480 224,480A32,32,0,0,0,224,544L480,544 480,800A32,32,0,0,0,512,832"
+                            Height="20"
+                            Width="20" />
+                    </Button>
+                </DockPanel>
+            </ScrollViewer>
         </Panel>
     </tio:TioWindow.TitleBarLeftContent>
     hello

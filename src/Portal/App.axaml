@@ -7,5 +7,6 @@
 
     <Application.Styles>
         <tio:TioUiTheme />
+        <StyleInclude Source="/Styles/Tab.axaml" />
     </Application.Styles>
 </Application>

@@ -1,17 +1,21 @@
 using System;
+using System.Collections.ObjectModel;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.Input;
 using Portal.Const;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Modules.Platform;
 using Tio.Avalonia.Standard.Standard.Ui;
+using Tio.Avalonia.Standard.Tab.Entries;
+using Tio.Avalonia.Standard.Tab.Interface;
 using TioUi.Common.Helpers;
 using TioUi.Controls;
 
 namespace Portal.Views;
 
-public partial class MainWindow : TioWindow, ITioWindow
+public partial class MainWindow : TioTabWindowBase
 {
     public MainWindow()
     {
@@ -19,13 +23,10 @@ public partial class MainWindow : TioWindow, ITioWindow
         Notification = new TioNotificationManager(this);
         Toast = new TioToastManager(this);
         Window = this;
+        IsMainWindow = true;
         Events();
         Keys();
     }
-
-    public TioNotificationManager Notification { get; set; }
-    public TioToastManager Toast { get; set; }
-    public TioWindow Window { get; set; }
 
     private void Events()
     {
@@ -62,5 +63,10 @@ public partial class MainWindow : TioWindow, ITioWindow
                 _ => TioUi.Shared.Theme.Light
             })
         });
+    }
+
+    private void Button_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Tabs.Add(new TabEntry(new HHHH()));
     }
 }
