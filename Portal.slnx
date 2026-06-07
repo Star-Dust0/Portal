@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/Module/">
+    <Project Path="module/Tio.Avalonia.Standard/module/TioUi.Avalonia/src/TioUi/TioUi.csproj" />
+    <Project Path="module/Tio.Avalonia.Standard/src/Tio.Avalonia.Standard.Tab/Tio.Avalonia.Standard.Tab.csproj" />
+    <Project Path="module/Tio.Avalonia.Standard/src/Tio.Avalonia.Standard/Tio.Avalonia.Standard.csproj" />
+  </Folder>
   <Folder Name="/Solution Item/">
     <File Path="src/Directory.Packages.props" />
   </Folder>
