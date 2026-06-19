@@ -18,6 +18,7 @@
     x:DataType="views:MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:common="clr-namespace:Tio.Avalonia.Standard.Tab.Common;assembly=Tio.Avalonia.Standard.Tab"
+    xmlns:converter="clr-namespace:Portal.Module.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:entries="clr-namespace:Tio.Avalonia.Standard.Tab.Entries;assembly=Tio.Avalonia.Standard.Tab"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -27,6 +28,7 @@
     <tio:TioWindow.Resources>
         <SolidColorBrush Color="Transparent" x:Key="TitleBarBackgroundColor" />
         <common:NavScrollOpacityMaskConverter x:Key="NavScrollOpacityMaskConverter" />
+        <converter:IntCompareConverter x:Key="IntCompareConverter" />
     </tio:TioWindow.Resources>
     <tio:TioWindow.TitleBarLeftContent>
         <StackPanel
@@ -78,6 +80,28 @@
                                 Name="ItemRoot"
                                 PointerPressed="OnPointerPressed"
                                 Tag="{Binding}">
+                                <Border.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuItem
+                                            Command="{Binding Close}"
+                                            Header="关闭标签页"
+                                            InputGesture="ctrl+w">
+                                            <MenuItem.Icon>
+                                                <PathIcon
+                                                    Data="M13.41 12l4.3-4.29a1 1 0 1 0-1.42-1.42L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42l4.3 4.29-4.3 4.29a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l4.29-4.3 4.29 4.3a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42z"
+                                                    Height="12"
+                                                    Margin="2,-2.5,0,0"
+                                                    VerticalAlignment="Center"
+                                                    Width="12" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem
+                                            Command="{Binding CloseOther}"
+                                            Header="关闭其他标签页"
+                                            IsVisible="{Binding Window.Tabs.Count, Converter={StaticResource IntCompareConverter}, ConverterParameter='> 1'}" />
+                                        <MenuItem Command="{Binding Close}" Header="在新窗口打开" />
+                                    </MenuFlyout>
+                                </Border.ContextFlyout>
                                 <DockPanel Margin="8,0,10,0" VerticalAlignment="Center">
                                     <PathIcon
                                         Data="{Binding Icon}"
@@ -127,7 +151,7 @@
                     CornerRadius="10"
                     DockPanel.Dock="Right"
                     Height="30"
-                    Margin="5,0,25,0"
+                    Margin="3,0,25,0"
                     Theme="{StaticResource TransparentButton}"
                     Width="30">
                     <PathIcon

@@ -41,6 +41,7 @@ public partial class MainWindow : TioTabWindowBase
             var tab = new TabEntry(this, new NewTabPage());
             AddTab(tab);
             SelectTab(tab);
+            NavScrollViewer.Offset = new Vector(double.PositiveInfinity, 0);
         };
     }
 
