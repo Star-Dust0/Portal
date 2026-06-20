@@ -10,6 +10,7 @@ using Portal.Views.Pages;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Modules.Platform;
 using Tio.Avalonia.Standard.Standard.Ui;
+using Tio.Avalonia.Standard.Tab.Common;
 using Tio.Avalonia.Standard.Tab.Entries;
 using Tio.Avalonia.Standard.Tab.Interface;
 using TioUi.Common.Helpers;
@@ -25,6 +26,8 @@ public partial class MainWindow : TioTabWindowBase
         set => SetField(ref field, value);
     }
 
+    int _index = 1;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -38,7 +41,8 @@ public partial class MainWindow : TioTabWindowBase
         NavScrollViewer.ScrollChanged += (_, _) => { IsTabMaskVisible = NavScrollViewer.Offset.X > 0; };
         CreateNewTabFunc = () =>
         {
-            var tab = new TabEntry(this, new NewTabPage());
+            var tab = new TabEntry(this, new NewTabPage(), header: $"new tab {_index}");
+            _index++;
             AddTab(tab);
             SelectTab(tab);
             NavScrollViewer.Offset = new Vector(double.PositiveInfinity, 0);
@@ -84,14 +88,14 @@ public partial class MainWindow : TioTabWindowBase
 
     private void Button_OnClick(object? sender, RoutedEventArgs e)
     {
-        Tabs.Add(new TabEntry(this, new NewTabPage()));
+        CreateNewTabFunc();
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (!e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed) return;
         var c = ((Border)sender).Tag as TabEntry;
-        c.Close();
+        c?.Close();
     }
 
     private void InputElement_OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)

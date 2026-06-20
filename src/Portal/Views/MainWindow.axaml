@@ -1,4 +1,4 @@
-<tio:TioWindow
+﻿<tio:TioWindow
     ExtendClientAreaToDecorationsHint="{OnPlatform Default=True,
                                                    macOS=False}"
     Icon="/Assets/avalonia-logo.ico"
@@ -17,6 +17,7 @@
     x:Class="Portal.Views.MainWindow"
     x:DataType="views:MainWindow"
     xmlns="https://github.com/avaloniaui"
+    xmlns:behavior="clr-namespace:Tio.Avalonia.Standard.Tab.Behavior;assembly=Tio.Avalonia.Standard.Tab"
     xmlns:common="clr-namespace:Tio.Avalonia.Standard.Tab.Common;assembly=Tio.Avalonia.Standard.Tab"
     xmlns:converter="clr-namespace:Portal.Module.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -63,6 +64,7 @@
                 <tio:SelectionList
                     Indicator="{x:Null}"
                     ItemsSource="{Binding Tabs}"
+                    Name="TabSelectionList"
                     SelectedItem="{Binding SelectedTab}">
                     <tio:SelectionList.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -72,6 +74,7 @@
                     <tio:SelectionList.ItemTemplate>
                         <DataTemplate DataType="entries:TabEntry">
                             <Border
+                                behavior:TabDragBehavior.IsEnabled="True"
                                 Classes="tab-root"
                                 CornerRadius="10"
                                 Height="30"
@@ -85,7 +88,8 @@
                                         <MenuItem
                                             Command="{Binding Close}"
                                             Header="关闭标签页"
-                                            InputGesture="ctrl+w">
+                                            InputGesture="ctrl+w"
+                                            IsVisible="{Binding IsCloseable}">
                                             <MenuItem.Icon>
                                                 <PathIcon
                                                     Data="M13.41 12l4.3-4.29a1 1 0 1 0-1.42-1.42L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42l4.3 4.29-4.3 4.29a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l4.29-4.3 4.29 4.3a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42z"
@@ -98,8 +102,8 @@
                                         <MenuItem
                                             Command="{Binding CloseOther}"
                                             Header="关闭其他标签页"
-                                            IsVisible="{Binding Window.Tabs.Count, Converter={StaticResource IntCompareConverter}, ConverterParameter='> 1'}" />
-                                        <MenuItem Command="{Binding Close}" Header="在新窗口打开" />
+                                            IsVisible="{Binding Window.Tabs.Count, Converter={StaticResource IntCompareConverter}, ConverterParameter='&gt; 1'}" />
+                                        <MenuItem Command="{Binding MoveTabToNewWindow}" Header="在新窗口打开" />
                                     </MenuFlyout>
                                 </Border.ContextFlyout>
                                 <DockPanel Margin="8,0,10,0" VerticalAlignment="Center">
