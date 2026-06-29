@@ -14,8 +14,8 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
-    x:Class="Portal.Views.MainWindow"
-    x:DataType="views:MainWindow"
+    x:Class="Portal.Views.TabWindow"
+    x:DataType="views:TabWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:common="clr-namespace:Tio.Avalonia.Standard.Tab.Common;assembly=Tio.Avalonia.Standard.Tab"
     xmlns:converter="clr-namespace:Portal.Module.Converter"
@@ -103,7 +103,7 @@
                                             Command="{Binding CloseOther}"
                                             Header="关闭其他标签页"
                                             IsVisible="{Binding Window.Tabs.Count, Converter={StaticResource IntCompareConverter}, ConverterParameter='&gt; 1'}" />
-                                        <!-- <MenuItem Command="{Binding MoveTabToNewWindow}" Header="在新窗口打开" /> -->
+                                        <MenuItem Command="{Binding MoveTabToNewWindow}" Header="在新窗口打开" />
                                     </MenuFlyout>
                                 </Border.ContextFlyout>
                                 <DockPanel Margin="8,0,10,0" VerticalAlignment="Center">

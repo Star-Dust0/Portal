@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using Portal.Const;
+using Portal.Views;
 using Tio.Avalonia.Standard.Modules.Events;
 using Tio.Avalonia.Standard.Modules.Platform;
+using Tio.Avalonia.Standard.Tab.Common;
 using TioUi.Common.Helpers;
 
 namespace Portal.Module.Initialize;
@@ -23,6 +25,8 @@ public static class Initializer
         ThemeHelper.ToggleTheme(Data.ConfigEntry.Theme);
         
         LoopGc.BeginLoop();
+        
+        Functions.CreateNewTabWindowFunc = () => new TabWindow(false);
         
         InitializationEvents.RaiseAfterUiLoaded();
     }

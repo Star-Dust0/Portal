@@ -17,12 +17,12 @@ namespace Portal;
 
 public partial class App : Application
 {
-    public delegate void UiLoadedEventHandler(MainWindow ui);
+    public delegate void UiLoadedEventHandler(TabWindow ui);
 
-    private MainWindow _win;
+    private TabWindow _win;
 
-    public static MainWindow? MainWindow => (Current!.ApplicationLifetime
-        as IClassicDesktopStyleApplicationLifetime).MainWindow as MainWindow;
+    public static TabWindow? MainWindow => (Current!.ApplicationLifetime
+        as IClassicDesktopStyleApplicationLifetime).MainWindow as TabWindow;
 
     public static TopLevel TopLevel => TopLevel.GetTopLevel(MainWindow);
     public static event UiLoadedEventHandler? UiLoaded;
@@ -48,7 +48,7 @@ public partial class App : Application
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             Dispatcher.UIThread.UnhandledException += UIThread_UnhandledException;
 #endif
-            _win = new MainWindow();
+            _win = new TabWindow(true);
             desktop.MainWindow = _win;
             _win.Loaded += Function;
             Logger.Info("UI配置完成");

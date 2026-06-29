@@ -18,7 +18,7 @@ using TioUi.Controls;
 
 namespace Portal.Views;
 
-public partial class MainWindow : TioTabWindowBase
+public partial class TabWindow : TioTabWindowBase
 {
     public bool IsTabMaskVisible
     {
@@ -28,13 +28,17 @@ public partial class MainWindow : TioTabWindowBase
 
     int _index = 1;
 
-    public MainWindow()
+    public TabWindow()
+    {
+        Build();
+    }
+
+    private void Build()
     {
         InitializeComponent();
         Notification = new TioNotificationManager(this);
         Toast = new TioToastManager(this);
         Window = this;
-        IsMainWindow = true;
         DataContext = this;
         Events();
         Keys();
@@ -47,6 +51,16 @@ public partial class MainWindow : TioTabWindowBase
             SelectTab(tab);
             NavScrollViewer.Offset = new Vector(double.PositiveInfinity, 0);
         };
+        if (IsMainWindow)
+        {
+            CreateNewTabFunc();
+        }
+    }
+
+    public TabWindow(bool isMainWindow)
+    {
+        IsMainWindow = isMainWindow;
+        Build();
     }
 
     private void Events()
