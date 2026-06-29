@@ -9,15 +9,14 @@
     IsMinBtnShow="{OnPlatform Default=True,
                               macOS=False}"
     Title="Portal"
-    TitleBarControlBtnMargin="0,0,5,0"
-    TitleBarHeight="40"
+    TitleBarControlBtnMargin="0,0,4,0"
+    TitleBarHeight="44"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
     x:Class="Portal.Views.MainWindow"
     x:DataType="views:MainWindow"
     xmlns="https://github.com/avaloniaui"
-    xmlns:behavior="clr-namespace:Tio.Avalonia.Standard.Tab.Behavior;assembly=Tio.Avalonia.Standard.Tab"
     xmlns:common="clr-namespace:Tio.Avalonia.Standard.Tab.Common;assembly=Tio.Avalonia.Standard.Tab"
     xmlns:converter="clr-namespace:Portal.Module.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -40,9 +39,11 @@
             <Rectangle
                 Fill="Red"
                 Height="22"
+                IsVisible="False"
                 Width="22" />
             <TextBlock
-                Margin="8,0,0,0"
+                FontSize="16"
+                Margin="12,2,0,0"
                 Text="Portal"
                 VerticalAlignment="Center" />
         </StackPanel>
@@ -51,10 +52,10 @@
         <ScrollViewer
             Background="Transparent"
             Classes="Flat"
-            Height="40"
+            Height="44"
             HorizontalAlignment="Left"
             HorizontalScrollBarVisibility="Auto"
-            Margin="85,-40,85,0"
+            Margin="85,-44,85,0"
             Name="NavScrollViewer"
             OpacityMask="{Binding IsTabMaskVisible, Converter={StaticResource NavScrollOpacityMaskConverter}}"
             PointerWheelChanged="InputElement_OnPointerWheelChanged"
@@ -74,7 +75,6 @@
                     <tio:SelectionList.ItemTemplate>
                         <DataTemplate DataType="entries:TabEntry">
                             <Border
-                                behavior:TabDragBehavior.IsEnabled="True"
                                 Classes="tab-root"
                                 CornerRadius="10"
                                 Height="30"
@@ -103,7 +103,7 @@
                                             Command="{Binding CloseOther}"
                                             Header="关闭其他标签页"
                                             IsVisible="{Binding Window.Tabs.Count, Converter={StaticResource IntCompareConverter}, ConverterParameter='&gt; 1'}" />
-                                        <MenuItem Command="{Binding MoveTabToNewWindow}" Header="在新窗口打开" />
+                                        <!-- <MenuItem Command="{Binding MoveTabToNewWindow}" Header="在新窗口打开" /> -->
                                     </MenuFlyout>
                                 </Border.ContextFlyout>
                                 <DockPanel Margin="8,0,10,0" VerticalAlignment="Center">
@@ -167,5 +167,6 @@
                 </Button>
             </DockPanel>
         </ScrollViewer>
+        <ContentControl Content="{Binding SelectedTab.Content}" />
     </Grid>
 </tio:TioWindow>
