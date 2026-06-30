@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.Input;
+using HotAvalonia;
 using Portal.Const;
 using Portal.Views.Pages;
 using Tio.Avalonia.Standard.Modules.DiskIO;
@@ -34,6 +35,7 @@ public partial class TabWindow : TioTabWindowBase
         Build();
     }
 
+    [AvaloniaHotReload]
     private void Build()
     {
         InitializeComponent();
@@ -43,11 +45,7 @@ public partial class TabWindow : TioTabWindowBase
         DataContext = this;
         Events();
         Keys();
-        
-        // 启用标签页拖拽重新排序功能
         TabSelectionList.EnableTabDragDrop(this);
-        
-        NavScrollViewer.ScrollChanged += (_, _) => { IsTabMaskVisible = NavScrollViewer.Offset.X > 0; };
         CreateNewTabFunc = () =>
         {
             var tab = new TabEntry(this, new NewTabPage(), header: $"new tab {_index}");
@@ -88,7 +86,20 @@ public partial class TabWindow : TioTabWindowBase
                     Logger.Error(exception);
                 }
             };
+            TitleBarThings.SizeChanged += (_, _) =>
+            {
+                NavScrollViewer.Margin = new Thickness(75, -44, TitleBarThings.Bounds.Width, 0);
+            };
         }
+        else
+        {
+            TitleBarThings.SizeChanged += (_, _) =>
+            {
+                NavScrollViewer.Margin = new Thickness(75, -44, 90 + TitleBarThings.Bounds.Width, 0);
+            };
+        }
+
+        NavScrollViewer.ScrollChanged += (_, _) => { IsTabMaskVisible = NavScrollViewer.Offset.X > 0; };
     }
 
     private void Keys()
@@ -129,5 +140,20 @@ public partial class TabWindow : TioTabWindowBase
 
     private void Button1_OnClick(object? sender, RoutedEventArgs e)
     {
-Console.WriteLine(13123123);    }
+        Console.WriteLine(13123123);
+    }
+
+    private void ThemeMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem menuItem || menuItem.Tag is not string themeName) return;
+
+        Data.ConfigEntry.Theme = themeName switch
+        {
+            "System" => TioUi.Shared.Theme.System,
+            "Light" => TioUi.Shared.Theme.Light,
+            "Dark" => TioUi.Shared.Theme.Dark,
+            "Mirage" => TioUi.Shared.Theme.Mirage,
+            _ => Data.ConfigEntry.Theme
+        };
+    }
 }
