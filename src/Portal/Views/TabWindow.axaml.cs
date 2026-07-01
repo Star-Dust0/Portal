@@ -45,7 +45,6 @@ public partial class TabWindow : TioTabWindowBase
         DataContext = this;
         Events();
         Keys();
-        TabSelectionList.EnableTabDragDrop(this);
         CreateNewTabFunc = () =>
         {
             var tab = new TabEntry(this, new NewTabPage(), header: $"new tab {_index}");
@@ -58,6 +57,9 @@ public partial class TabWindow : TioTabWindowBase
         {
             CreateNewTabFunc();
         }
+
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            TabSelectionList.EnableTabDragDrop(this);
     }
 
     [AvaloniaHotReload]
