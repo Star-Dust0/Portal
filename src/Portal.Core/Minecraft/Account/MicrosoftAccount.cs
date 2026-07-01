@@ -5,7 +5,6 @@ public class MicrosoftAccount() : AccountBase(AccountType.Microsoft), IEquatable
     public string Name { get; set; } = string.Empty;
     public Guid Uuid { get; set; }
     public string AccessToken { get; set; } = string.Empty;
-    public string RefreshToken { get; set; } = string.Empty;
     public DateTime LastRefreshTime { get; set; }
 
     public bool Equals(MicrosoftAccount? other)

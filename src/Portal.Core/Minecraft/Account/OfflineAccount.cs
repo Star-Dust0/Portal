@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Portal.Core.Minecraft.Account;
 
@@ -8,7 +9,7 @@ public class OfflineAccount() : AccountBase(AccountType.Offline), IEquatable<Off
 {
     public string Name { get; set; } = "OfflinePlayer";
     public Guid? CustomUuid { get; set; }
-    public Guid Uuid => CustomUuid ?? GetMinecraftOfflineUuid(Name);
+    [JsonIgnore] public Guid Uuid => CustomUuid ?? GetMinecraftOfflineUuid(Name);
 
     private static Guid GetMinecraftOfflineUuid(string name)
     {

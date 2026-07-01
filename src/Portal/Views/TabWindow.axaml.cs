@@ -181,24 +181,7 @@ public partial class TabWindow : TioTabWindowBase
         e.Handled = true;
     }
 
-    private void Button1_OnClick(object? sender, RoutedEventArgs e)
-    {
-        Console.WriteLine(13123123);
-    }
 
-    private void ThemeMenuItem_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not MenuItem menuItem || menuItem.Tag is not string themeName) return;
-
-        Data.ConfigEntry.Theme = themeName switch
-        {
-            "System" => TioUi.Shared.Theme.System,
-            "Light" => TioUi.Shared.Theme.Light,
-            "Dark" => TioUi.Shared.Theme.Dark,
-            "Mirage" => TioUi.Shared.Theme.Mirage,
-            _ => Data.ConfigEntry.Theme
-        };
-    }
 
     private void NM_NewTab(object? sender, EventArgs e)
     {
