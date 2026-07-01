@@ -199,4 +199,24 @@ public partial class TabWindow : TioTabWindowBase
             _ => Data.ConfigEntry.Theme
         };
     }
+
+    private void NM_NewTab(object? sender, EventArgs e)
+    {
+        CreateNewTabFunc();
+    }
+
+    private void NM_CloseTab(object? sender, EventArgs e)
+    {
+        SelectedTab.Close();
+    }
+
+    private void NM_CloseOtherTab(object? sender, EventArgs e)
+    {
+        SelectedTab.CloseOther();
+    }
+
+    private void NM_OpenInNewWindow(object? sender, EventArgs e)
+    {
+        SelectedTab.MoveTabToNewWindow();
+    }
 }

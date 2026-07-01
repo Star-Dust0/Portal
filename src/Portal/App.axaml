@@ -1,4 +1,5 @@
 <Application
+    Name="Portal"
     RequestedThemeVariant="Default"
     x:Class="Portal.App"
     xmlns="https://github.com/avaloniaui"

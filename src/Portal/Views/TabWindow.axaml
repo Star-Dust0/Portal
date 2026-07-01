@@ -30,6 +30,31 @@
         <converter:IntCompareConverter x:Key="IntCompareConverter" />
         <converter:ThemeCompareConverter x:Key="ThemeCompareConverter" />
     </tio:TioWindow.Resources>
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="标签页">
+                <NativeMenu>
+                    <NativeMenuItem
+                        Click="NM_NewTab"
+                        Gesture="Ctrl+T"
+                        Header="新建标签页" />
+                    <NativeMenuItem
+                        Click="NM_CloseTab"
+                        Gesture="Ctrl+W"
+                        Header="关闭当前标签页"
+                        IsEnabled="{Binding SelectedTab.IsCloseable}" />
+                    <NativeMenuItem
+                        Click="NM_CloseOtherTab"
+                        Header="关闭其他标签页"
+                        IsEnabled="{Binding Tabs.Count, Converter={StaticResource IntCompareConverter}, ConverterParameter='> 1'}" />
+                    <NativeMenuItem
+                        Click="NM_OpenInNewWindow"
+                        Header="在新窗口打开"
+                        IsEnabled="{Binding Tabs.Count, Converter={StaticResource IntCompareConverter}, ConverterParameter='> 1'}" />
+                </NativeMenu>
+            </NativeMenuItem>
+        </NativeMenu>
+    </NativeMenu.Menu>
     <tio:TioWindow.Styles>
         <Style Selector="Border.tab-root:pointerover">
             <Setter Property="Cursor" Value="Hand" />
