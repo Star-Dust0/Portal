@@ -17,6 +17,7 @@ public class MinecraftAccount(AccountType accountType)
     public string Name { get; set; }
     public Guid? Uuid { get; init; }
     public string? AccessToken { get; set; }
+    public string? RefreshToken { get; set; }
     public DateTime? LastRefreshTime { get; set; } = DateTime.MinValue;
     public string? YggdrasilServerUrl { get; init; }
     public string? ServerNote { get; init; }

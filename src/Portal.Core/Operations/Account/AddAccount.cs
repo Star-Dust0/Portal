@@ -48,15 +48,26 @@ public class AddAccount
         {
             return null;
         }
+        
+        var options1 = new OverlayDialogOptions
+        {
+            Mode = DialogMode.None,
+            Buttons = DialogButton.None,
+            Title = "验证微软账户",
+            CanLightDismiss = false,
+            CanDragMove = true,
+            IsCloseButtonVisible = false,
+            CanResize = false,
+        };
 
         if (type.SelectedItem is AuthServer authServer)
         {
             switch (authServer.AuthType)
             {
                 case AccountType.Offline:
-                    return await Offline();
+                    return await Offline(options1);
                 case AccountType.Microsoft:
-                    break;
+                    return await Microsoft(options1);
                 case AccountType.Yggdrasil:
                     break;
             }
@@ -65,23 +76,23 @@ public class AddAccount
         return null;
     }
 
-    public static async Task<MinecraftAccount?> Offline()
+    public static async Task<MinecraftAccount?> Offline(OverlayDialogOptions options)
     {
-        var options = new OverlayDialogOptions()
-        {
-            Mode = DialogMode.None,
-            Buttons = DialogButton.None,
-            Title = "创建离线账户",
-            CanLightDismiss = false,
-            CanDragMove = true,
-            IsCloseButtonVisible = false,
-            CanResize = false,
-            OverrideOkButtonText = "下一步"
-        };
-
         var result = await OverlayDialog.ShowCustomAsync<Offline, OfflineAccountViewModel, MinecraftAccount>(
             new OfflineAccountViewModel(), hostId: null, options: options);
 
         return result;
+    }
+    
+    public static async Task<MinecraftAccount?> Microsoft(OverlayDialogOptions options)
+    {
+        var result = await OverlayDialog.ShowCustomAsync<Account.Microsoft, MicrosoftAccountViewModel, object>(
+            new MicrosoftAccountViewModel(), hostId: null, options: options);
+
+        if (result is "retry")
+        {
+            return await Microsoft(options);
+        }
+        return result as MinecraftAccount;
     }
 }
