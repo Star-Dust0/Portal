@@ -16,6 +16,7 @@
     <ItemGroup>
       <Folder Include="Minecraft\Account\Authenticator\" />
       <Folder Include="Minecraft\Extensions\" />
+      <Folder Include="Minecraft\Instance\Java\" />
     </ItemGroup>
 
     <ItemGroup>

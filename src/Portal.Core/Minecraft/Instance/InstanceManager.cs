@@ -1,4 +1,6 @@
-﻿using Portal.Core.Minecraft.Instance.Bedrock;
+﻿using MinecraftLaunch.Base.Models.Game;
+using MinecraftLaunch.Components.Parser;
+using Portal.Core.Minecraft.Instance.Bedrock;
 using Portal.Core.Minecraft.Instance.Manifest;
 
 namespace Portal.Core.Minecraft.Instance;
@@ -23,6 +25,8 @@ public class InstanceManager
             var versionsFolder = Path.Combine(_gameRootFolder, versionFolder);
             if (!Directory.Exists(versionsFolder))
                 Directory.CreateDirectory(versionsFolder);
+            
+            MinecraftParser minecraftParser = _gameRootFolder;
 
             Directory.GetDirectories(versionsFolder).ToList().ForEach(instanceFolder =>
             {
@@ -32,12 +36,31 @@ public class InstanceManager
                     Instances.Add(new()
                     {
                         Name = Path.GetFileName(instanceFolder),
-                        Version = version,
+                        Version = version.Version,
                         Description = string.Empty,
                         Type = InstanceType.Bedrock,
                         GameRootFolder = _gameRootFolder,
                         InstanceFolder = instanceFolder
                     });
+                }
+
+                if (GetInstanceType(instanceFolder) == InstanceType.Java)
+                {
+                    try
+                    {
+                        Instances.Add(new()
+                        {
+                            Name = Path.GetFileName(instanceFolder),
+                            Version = minecraftParser.GetMinecraft(Path.GetFileName(instanceFolder)).Id,
+                            Description = string.Empty,
+                            Type = InstanceType.Java,
+                            GameRootFolder = _gameRootFolder,
+                            InstanceFolder = instanceFolder
+                        });
+                    }
+                    catch
+                    {
+                    }
                 }
             });
         });
@@ -45,7 +68,7 @@ public class InstanceManager
         return Instances;
     }
 
-    public InstanceType GetInstanceType(string instanceFolder)
+    public static InstanceType GetInstanceType(string instanceFolder)
     {
         if (File.Exists(Path.Combine(instanceFolder, "appxmanifest.xml")))
             return InstanceType.Bedrock;

@@ -1,10 +1,14 @@
 ﻿using System.Xml;
+using Portal.Core.Minecraft.Instance.Manifest.Bedrock;
+using Round.SDK.Entity;
+using TioUi.Controls;
 
 namespace Portal.Core.Minecraft.Instance.Bedrock;
 
 public class BedrockHelper
 {
-    public static string GetInstanceVersion(string instanceFolder)
+    public static readonly string ConfigFolder = Path.Combine("config", "Portal.Desktop");
+    public static (string Version,string PackName) GetInstanceVersion(string instanceFolder)
     {
         var manifestPath = Path.Combine(instanceFolder, "appxmanifest.xml");
         if (!File.Exists(manifestPath)) throw new FileNotFoundException($"未找到 {manifestPath} 文件");
@@ -20,12 +24,55 @@ public class BedrockHelper
         if (identityNode != null)
         {
             string version = identityNode.Attributes["Version"]?.Value;
+            string packName = identityNode.Attributes["Name"]?.Value;
 
-            return version;
+            return (version, packName);
         }
         else
         {
-            throw new NullReferenceException("未找到Identity节点");
+            throw new NullReferenceException("未找到 Identity 节点");
         }
+    }
+    
+    public static BedrockInstanceConfig GetInstanceConfig(string instanceFolder)
+    {
+        if (InstanceManager.GetInstanceType(instanceFolder) != InstanceType.Bedrock)
+            throw new InvalidOperationException("指定的实例文件夹不是 Bedrock 实例");
+        
+        var configFile = Path.Combine(instanceFolder, ConfigFolder, "config.json");
+        ConfigEntity<BedrockInstanceConfig> configEntity;
+
+        if (!File.Exists(configFile))
+        {
+            configEntity = new(configFile);
+            configEntity.Data = new()
+            {
+                Name = Path.GetFileName(instanceFolder),
+                Version = GetInstanceVersion(instanceFolder).Version,
+                Description = string.Empty,
+                BuildType = File.Exists(Path.Combine(instanceFolder, "MicrosoftGame.Config"))
+                    ? BedrockBuildType.GDK
+                    : BedrockBuildType.UWP,
+                Type = GetVersionTypeWithPackName(GetInstanceVersion(instanceFolder).PackName)
+            };
+            configEntity.Save();
+        }
+        else
+            configEntity = new(configFile);
+        
+        return configEntity.Data;
+    }
+
+    public static InstanceReleaseType GetVersionTypeWithPackName(string packName)
+    {
+        if (string.IsNullOrEmpty(packName)) return InstanceReleaseType.Release;
+
+        if (packName.Contains("preview", StringComparison.OrdinalIgnoreCase) ||
+            packName.Contains("beta", StringComparison.OrdinalIgnoreCase))
+        {
+            return InstanceReleaseType.Preview;
+        }
+
+        return InstanceReleaseType.Release;
     }
 }
