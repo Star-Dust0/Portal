@@ -51,7 +51,7 @@
             Orientation="Horizontal"
             Spacing="8">
             <Button Command="{Binding CancelCommand}" Content="取消" />
-            <Button Command="{Binding NextCommand}" Content="添加账户" />
+            <Button Command="{Binding NextCommand}" Content="添加验证服务器" />
         </StackPanel>
     </Grid>
 </UserControl>

@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Portal.Core.Helpers;
 using Portal.Core.Minecraft.Account;
 using TioUi.Common.Interfaces;
 
@@ -83,7 +84,7 @@ public partial class AuthServerViewModel : ObservableObject, IDialogContext, INo
         {
             _errors[propertyName] = new List<string> { "服务器 URL 不能为空" };
         }
-        else if (!IsValidUrl(value))
+        else if (!UrlHelper.IsValidUrl(value))
         {
             _errors[propertyName] = new List<string> { "URL 地址格式不正确" };
         }
@@ -95,21 +96,12 @@ public partial class AuthServerViewModel : ObservableObject, IDialogContext, INo
         ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
     }
 
-    private bool IsValidUrl(string? url)
-    {
-        if (string.IsNullOrWhiteSpace(url))
-            return false;
-
-        return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-    }
-
     private bool IsUrlExists(string url)
     {
         return _existingServers.Any(server =>
             server.AuthType == AccountType.Yggdrasil &&
             !string.IsNullOrEmpty(server.ServerUrl) &&
-            string.Equals(server.ServerUrl, url, StringComparison.OrdinalIgnoreCase));
+            UrlHelper.AreUrlsEqual(server.ServerUrl, url));
     }
 
     private bool CanNext()

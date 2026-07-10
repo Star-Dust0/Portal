@@ -1,8 +1,8 @@
 ﻿namespace Portal.Core.Minecraft.Account;
 
-public record AuthServer(AccountType authType, string displayText)
+public record AuthServer(AccountType AuthType, string DisplayText)
 {
-    public AccountType AuthType { get; set; } = authType;
-    public string DisplayText { get; set; } = displayText;
+    public AccountType AuthType { get; set; } = AuthType;
+    public string DisplayText { get; set; } = DisplayText;
     public string ServerUrl { get; set; }
 }
