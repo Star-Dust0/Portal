@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia;
@@ -24,14 +24,13 @@ public partial class UiProperty : ObservableObject
     {
         PropertyChanged += (s, e) =>
         {
-            if (e.PropertyName == nameof(Data.UiProperty.AggregatedSearchQuery))
+            if (e.PropertyName is nameof(AggregatedSearchQuery) or nameof(AggregatedSelectedType))
             {
                 AggregatedSearchResults.Clear();
-                AggregatedSearchResults.AddRange(Searcher.Search(Data.UiProperty.AggregatedSearchQuery,
+                AggregatedSearchResults.AddRange(Searcher.Search(AggregatedSearchQuery,
                     AggregatedSelectedType.EnumFlag));
             }
         };
-        AggregatedSearchResults.AddRange(Searcher.Search(Data.UiProperty.AggregatedSearchQuery, AggregatedSelectedType.EnumFlag));
     }
 
     public static UiProperty Instance

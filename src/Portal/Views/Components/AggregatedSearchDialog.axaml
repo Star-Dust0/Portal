@@ -61,7 +61,11 @@
             Name="SearchBox"
             PlaceholderText="输入搜索内容"
             Text="{Binding Data.UiProperty.AggregatedSearchQuery}" />
-        <ListBox ItemsSource="{Binding Data.UiProperty.AggregatedSearchResults}" Margin="10,0,10,10">
+        <ListBox
+            ItemsSource="{Binding Data.UiProperty.AggregatedSearchResults}"
+            Margin="10,0,10,10"
+            Name="ListBox"
+            SelectionChanged="SelectingItemsControl_OnSelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="entries:AggregatedSearchEntry">
                     <StackPanel Margin="0,-4">

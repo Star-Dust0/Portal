@@ -184,7 +184,7 @@ public partial class TabWindow : TioTabWindowBase
         };
 
         _ = Dialog.ShowCustomAsync<AggregatedSearchDialog, AggregatedSearchDialogViewModel, object>(
-            new AggregatedSearchDialogViewModel(), options: options, owner: this);
+            new AggregatedSearchDialogViewModel(this), options: options, owner: this);
     }
 
     private void Keys()

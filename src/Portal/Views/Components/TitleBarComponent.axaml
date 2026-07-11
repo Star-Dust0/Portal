@@ -144,8 +144,8 @@
         <Button IsVisible="False" Name="AccountFlyout">
             <Button.Flyout>
                 <Flyout VerticalOffset="5">
-                    <StackPanel Margin="10,0">
-                        <DockPanel>
+                    <StackPanel>
+                        <DockPanel Margin="10,0">
                             <TextBlock
                                 DockPanel.Dock="Left"
                                 FontSize="14"

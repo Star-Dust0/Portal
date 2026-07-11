@@ -5,6 +5,7 @@ using Portal.Const;
 using Portal.Core.Minecraft;
 using Portal.Views;
 using Tio.Avalonia.Standard.Modules.Events;
+using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Modules.Platform;
 using Tio.Avalonia.Standard.Tab.Common;
 using TioUi.Common.Helpers;
@@ -30,6 +31,14 @@ public static class Initializer
         LoopGc.BeginLoop();
         
         Functions.CreateNewTabWindowFunc = _ => new TabWindow(false);
+        
+                
+        Data.UiProperty.AggregatedSearchResults.Clear();
+        Data.UiProperty.AggregatedSearchResults.AddRange(
+            AggregatedSearch.Searcher.Search(
+                Data.UiProperty.AggregatedSearchQuery, 
+                Data.UiProperty.AggregatedSelectedType.EnumFlag));
+
         
         InitializationEvents.RaiseAfterUiLoaded();
     }

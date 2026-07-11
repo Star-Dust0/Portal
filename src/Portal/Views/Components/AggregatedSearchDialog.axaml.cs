@@ -47,11 +47,25 @@ public partial class AggregatedSearchDialog : UserControl
         var a = (s! as Control)!.GetTopLevel() as CustomDialogWindow;
         a?.Close();
     }
+
+    private void SelectingItemsControl_OnSelectionChanged(object? s, SelectionChangedEventArgs e)
+    {
+        if (ListBox.SelectedItem is not AggregatedSearchEntry entry) return;
+        Handler.Handle(entry, (DataContext as AggregatedSearchDialogViewModel).Window);
+        var a = (s! as Control)!.GetTopLevel() as CustomDialogWindow;
+        a?.Close();
+    }
 }
 
 public partial class AggregatedSearchDialogViewModel : ObservableObject
 {
+    public readonly TioWindow Window;
     public Data Data => Data.Instance;
+
+    public AggregatedSearchDialogViewModel(TioWindow window)
+    {
+        Window = window;
+    }
 }
 
 public class AggregatedSearchType
