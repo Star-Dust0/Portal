@@ -1,9 +1,12 @@
-﻿<UserControl
+<UserControl
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
     x:Class="Portal.Core.Operations.Account.ViewResult"
+    x:DataType="account1:ViewResultViewModel"
     xmlns="https://github.com/avaloniaui"
+    xmlns:account="clr-namespace:Portal.Core.Minecraft.Account;assembly=Portal.Core"
+    xmlns:account1="clr-namespace:Portal.Core.Operations.Account"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
@@ -12,56 +15,68 @@
         Margin="24"
         RowDefinitions="Auto, *, Auto"
         Width="510">
-        <TextBlock
-            FontSize="16"
-            FontWeight="600"
-            Grid.Row="0"
-            Text="操作完成" />
-        <tio:Form
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock
+                FontSize="16"
+                FontWeight="600"
+                Text="添加完成" />
+            <TextBlock
+                FontSize="13"
+                Foreground="{DynamicResource TextControlForegroundDisabled}"
+                Text="以下账户已成功添加" />
+        </StackPanel>
+        <Border
+            BorderBrush="{DynamicResource PopupBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="10"
             Grid.Row="1"
-            HorizontalAlignment="Stretch"
-            LabelPosition="Top"
-            Margin="0,10,0,15">
-            <tio:FormItem Label="角色名称">
-                <StackPanel Spacing="4">
-                    <DataValidationErrors>
-                        <TextBox
-                            PlaceholderText="输入角色名称"
-                            Text="{Binding RoleName}"
-                            tio:FocusHelper.DialogFocusHint="True" />
-                    </DataValidationErrors>
-                    <CheckBox Content="忽略标准验证" IsChecked="{Binding IgnoreStandard}" />
-                </StackPanel>
-            </tio:FormItem>
-            <Expander
-                BorderBrush="{DynamicResource PopupBorderBrush}"
-                BorderThickness="1"
-                Header="高级设置">
-                <StackPanel>
-                    <tio:FormItem Label="Uuid" Margin="15,5,15,15">
-                        <DataValidationErrors>
-                            <TextBox PlaceholderText="Uuid" Text="{Binding Uuid}" />
-                        </DataValidationErrors>
-                    </tio:FormItem>
-                    <tio:Banner
-                        Classes="Bordered"
-                        Content="修改 Uuid 可用于同步其他启动器的角色身份，以保留原有的背包和游戏进度。但如果修改不当，会导致游戏无法识别角色，从而丢失背包物品。除非明确知晓后果，否则请保持默认。"
-                        CornerRadius="10"
-                        Margin="15,0,15,15"
-                        Type="Warning">
-                        <tio:Banner.Header>
-                            <TextBlock FontSize="15" Text="警告" />
-                        </tio:Banner.Header>
-                    </tio:Banner>
-                </StackPanel>
-            </Expander>
-        </tio:Form>
+            Margin="0,12,0,16">
+            <ListBox ItemsSource="{Binding Accounts}" Margin="8">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="account:MinecraftAccount">
+                        <Grid Background="Transparent" ColumnDefinitions="Auto, *">
+                            <Border
+                                ClipToBounds="True"
+                                CornerRadius="10"
+                                Grid.Column="0"
+                                Height="36"
+                                Margin="2,0,10,0"
+                                Width="36">
+                                <Image
+                                    Height="36"
+                                    Source="{Binding Head}"
+                                    Width="36" />
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <TextBlock
+                                        FontSize="14"
+                                        Text="{Binding Name}"
+                                        VerticalAlignment="Bottom" />
+                                    <TextBlock
+                                        FontSize="11"
+                                        Text="{Binding DisplayAccountNote}"
+                                        VerticalAlignment="Bottom" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <TextBlock FontSize="11" VerticalAlignment="Bottom">
+                                        <Run Text="添加时间" />
+                                        <Run Text=": " />
+                                        <Run Text="{Binding CreateAt, StringFormat={}{0:yyyy-MM-dd HH:mm}}" />
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
         <StackPanel
             Grid.Row="2"
             HorizontalAlignment="Right"
             Orientation="Horizontal"
             Spacing="8">
-            <Button Command="{Binding}" Content="完成" />
+            <Button Command="{Binding CompleteCommand}" Content="完成" />
         </StackPanel>
     </Grid>
 </UserControl>

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using MinecraftLaunch.Components.Authenticator;
@@ -35,7 +36,24 @@ public class AddAccount
             return null;
         }
 
-        return await HandleAccountType(result.SelectedServer, authServers, hostId);
+        var accounts = await HandleAccountType(result.SelectedServer, authServers, hostId);
+
+        if (accounts == null || accounts.Length == 0 || accounts.All(a => a == null))
+        {
+            return null;
+        }
+
+        var validAccounts = accounts.Where(a => a != null).ToArray();
+        var viewResult = await OverlayDialog.ShowCustomAsync<ViewResult, ViewResultViewModel, object>(
+            new ViewResultViewModel(new ObservableCollection<MinecraftAccount>(validAccounts)),
+            hostId: hostId, options: options);
+
+        if (viewResult is ObservableCollection<MinecraftAccount> resultAccounts)
+        {
+            return resultAccounts.ToArray();
+        }
+
+        return null;
     }
 
     private static async Task<MinecraftAccount[]?> HandleAccountType(Minecraft.Account.AuthServer authServer,
