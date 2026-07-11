@@ -8,8 +8,11 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MinecraftLaunch.Components.Authenticator;
+using MinecraftLaunch.Skin.Class.Fetchers;
 using Portal.Core.Helpers;
 using Portal.Core.Minecraft.Account;
+using Tio.Avalonia.Standard.Modules.Extensions;
 using TioUi.Common;
 using TioUi.Common.Interfaces;
 using TioUi.Controls;
@@ -26,13 +29,18 @@ public partial class Yggdrasil : UserControl
 
 public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContext, INotifyDataErrorInfo
 {
-    private readonly ObservableCollection<Minecraft.Account.AuthServer> _authServers;
+    private readonly ObservableCollection<Core.Minecraft.Account.AuthServer> _authServers;
+    private readonly string? _hostId;
 
     [ObservableProperty] public partial string? ServerUrl { get; set; }
 
     [ObservableProperty] public partial string? Username { get; set; }
 
     [ObservableProperty] public partial string? Password { get; set; }
+    [ObservableProperty] public partial string? ErrMsg { get; set; }
+    [ObservableProperty] public partial string? FetchingMsg { get; set; }
+    [ObservableProperty] public partial bool IsAuthing { get; set; }
+    [ObservableProperty] public partial bool IsError { get; set; }
 
     public List<Core.Minecraft.Account.AuthServer> BuiltInServers { get; } = [];
 
@@ -53,13 +61,16 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
 
     public ICommand NextCommand { get; }
     public ICommand CancelCommand { get; }
+    public ICommand RetryCommand { get; }
     public ICommand AuthServerCommand { get; }
 
     private readonly Dictionary<string, List<string>> _errors = new();
 
-    public YggdrasilAccountViewModel(ObservableCollection<Core.Minecraft.Account.AuthServer> authServers)
+    public YggdrasilAccountViewModel(ObservableCollection<Core.Minecraft.Account.AuthServer> authServers,
+        string? hostId = null)
     {
         _authServers = authServers;
+        _hostId = hostId;
         BuiltInServers.Add(new Core.Minecraft.Account.AuthServer(AccountType.Yggdrasil, "自定义"));
         BuiltInServers.Add(new Core.Minecraft.Account.AuthServer(AccountType.Yggdrasil, "LittleSkin")
         {
@@ -87,6 +98,7 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
         }
 
         NextCommand = new RelayCommand(Next, CanNext);
+        RetryCommand = new RelayCommand(Next);
         CancelCommand = new RelayCommand(Cancel);
         AuthServerCommand = new RelayCommand(AddServer);
     }
@@ -95,13 +107,13 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
     {
         ValidateServerUrl(value);
         (NextCommand as RelayCommand)?.NotifyCanExecuteChanged();
-        
+
         if (!string.IsNullOrWhiteSpace(value))
         {
             var matchedServer = BuiltInServers.FirstOrDefault(server =>
                 !string.IsNullOrEmpty(server.ServerUrl) &&
                 UrlHelper.AreUrlsEqual(server.ServerUrl, value));
-            
+
             if (matchedServer != null)
             {
                 SelectedBuiltInServer = matchedServer;
@@ -134,7 +146,7 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
         };
 
         var result = await OverlayDialog.ShowCustomAsync<AuthServer, AuthServerViewModel, Minecraft.Account.AuthServer>(
-            new AuthServerViewModel(_authServers.ToArray()), hostId: null, options: options);
+            new AuthServerViewModel(_authServers.ToArray()), hostId: _hostId, options: options);
 
         if (result != null)
         {
@@ -205,24 +217,76 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
         ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
     }
 
-    
-
     private bool CanNext()
     {
         return !HasErrors &&
-               !string.IsNullOrWhiteSpace(ServerUrl) &&
+               !IsAuthing &&
+               !IsError &&
+               !string.IsNullOrWhiteSpace(Username) &&
                !string.IsNullOrWhiteSpace(Username) &&
                !string.IsNullOrWhiteSpace(Password);
     }
 
-    private void Next()
+    private async void Next()
     {
-        RequestClose?.Invoke(this, new YggdrasilAccountResult
+        IsError = false;
+        IsAuthing = true;
+        FetchingMsg = "正在验证账户...";
+        try
         {
-            ServerUrl = ServerUrl!,
-            Username = Username!,
-            Password = Password!
-        });
+            YggdrasilAuthenticator authenticator = new YggdrasilAuthenticator(ServerUrl, Username, Password);
+            var result = await authenticator.AuthenticateAsync();
+            if (result == null)
+            {
+                IsError = true;
+                IsAuthing = false;
+                ErrMsg = "验证服务器返回成功，但未接收到账户数据。";
+            }
+
+            var yggdrasilAccounts = result.ToList();
+            if (yggdrasilAccounts.Any())
+            {
+                FetchingMsg = $"正在获取账户信息，已完成：(0/{yggdrasilAccounts.Count})";
+                List<MinecraftAccount> accounts = [];
+                var i = 0;
+                foreach (var account in yggdrasilAccounts)
+                {
+                    YggdrasilSkinFetcher skinFetcher = new(ServerUrl!, account.Uuid.ToString());
+                    var base64 = (await skinFetcher.GetSkinAsync()).ToBase64();
+                    var minecraftAccount = new MinecraftAccount(AccountType.Yggdrasil)
+                    {
+                        AccessToken = account.AccessToken,
+                        ClientToken = account.ClientToken,
+                        CreateAt = DateTime.Now,
+                        Uuid = account.Uuid,
+                        Name = account.Name,
+                        YggdrasilServerUrl = ServerUrl,
+                        Skin = base64,
+                        AccountNote =
+                            BuiltInServers.FirstOrDefault(x => UrlHelper.AreUrlsEqual(x.ServerUrl, ServerUrl))
+                                .DisplayText,
+                        MetaData = account.MetaData,
+                    };
+                    accounts.Add(minecraftAccount);
+                    i++;
+                    FetchingMsg = $"正在获取账户信息，已完成：({i}/{yggdrasilAccounts.Count})";
+                }
+
+                RequestClose?.Invoke(this, accounts.ToArray());
+            }
+            else
+            {
+                IsError = true;
+                IsAuthing = false;
+                ErrMsg = "验证服务器返回成功，但未接收到账户数据。";
+            }
+        }
+        catch (Exception e)
+        {
+            IsError = true;
+            IsAuthing = false;
+            ErrMsg = e.Message;
+        }
     }
 
     private void Cancel()
@@ -250,11 +314,4 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
 
         return _errors[propertyName];
     }
-}
-
-public class YggdrasilAccountResult
-{
-    public string ServerUrl { get; init; } = string.Empty;
-    public string Username { get; init; } = string.Empty;
-    public string Password { get; init; } = string.Empty;
 }

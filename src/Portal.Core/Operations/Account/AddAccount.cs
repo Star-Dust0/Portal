@@ -1,15 +1,17 @@
 using System.Collections.ObjectModel;
 using Avalonia;
+using Avalonia.Controls;
 using MinecraftLaunch.Components.Authenticator;
 using Portal.Core.Minecraft.Account;
 using TioUi.Common;
+using TioUi.Common.Extensions;
 using TioUi.Controls;
 
 namespace Portal.Core.Operations.Account;
 
 public class AddAccount
 {
-    public static async Task<MinecraftAccount[]?> Main(object sender,
+    public static async Task<MinecraftAccount[]?> Main(string hostId,
         ObservableCollection<Minecraft.Account.AuthServer> authServers)
     {
         var options = new OverlayDialogOptions
@@ -26,18 +28,18 @@ public class AddAccount
 
         var result = await OverlayDialog
             .ShowCustomAsync<SelectAccountType, SelectAccountTypeViewModel, SelectAccountTypeResult>(
-                new SelectAccountTypeViewModel(), hostId: null, options: options);
+                new SelectAccountTypeViewModel(), hostId: hostId, options: options);
 
         if (result?.Action != SelectAccountTypeAction.Select || result.SelectedServer == null)
         {
             return null;
         }
 
-        return await HandleAccountType(result.SelectedServer, authServers);
+        return await HandleAccountType(result.SelectedServer, authServers, hostId);
     }
 
     private static async Task<MinecraftAccount[]?> HandleAccountType(Minecraft.Account.AuthServer authServer,
-        ObservableCollection<Minecraft.Account.AuthServer> authServers)
+        ObservableCollection<Minecraft.Account.AuthServer> authServers, string? hostId)
     {
         var options = new OverlayDialogOptions
         {
@@ -53,43 +55,51 @@ public class AddAccount
 
         return authServer.AuthType switch
         {
-            AccountType.Offline => await Offline(options),
-            AccountType.Microsoft => await Microsoft(options),
-            AccountType.Yggdrasil => await Yggdrasil(options, authServers),
+            AccountType.Offline => await Offline(hostId, options),
+            AccountType.Microsoft => await Microsoft(hostId, options),
+            AccountType.Yggdrasil => await Yggdrasil(hostId, options, authServers),
             _ => null
         };
     }
 
-    public static async Task<MinecraftAccount[]?> Offline(OverlayDialogOptions options)
+    public static async Task<MinecraftAccount[]?> Offline(string? hostId, OverlayDialogOptions options)
     {
         var result = await OverlayDialog.ShowCustomAsync<Offline, OfflineAccountViewModel, MinecraftAccount>(
-            new OfflineAccountViewModel(), hostId: null, options: options);
+            new OfflineAccountViewModel(), hostId: hostId, options: options);
 
         return [result];
     }
 
-    public static async Task<MinecraftAccount[]?> Microsoft(OverlayDialogOptions options)
+    public static async Task<MinecraftAccount[]?> Microsoft(string? hostId, OverlayDialogOptions options)
     {
         var result = await OverlayDialog.ShowCustomAsync<Account.Microsoft, MicrosoftAccountViewModel, object>(
-            new MicrosoftAccountViewModel(), hostId: null, options: options);
+            new MicrosoftAccountViewModel(), hostId: hostId, options: options);
 
         if (result is "retry")
         {
-            return await Microsoft(options);
+            return await Microsoft(hostId, options);
         }
 
         return [result as MinecraftAccount];
     }
 
-    public static async Task<MinecraftAccount[]?> Yggdrasil(OverlayDialogOptions options,
+    public static async Task<MinecraftAccount[]?> Yggdrasil(string? hostId, OverlayDialogOptions options,
         ObservableCollection<Minecraft.Account.AuthServer> authServers)
     {
         var result = await OverlayDialog.ShowCustomAsync<Yggdrasil, YggdrasilAccountViewModel, MinecraftAccount[]>(
-            new YggdrasilAccountViewModel(authServers), hostId: null, options: options);
+            new YggdrasilAccountViewModel(authServers, hostId), hostId: hostId, options: options);
 
         if (result == null)
         {
             return null;
+        }
+
+        foreach (var account in result)
+        {
+            var host = Uri.TryCreate(account.YggdrasilServerUrl, UriKind.Absolute, out var uriResult) ? uriResult.Host : "";
+            account.AccountNote = host;
+            account.CreateAt = DateTime.Now;
+            account.LastRefreshTime = DateTime.Now;
         }
 
         return result;

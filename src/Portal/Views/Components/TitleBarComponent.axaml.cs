@@ -10,6 +10,7 @@ using Portal.Core.Minecraft.Account;
 using Portal.Core.Operations;
 using Portal.Core.Operations.Account;
 using Tio.Avalonia.Standard.Modules.Extensions;
+using TioUi.Common.Extensions;
 
 namespace Portal.Views.Components;
 
@@ -45,18 +46,31 @@ public partial class TitleBarComponent : StackPanel
             return;
         }
 
-        var result = await AddAccount.Main(sender!, Data.ConfigEntry.AuthServers);
-        if (result == null) return;
-        Data.ConfigEntry.MinecraftAccounts.AddRange(result);
+        var result = await AddAccount.Main(((Control)sender!).TryGetHostId()!, Data.ConfigEntry.AuthServers);
+        if (result == null || result.Length == 0) return;
+        foreach (var minecraftAccount in result)
+        {
+            if (minecraftAccount is null) continue;
+            Data.ConfigEntry.MinecraftAccounts.Add(minecraftAccount);
+        }
+
+        if (result.Length == 1 && result[0] == null) return;
         Data.ConfigEntry.UsingMinecraftMinecraftAccount = result.LastOrDefault();
     }
 
     private async void AddAcountButton_OnClick(object? sender, RoutedEventArgs e)
     {
         AccountFlyout.Flyout.Hide();
-        var result = await AddAccount.Main(sender!, Data.ConfigEntry.AuthServers);
-        if (result == null) return;
-        Data.ConfigEntry.MinecraftAccounts.AddRange(result);
+        var tryGetHostId = ((Control)Root!).TryGetHostId()!;
+        var result = await AddAccount.Main(tryGetHostId, Data.ConfigEntry.AuthServers);
+        if (result == null || result.Length == 0) return;
+        foreach (var minecraftAccount in result)
+        {
+            if (minecraftAccount is null) continue;
+            Data.ConfigEntry.MinecraftAccounts.Add(minecraftAccount);
+        }
+
+        if (result.Length == 1 && result[0] == null) return;
         Data.ConfigEntry.UsingMinecraftMinecraftAccount = result.LastOrDefault();
     }
 
