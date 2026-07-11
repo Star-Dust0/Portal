@@ -87,7 +87,7 @@ public partial class OfflineAccountViewModel : ObservableObject, IDialogContext,
             {
                 _errors[propertyName] = new List<string> { "玩家名称必须为3~15位字符" };
             }
-            else if (!Regex.IsMatch(value, @"^[a-zA-Z0-9_]+$"))
+            else if (!Regex().IsMatch(value))
             {
                 _errors[propertyName] = new List<string> { "玩家名称只能包含数字、大小写字母和下划线" };
             }
@@ -118,8 +118,7 @@ public partial class OfflineAccountViewModel : ObservableObject, IDialogContext,
         if (string.IsNullOrWhiteSpace(value))
             return true;
         
-        var uuidPattern = @"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
-        return Regex.IsMatch(value, uuidPattern);
+        return Guid.TryParse(value, out _);
     }
 
     private bool CanNext()
@@ -163,4 +162,7 @@ public partial class OfflineAccountViewModel : ObservableObject, IDialogContext,
         }
         return _errors[propertyName];
     }
+
+    [GeneratedRegex(@"^[a-zA-Z0-9_]+$")]
+    private static partial Regex Regex();
 }

@@ -46,11 +46,4 @@
                           Condition="$([MSBuild]::IsOSPlatform('Windows'))"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Update="Operations\Account\Microsoft.axaml.cs">
-        <DependentUpon>Microsoft.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-
 </Project>

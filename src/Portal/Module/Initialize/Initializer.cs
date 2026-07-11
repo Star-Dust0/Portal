@@ -5,6 +5,7 @@ using Portal.Const;
 using Portal.Core.Minecraft;
 using Portal.Views;
 using Tio.Avalonia.Standard.Modules.Events;
+using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Modules.Platform;
 using Tio.Avalonia.Standard.Tab.Common;
 using TioUi.Common.Helpers;
