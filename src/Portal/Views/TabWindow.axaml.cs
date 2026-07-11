@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.Input;
 using HotAvalonia;
 using Portal.Const;
 using Portal.Core.Operations.Account;
+using Portal.Module.DragDrop;
 using Portal.Views.Components;
 using Portal.Views.Pages;
 using Tio.Avalonia.Standard.Modules.DiskIO;
@@ -234,7 +235,6 @@ public partial class TabWindow : TioTabWindowBase
         );
         e.Handled = true;
     }
-
 
     private void NM_NewTab(object? sender, EventArgs e)
     {

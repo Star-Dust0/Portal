@@ -30,6 +30,7 @@ public partial class EditAuthServerViewModel : ObservableObject, IDialogContext,
 
     public ICommand ConfirmCommand { get; }
     public ICommand CancelCommand { get; }
+    public ICommand DeleteCommand { get; }
 
     private readonly Dictionary<string, List<string>> _errors = new();
     private readonly Core.Minecraft.Account.AuthServer[] _existingServers;
@@ -42,6 +43,7 @@ public partial class EditAuthServerViewModel : ObservableObject, IDialogContext,
         _existingServers = existingServers;
         ConfirmCommand = new RelayCommand(Confirm, CanConfirm);
         CancelCommand = new RelayCommand(Cancel);
+        DeleteCommand = new RelayCommand(Delete);
         ServerName = editingServer.DisplayText;
         ServerUrl = editingServer.ServerUrl;
     }
@@ -118,7 +120,12 @@ public partial class EditAuthServerViewModel : ObservableObject, IDialogContext,
     {
         _editingServer.DisplayText = ServerName!;
         _editingServer.ServerUrl = ServerUrl!;
-        RequestClose?.Invoke(this, _editingServer);
+        RequestClose?.Invoke(this, new EditAuthServerResult(_editingServer, false));
+    }
+
+    private void Delete()
+    {
+        RequestClose?.Invoke(this, new EditAuthServerResult(_editingServer, true));
     }
 
     private void Cancel()
@@ -146,3 +153,5 @@ public partial class EditAuthServerViewModel : ObservableObject, IDialogContext,
         return _errors[propertyName];
     }
 }
+
+public record EditAuthServerResult(Core.Minecraft.Account.AuthServer Server, bool IsDeleted);

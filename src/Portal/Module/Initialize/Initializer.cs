@@ -32,14 +32,6 @@ public static class Initializer
         
         Functions.CreateNewTabWindowFunc = _ => new TabWindow(false);
         
-                
-        Data.UiProperty.AggregatedSearchResults.Clear();
-        Data.UiProperty.AggregatedSearchResults.AddRange(
-            AggregatedSearch.Searcher.Search(
-                Data.UiProperty.AggregatedSearchQuery, 
-                Data.UiProperty.AggregatedSelectedType.EnumFlag));
-
-        
         InitializationEvents.RaiseAfterUiLoaded();
     }
 }

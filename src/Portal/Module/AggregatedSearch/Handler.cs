@@ -51,14 +51,22 @@ public class Handler
         };
 
         var result = await OverlayDialog
-            .ShowCustomAsync<EditAuthServer, EditAuthServerViewModel, Core.Minecraft.Account.AuthServer>(
+            .ShowCustomAsync<EditAuthServer, EditAuthServerViewModel, EditAuthServerResult>(
                 new EditAuthServerViewModel(authServer, Data.ConfigEntry.AuthServers.ToArray()),
                 hostId: hostId, options: options);
 
         if (result != null)
         {
-            App.Method.SaveConfig();
-            sender.TryGetToast().Show("验证服务器已更新", NotificationType.Success);
+            if (result.IsDeleted)
+            {
+                Data.ConfigEntry.AuthServers.Remove(result.Server);
+                sender.TryGetToast().Show($"已删除验证服务器：{result.Server.DisplayText}", NotificationType.Success);
+            }
+            else
+            {
+                App.Method.SaveConfig();
+                sender.TryGetToast().Show("验证服务器已更新", NotificationType.Success);
+            }
         }
     }
 }

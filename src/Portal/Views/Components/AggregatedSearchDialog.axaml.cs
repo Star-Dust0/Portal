@@ -38,7 +38,17 @@ public partial class AggregatedSearchDialog : UserControl
                     a.Close();
                 }
             };
-            a.Loaded += (_, e) => { SearchBox.Focus(); };
+            a.Loaded += (_, e) =>
+            {
+                
+                Data.UiProperty.AggregatedSearchResults.Clear();
+                Data.UiProperty.AggregatedSearchResults.AddRange(
+                    Searcher.Search(
+                        Data.UiProperty.AggregatedSearchQuery, 
+                        Data.UiProperty.AggregatedSelectedType.EnumFlag));
+                
+                SearchBox.Focus();
+            };
         };
     }
 
@@ -48,7 +58,7 @@ public partial class AggregatedSearchDialog : UserControl
         a?.Close();
     }
 
-    private async void SelectingItemsControl_OnSelectionChanged(object? s, SelectionChangedEventArgs e)
+    private void SelectingItemsControl_OnSelectionChanged(object? s, SelectionChangedEventArgs e)
     {
         if (ListBox.SelectedItem is not AggregatedSearchEntry entry) return;
         var window = (DataContext as AggregatedSearchDialogViewModel).Window;
@@ -56,7 +66,7 @@ public partial class AggregatedSearchDialog : UserControl
         var a = (s! as Control)!.GetTopLevel() as CustomDialogWindow;
         a?.Close();
 
-        await Handler.HandleAsync(entry, window);
+        Handler.HandleAsync(entry, window);
     }
 }
 
