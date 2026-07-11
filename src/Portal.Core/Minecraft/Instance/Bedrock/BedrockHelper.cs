@@ -1,7 +1,6 @@
 ﻿using System.Xml;
-using Portal.Core.Minecraft.Instance.Manifest.Bedrock;
+using Portal.Bedrock.Standard.Manifest;
 using Round.SDK.Entity;
-using TioUi.Controls;
 
 namespace Portal.Core.Minecraft.Instance.Bedrock;
 
@@ -59,20 +58,22 @@ public class BedrockHelper
         }
         else
             configEntity = new(configFile);
-        
-        return configEntity.Data;
+
+        var result = configEntity.Data;
+        result.InstancePath = instanceFolder;
+        return result;
     }
 
-    public static InstanceReleaseType GetVersionTypeWithPackName(string packName)
+    public static BedrockInstanceReleaseType GetVersionTypeWithPackName(string packName)
     {
-        if (string.IsNullOrEmpty(packName)) return InstanceReleaseType.Release;
+        if (string.IsNullOrEmpty(packName)) return BedrockInstanceReleaseType.Release;
 
         if (packName.Contains("preview", StringComparison.OrdinalIgnoreCase) ||
             packName.Contains("beta", StringComparison.OrdinalIgnoreCase))
         {
-            return InstanceReleaseType.Preview;
+            return BedrockInstanceReleaseType.Preview;
         }
 
-        return InstanceReleaseType.Release;
+        return BedrockInstanceReleaseType.Release;
     }
 }

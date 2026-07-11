@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Portal.Core.Minecraft.Instance.Manifest.Bedrock;
+namespace Portal.Bedrock.Standard.Manifest;
 
 public class BedrockInstanceConfig
 {
@@ -8,5 +8,6 @@ public class BedrockInstanceConfig
     [JsonPropertyName("version")] public string Version { get; set; }
     [JsonPropertyName("description")] public string Description { get; set; }
     [JsonPropertyName("buildType")] public BedrockBuildType BuildType { get; set; }
-    [JsonPropertyName("type")] public InstanceReleaseType Type { get; set; }
+    [JsonPropertyName("type")] public BedrockInstanceReleaseType Type { get; set; }
+    [JsonIgnore] public string InstancePath { get; set; }
 }

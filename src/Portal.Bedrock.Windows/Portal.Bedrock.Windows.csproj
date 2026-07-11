@@ -7,4 +7,12 @@
         <RootNamespace>Portal.Bedrock</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="BedrockLauncher.Core" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Portal.Bedrock.Standard\Portal.Bedrock.Standard.csproj" />
+    </ItemGroup>
+
 </Project>
