@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
@@ -10,6 +11,8 @@ using Portal.Core.Minecraft.Account;
 using Portal.Core.Operations;
 using Portal.Core.Operations.Account;
 using Tio.Avalonia.Standard.Modules.Extensions;
+using Tio.Avalonia.Standard.Tab.Extensions;
+using TioUi.Common.Classes;
 using TioUi.Common.Extensions;
 
 namespace Portal.Views.Components;
@@ -86,6 +89,20 @@ public partial class TitleBarComponent : StackPanel
         {
             Data.ConfigEntry.MinecraftAccounts.Remove(account);
         }
+        
+        Root.TryGetToast()?.Show(new NotificationOptions()
+        {
+            Content = $"已移除账户：{account.Name} ({account.DisplayAccountNote})",
+            Type = NotificationType.Success,
+            Expiration = TimeSpan.FromSeconds(3),
+            OperateButtons = [
+                new OperateButtonEntry("撤销", _ =>
+                {
+                    Data.ConfigEntry.MinecraftAccounts.Add(account);
+                    Data.ConfigEntry.UsingMinecraftMinecraftAccount = account;
+                }, true),
+            ]
+        });
 
         if (Data.ConfigEntry.MinecraftAccounts.Count == 0)
             AccountFlyout.Flyout.Hide();
