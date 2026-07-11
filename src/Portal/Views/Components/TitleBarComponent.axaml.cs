@@ -18,7 +18,7 @@ public partial class TitleBarComponent : StackPanel
         InitializeComponent();
         DataContext = this;
     }
-    
+
     public Data Data { get; set; } = Data.Instance;
 
     private void ThemeMenuItem_OnClick(object? sender, RoutedEventArgs e)
@@ -58,8 +58,9 @@ public partial class TitleBarComponent : StackPanel
         Data.ConfigEntry.UsingMinecraftMinecraftAccount = result;
     }
 
-    public void DeleteAccount(MinecraftAccount account)
+    public void DeleteAccount(object parameter)
     {
+        if (parameter is not MinecraftAccount account) return;
         if (Data.ConfigEntry.UsingMinecraftMinecraftAccount == account)
         {
             Data.ConfigEntry.MinecraftAccounts.Remove(account);
@@ -69,5 +70,8 @@ public partial class TitleBarComponent : StackPanel
         {
             Data.ConfigEntry.MinecraftAccounts.Remove(account);
         }
+
+        if (Data.ConfigEntry.MinecraftAccounts.Count == 0)
+            AccountFlyout.Flyout.Hide();
     }
 }
