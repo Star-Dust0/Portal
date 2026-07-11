@@ -87,7 +87,7 @@
     </tio:TioWindow.TitleBarLeftContent>
     <tio:TioWindow.TitleBarRightContent>
         <DockPanel Name="TitleBarThings" VerticalAlignment="Center">
-            <components:TitleBarComponent />
+            <components:TitleBarComponent Name="BarComponent" />
         </DockPanel>
     </tio:TioWindow.TitleBarRightContent>
     <Grid>

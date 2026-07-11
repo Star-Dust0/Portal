@@ -13,6 +13,7 @@ using Portal.Module.DragDrop;
 using Portal.Views.Components;
 using Portal.Views.Pages;
 using Tio.Avalonia.Standard.Modules.DiskIO;
+using Tio.Avalonia.Standard.Modules.Helper;
 using Tio.Avalonia.Standard.Tab.Entries;
 using Tio.Avalonia.Standard.Tab.Extensions;
 using Tio.Avalonia.Standard.Tab.Interface;
@@ -256,7 +257,8 @@ public partial class TabWindow : TioTabWindowBase
     {
         DragDrop.SetAllowDrop(this, true);
 
-        this.AddHandler(DragDrop.DragEnterEvent, OnDragHandler);
+        // this.AddHandler(DragDrop.DragEnterEvent, OnDragHandler);
+        this.AddHandler(DragDrop.DragLeaveEvent, OnLeaveHandler);
         this.AddHandler(DragDrop.DragOverEvent, OnDragHandler);
         this.AddHandler(DragDrop.DropEvent, OnDropHandler);
     }
@@ -264,11 +266,19 @@ public partial class TabWindow : TioTabWindowBase
     private void OnDragHandler(object? sender, DragEventArgs e)
     {
         e.DragEffects = DragDropEffects.Copy;
+        BarComponent.DropMsg = Handler.GetMsg(e);
     }
-
+    
+    private void OnLeaveHandler(object? sender, DragEventArgs e)
+    {
+        e.DragEffects = DragDropEffects.None;
+        BarComponent.DropMsg = null;
+    }
+    
     private void OnDropHandler(object? sender, DragEventArgs e)
     {
         e.DragEffects = DragDropEffects.Copy;
+        BarComponent.DropMsg = null;
         Handler.Handle(e, this);
     }
 }

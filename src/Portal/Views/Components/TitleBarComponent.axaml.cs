@@ -12,8 +12,11 @@ using Portal.Core.Operations;
 using Portal.Core.Operations.Account;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Extensions;
+using Tio.Avalonia.Standard.Tab.Interface;
+using TioUi.Common;
 using TioUi.Common.Classes;
 using TioUi.Common.Extensions;
+using TioUi.Controls;
 
 namespace Portal.Views.Components;
 
@@ -23,6 +26,15 @@ public partial class TitleBarComponent : Grid
     {
         InitializeComponent();
         DataContext = this;
+    }
+
+    public static readonly StyledProperty<string?> DropMsgProperty =
+        AvaloniaProperty.Register<TitleBarComponent, string?>(nameof(DropMsg));
+
+    public string? DropMsg
+    {
+        get => GetValue(DropMsgProperty);
+        set => SetValue(DropMsgProperty, value);
     }
 
     public Data Data { get; set; } = Data.Instance;
@@ -89,13 +101,14 @@ public partial class TitleBarComponent : Grid
         {
             Data.ConfigEntry.MinecraftAccounts.Remove(account);
         }
-        
+
         Root.TryGetToast()?.Show(new NotificationOptions()
         {
             Content = $"已移除账户：{account.Name} ({account.DisplayAccountNote})",
             Type = NotificationType.Success,
             Expiration = TimeSpan.FromSeconds(3),
-            OperateButtons = [
+            OperateButtons =
+            [
                 new OperateButtonEntry("撤销", _ =>
                 {
                     Data.ConfigEntry.MinecraftAccounts.Add(account);
@@ -106,5 +119,23 @@ public partial class TitleBarComponent : Grid
 
         if (Data.ConfigEntry.MinecraftAccounts.Count == 0)
             AccountFlyout.Flyout.Hide();
+    }
+
+    private void OpenSearch(object? sender, RoutedEventArgs e)
+    {
+        var options = new DialogOptions
+        {
+            Mode = DialogMode.None,
+            Buttons = DialogButton.None,
+            CanDragMove = true,
+            IsCloseButtonVisible = false,
+            StyleClass = "undrag",
+            CanResize = true,
+            StartupLocation = WindowStartupLocation.CenterOwner,
+        };
+
+        _ = Dialog.ShowCustomAsync<AggregatedSearchDialog, AggregatedSearchDialogViewModel, object>(
+            new AggregatedSearchDialogViewModel((Root.GetTopLevel() as TioTabWindowBase)!), options: options,
+            owner: (Root.GetTopLevel() as TioTabWindowBase)!);
     }
 }
