@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Controls;
@@ -48,12 +48,15 @@ public partial class AggregatedSearchDialog : UserControl
         a?.Close();
     }
 
-    private void SelectingItemsControl_OnSelectionChanged(object? s, SelectionChangedEventArgs e)
+    private async void SelectingItemsControl_OnSelectionChanged(object? s, SelectionChangedEventArgs e)
     {
         if (ListBox.SelectedItem is not AggregatedSearchEntry entry) return;
-        Handler.Handle(entry, (DataContext as AggregatedSearchDialogViewModel).Window);
+        var window = (DataContext as AggregatedSearchDialogViewModel).Window;
+
         var a = (s! as Control)!.GetTopLevel() as CustomDialogWindow;
         a?.Close();
+
+        await Handler.HandleAsync(entry, window);
     }
 }
 
