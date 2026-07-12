@@ -90,7 +90,7 @@
             <components:TitleBarComponent Name="BarComponent" />
         </DockPanel>
     </tio:TioWindow.TitleBarRightContent>
-    <Grid>
+    <Grid Background="Transparent">
         <ScrollViewer
             Background="Transparent"
             Classes="Flat"
@@ -202,7 +202,7 @@
                 </Button>
             </DockPanel>
         </ScrollViewer>
-        <TransitioningContentControl Content="{Binding SelectedTab.Content}">
+        <TransitioningContentControl Background="Transparent" Content="{Binding SelectedTab.Content}">
             <TransitioningContentControl.PageTransition>
                 <CompositePageTransition>
                     <CrossFade Duration="0:0:0.2" />

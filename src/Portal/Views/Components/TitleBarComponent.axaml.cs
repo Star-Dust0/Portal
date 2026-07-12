@@ -150,4 +150,9 @@ public partial class TitleBarComponent : Grid
         tioTabWindowBase.CreateTab(tabEntry);
         tioTabWindowBase.SelectTab(tabEntry);
     }
+
+    private void AcrylicToggle_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Data.ConfigEntry.AcrylicEnabled = !Data.ConfigEntry.AcrylicEnabled;
+    }
 }

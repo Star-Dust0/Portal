@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -6,8 +7,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
 using HotAvalonia;
+using Portal.Classes.Entries;
 using Portal.Const;
 using Portal.Module.DragDrop;
 using Portal.Views.Components;
@@ -285,5 +289,68 @@ public partial class TabWindow : TioTabWindowBase
     {
         BarComponent.DropMsg = null;
         Handler.Handle(e, this);
+    }
+
+    public static void ApplyBackgroundToAllWindows()
+    {
+        foreach (var windowBase in AllWindows)
+        {
+            if (windowBase is TabWindow tabWin)
+                tabWin.ApplyBackground();
+        }
+    }
+
+    public void ApplyBackground()
+    {
+        var entry = Data.ConfigEntry;
+
+        switch (entry.BackgroundMode)
+        {
+            case BackgroundMode.Default:
+                if (RootBorder != null)
+                    RootBorder.ClearValue(Border.BackgroundProperty);
+                ClearValue(BackgroundProperty);
+                ClearValue(TransparencyBackgroundFallbackProperty);
+                TransparencyLevelHint = new[] { WindowTransparencyLevel.None };
+                break;
+
+            case BackgroundMode.Image:
+                if (RootBorder != null)
+                {
+                    if (!string.IsNullOrEmpty(entry.BackgroundImagePath) && File.Exists(entry.BackgroundImagePath))
+                    {
+                        RootBorder.Background = new ImageBrush(new Bitmap(entry.BackgroundImagePath))
+                        {
+                            Stretch = Stretch.UniformToFill,
+                            AlignmentX = AlignmentX.Center,
+                            AlignmentY = AlignmentY.Center
+                        };
+                    }
+                    else
+                    {
+                        RootBorder.ClearValue(Border.BackgroundProperty);
+                    }
+                }
+                ClearValue(TransparencyBackgroundFallbackProperty);
+                TransparencyLevelHint = new[] { WindowTransparencyLevel.None };
+                break;
+
+            case BackgroundMode.SolidColor:
+                if (RootBorder != null)
+                    RootBorder.Background = new SolidColorBrush(entry.BackgroundSolidColor);
+                ClearValue(TransparencyBackgroundFallbackProperty);
+                TransparencyLevelHint = new[] { WindowTransparencyLevel.None };
+                break;
+
+            case BackgroundMode.Acrylic:
+                var color = entry.BackgroundSolidColor;
+                var alpha = (byte)((1.0 - entry.AcrylicOpacity) * 200 + 40);
+                var acrylicBrush = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
+                if (RootBorder != null)
+                    RootBorder.Background = acrylicBrush;
+                TransparencyBackgroundFallback = acrylicBrush;
+                TransparencyLevelHint = new[] { WindowTransparencyLevel.AcrylicBlur };
+                break;
+        }
     }
 }

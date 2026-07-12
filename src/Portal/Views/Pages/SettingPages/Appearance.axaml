@@ -4,6 +4,7 @@
     mc:Ignorable="d"
     x:Class="Portal.Views.Pages.SettingPages.Appearance"
     xmlns="https://github.com/avaloniaui"
+    xmlns:const="clr-namespace:Portal.Const"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -79,6 +80,53 @@
                     </StackPanel>
                 </TabStripItem>
             </TabStrip>
+        </StackPanel>
+        <StackPanel Spacing="5" Margin="0,10,0,0">
+            <Label
+                Content="亚克力效果"
+                FontSize="13"
+                Foreground="{DynamicResource InnerForegroundColor}" />
+            <StackPanel Spacing="6">
+                <DockPanel>
+                    <ToggleSwitch
+                        DockPanel.Dock="Right"
+                        IsChecked="{Binding AcrylicEnabled, Source={x:Static const:Data.ConfigEntry}}" />
+                    <TextBlock Text="启用亚克力" VerticalAlignment="Center" />
+                </DockPanel>
+                <StackPanel
+                    IsVisible="{Binding AcrylicEnabled, Source={x:Static const:Data.ConfigEntry}}"
+                    Spacing="6">
+                    <StackPanel Spacing="3">
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SukiMuteText}"
+                            Text="亚克力颜色" />
+                        <ColorPicker
+                            Color="{Binding BackgroundSolidColor, Source={x:Static const:Data.ConfigEntry}}"
+                            HorizontalAlignment="Left"
+                            Width="280" />
+                    </StackPanel>
+                    <StackPanel Spacing="3">
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SukiMuteText}"
+                            Text="不透明度" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Slider
+                                Grid.Column="0"
+                                Maximum="1.0"
+                                Minimum="0.0"
+                                Value="{Binding AcrylicOpacity, Source={x:Static const:Data.ConfigEntry}}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="6,0,0,0"
+                                Text="{Binding AcrylicOpacity, Source={x:Static const:Data.ConfigEntry}, StringFormat={}{0:P0}}"
+                                VerticalAlignment="Center"
+                                Width="40" />
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
         </StackPanel>
     </StackPanel>
 </UserControl>

@@ -151,6 +151,12 @@
                                     Width="16" />
                             </MenuItem.Icon>
                         </MenuItem>
+                        <Separator />
+                        <MenuItem
+                            Click="AcrylicToggle_OnClick"
+                            Header="亚克力效果"
+                            IsChecked="{Binding AcrylicEnabled, Source={x:Static const:Data.ConfigEntry}}"
+                            StaysOpenOnClick="True" />
                     </MenuItem>
                 </MenuFlyout>
             </Button.Flyout>

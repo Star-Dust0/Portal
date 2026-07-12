@@ -3,6 +3,7 @@ using System.ComponentModel;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Portal.Core.Minecraft.Account;
+using Portal.Views;
 using TioUi.Common.Helpers;
 using TioUi.Shared;
 
@@ -24,6 +25,12 @@ public partial class ConfigEntry : ObservableObject
     public ObservableCollection<AuthServer> AuthServers { get; } = [];
     [ObservableProperty] public partial MinecraftAccount? UsingMinecraftMinecraftAccount { get; set; }
 
+    [ObservableProperty] public partial BackgroundMode BackgroundMode { get; set; } = BackgroundMode.Default;
+    [ObservableProperty] public partial string? BackgroundImagePath { get; set; }
+    [ObservableProperty] public partial Color BackgroundSolidColor { get; set; } = Color.Parse("#2d2d2d");
+    [ObservableProperty] public partial double AcrylicOpacity { get; set; } = 0.2;
+    [ObservableProperty] public partial bool AcrylicEnabled { get; set; } = false;
+
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         switch (e.PropertyName)
@@ -33,6 +40,15 @@ public partial class ConfigEntry : ObservableObject
                 break;
             case nameof(ThemeColor):
                 ThemeHelper.SetThemeColor(ThemeColor);
+                break;
+            case nameof(BackgroundMode):
+            case nameof(BackgroundImagePath):
+            case nameof(BackgroundSolidColor):
+            case nameof(AcrylicOpacity):
+                TabWindow.ApplyBackgroundToAllWindows();
+                break;
+            case nameof(AcrylicEnabled):
+                BackgroundMode = AcrylicEnabled ? BackgroundMode.Acrylic : BackgroundMode.Default;
                 break;
         }
 
