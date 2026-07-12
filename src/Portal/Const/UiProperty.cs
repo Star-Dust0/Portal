@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Portal.Classes.Entries;
@@ -55,4 +56,6 @@ public partial class UiProperty : ObservableObject
         new() { DisplayText = "下级搜索", EnumFlag = AggregatedSearchEntryType.NextLevelSearch },
         new() { DisplayText = "账户", EnumFlag = AggregatedSearchEntryType.Account },
     ];
+    
+    public readonly Dictionary<Type, UserControl> SettingPageCache = new();
 }

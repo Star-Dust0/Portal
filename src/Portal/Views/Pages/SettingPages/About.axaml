@@ -1,0 +1,109 @@
+﻿<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="Portal.Views.Pages.SettingPages.About"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Spacing="15">
+        <Border
+            Background="{DynamicResource PanelBackgroundColor}"
+            CornerRadius="{DynamicResource TioCornerRadius}"
+            Padding="10">
+            <Panel>
+                <StackPanel>
+                    <TextBlock
+                        FontSize="15"
+                        Margin="5,0,0,0"
+                        Text="Portal" />
+                    <SelectableTextBlock
+                        FontSize="17"
+                        Margin="5,2,0,2"
+                        Text="v0.0.0-nightly-19700101-456-abc32f" />
+                    <TextBlock
+                        FontSize="13"
+                        Foreground="{DynamicResource InnerForegroundColor}"
+                        Margin="5,0,0,0"
+                        Text="Nightly | 1970-01-01" />
+                </StackPanel>
+                <Border
+                    CornerRadius="10"
+                    HorizontalAlignment="Right"
+                    Padding="6,3,6,1"
+                    VerticalAlignment="Top">
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="#17be74"
+                        Text="最新版" />
+                    <Border.Background>
+                        <SolidColorBrush Color="#18e086" Opacity="0.3" />
+                    </Border.Background>
+                </Border>
+                <HyperlinkButton
+                    Content="检查更新"
+                    FontSize="12"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,5,0"
+                    Theme="{StaticResource TransparentHyperlinkButton}"
+                    VerticalAlignment="Bottom" />
+            </Panel>
+        </Border>
+        <StackPanel Spacing="5">
+            <Label
+                Content="自动检查更新"
+                FontSize="13"
+                Foreground="{DynamicResource InnerForegroundColor}" />
+            <ToggleSwitch HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Spacing="5">
+            <Label
+                Content="更新源"
+                FontSize="13"
+                Foreground="{DynamicResource InnerForegroundColor}" />
+            <ComboBox HorizontalAlignment="Stretch" SelectedIndex="0">
+                <ComboBoxItem Content="Github" />
+            </ComboBox>
+            <TextBlock
+                FontSize="12"
+                Foreground="{DynamicResource InnerForegroundColor}"
+                Text="前往 设置-代理 开启GitHub代理可加快更新速度" />
+        </StackPanel>
+        <StackPanel Spacing="5">
+            <Label
+                Content="更新通道"
+                FontSize="13"
+                Foreground="{DynamicResource InnerForegroundColor}" />
+            <ComboBox HorizontalAlignment="Stretch" SelectedIndex="0">
+                <ComboBoxItem Content="每日构建版本" />
+            </ComboBox>
+        </StackPanel>
+        <Separator />
+        <StackPanel Spacing="5">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="Source Code:" />
+                <HyperlinkButton Content="tiouoo/Portal" Theme="{StaticResource UnderlineHyperlinkButton}" />
+                <TextBlock Text=" License:" />
+                <HyperlinkButton Content="GPL v3.0" Theme="{StaticResource UnderlineHyperlinkButton}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="Frontend Framework:" />
+                <HyperlinkButton Content="Avalonia" Theme="{StaticResource UnderlineHyperlinkButton}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="Icon Library:" />
+                <HyperlinkButton Content="Font Awesome" Theme="{StaticResource UnderlineHyperlinkButton}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="Control Library:" />
+                <HyperlinkButton Content="TioUi.Avalonia" Theme="{StaticResource UnderlineHyperlinkButton}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="Minecraft Launch Library:" />
+                <HyperlinkButton Content="MinecraftLaunch" Theme="{StaticResource UnderlineHyperlinkButton}" />
+                <HyperlinkButton Content="BedrockLauncher.Core" Theme="{StaticResource UnderlineHyperlinkButton}" />
+            </StackPanel>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

@@ -2,6 +2,9 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Portal.Const;
 using Tio.Avalonia.Standard.Tab.Entries;
 using Tio.Avalonia.Standard.Tab.Interface;
 
@@ -12,6 +15,7 @@ public partial class SettingPage : UserControl, ITioTabPage
     public SettingPage()
     {
         InitializeComponent();
+        DataContext = new SettingPageViewModel();
     }
 
     public PageInfo PageInfo { get; init; } = new()
@@ -22,4 +26,32 @@ public partial class SettingPage : UserControl, ITioTabPage
     };
 
     public TabEntry HostTab { get; set; }
+}
+
+public partial class SettingPageViewModel : ObservableObject
+{
+    [ObservableProperty]
+    public partial UserControl? CurrentPage { get; set; }
+
+    [RelayCommand]
+    private void NavigateType(object? parameter)
+    {
+        if (parameter is not Type pageType) return;
+
+        if (!typeof(UserControl).IsAssignableFrom(pageType)) return;
+
+        if (!Data.UiProperty.SettingPageCache.TryGetValue(pageType, out var page))
+        {
+            if (Activator.CreateInstance(pageType) is UserControl newPage)
+            {
+                page = newPage;
+                Data.UiProperty.SettingPageCache[pageType] = page;
+            }
+        }
+
+        if (page != null)
+        {
+            CurrentPage = page;
+        }
+    }
 }
