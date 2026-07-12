@@ -27,7 +27,7 @@ public partial class ConfigEntry : ObservableObject
     public ObservableCollection<MinecraftAccount> MinecraftAccounts { get; } = [];
     public ObservableCollection<AuthServer> AuthServers { get; } = [];
     [ObservableProperty] public partial MinecraftAccount? UsingMinecraftMinecraftAccount { get; set; }
-    [ObservableProperty] public partial bool ShowDragDropPrompt { get; set; }
+    [ObservableProperty] public partial bool ShowDragDropPrompt { get; set; } = true;
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
