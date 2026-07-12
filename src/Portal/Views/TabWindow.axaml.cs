@@ -29,9 +29,7 @@ public partial class TabWindow : TioTabWindowBase
         get;
         set => SetField(ref field, value);
     }
-
-    int _index = 1;
-
+    
     public TabWindow()
     {
         Build();
@@ -49,8 +47,12 @@ public partial class TabWindow : TioTabWindowBase
         AttachDropDrag();
         CreateNewTabFunc = () =>
         {
-            var tab = new TabEntry(this, new NewTabPage(), header: $"new tab {_index}");
-            _index++;
+            var tab = new TabEntry(this, new NewTabPage())
+            {
+                IconHeight = 17,
+                IconWidth = 17,
+                IconMargin = new Thickness(0,0,4,-1)
+            };
             AddTab(tab);
             SelectTab(tab);
             NavScrollViewer.Offset = new Vector(double.PositiveInfinity, 0);

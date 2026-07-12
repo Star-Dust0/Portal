@@ -10,7 +10,9 @@ using Portal.Const;
 using Portal.Core.Minecraft.Account;
 using Portal.Core.Operations;
 using Portal.Core.Operations.Account;
+using Portal.Views.Pages;
 using Tio.Avalonia.Standard.Modules.Extensions;
+using Tio.Avalonia.Standard.Tab.Entries;
 using Tio.Avalonia.Standard.Tab.Extensions;
 using Tio.Avalonia.Standard.Tab.Interface;
 using TioUi.Common;
@@ -139,5 +141,13 @@ public partial class TitleBarComponent : Grid
         _ = Dialog.ShowCustomAsync<AggregatedSearchDialog, AggregatedSearchDialogViewModel, object>(
             new AggregatedSearchDialogViewModel((Root.GetTopLevel() as TioTabWindowBase)!), options: options,
             owner: (Root.GetTopLevel() as TioTabWindowBase)!);
+    }
+
+    private void SettingMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var tioTabWindowBase = Root.GetTopLevel() as TioTabWindowBase;
+        var tabEntry = new TabEntry(tioTabWindowBase!, new SettingPage());
+        tioTabWindowBase.CreateTab(tabEntry);
+        tioTabWindowBase.SelectTab(tabEntry);
     }
 }
