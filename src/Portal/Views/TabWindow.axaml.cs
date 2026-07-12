@@ -321,17 +321,23 @@ public partial class TabWindow : TioTabWindowBase
                 {
                     if (!string.IsNullOrEmpty(entry.BackgroundImagePath) && File.Exists(entry.BackgroundImagePath))
                     {
+                        var blurRadius = entry.ImageBlurRadius * 20;
                         RootBorder.Background = new ImageBrush(new Bitmap(entry.BackgroundImagePath))
                         {
                             Stretch = Stretch.UniformToFill,
                             AlignmentX = AlignmentX.Center,
                             AlignmentY = AlignmentY.Center,
-                            Opacity = 1.0 - entry.ImageOpacity
+                            Opacity = 1.0
                         };
+                        if (blurRadius > 0.5)
+                            RootBorder.Effect = new BlurEffect { Radius = blurRadius };
+                        else
+                            RootBorder.Effect = null;
                     }
                     else
                     {
-                        RootBorder.ClearValue(Border.BackgroundProperty);
+                        RootBorder.Background = null;
+                        RootBorder.Effect = null;
                     }
                 }
                 ClearValue(TransparencyBackgroundFallbackProperty);
@@ -347,7 +353,7 @@ public partial class TabWindow : TioTabWindowBase
 
             case BackgroundMode.Acrylic:
                 var color = entry.BackgroundSolidColor;
-                var alpha = (byte)((1.0 - entry.AcrylicOpacity) * 200 + 40);
+                var alpha = (byte)((1.0 - entry.AcrylicOpacity) * 160 + 80);
                 var acrylicBrush = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
                 if (RootBorder != null)
                     RootBorder.Background = acrylicBrush;

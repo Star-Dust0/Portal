@@ -29,9 +29,7 @@ public partial class ConfigEntry : ObservableObject
     [ObservableProperty] public partial string? BackgroundImagePath { get; set; }
     [ObservableProperty] public partial Color BackgroundSolidColor { get; set; } = Color.Parse("#2d2d2d");
     [ObservableProperty] public partial double AcrylicOpacity { get; set; } = 0.2;
-    [ObservableProperty] public partial bool AcrylicEnabled { get; set; } = false;
-    [ObservableProperty] public partial bool ImageEnabled { get; set; } = false;
-    [ObservableProperty] public partial double ImageOpacity { get; set; } = 0.0;
+    [ObservableProperty] public partial double ImageBlurRadius { get; set; } = 0.0;
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -44,23 +42,11 @@ public partial class ConfigEntry : ObservableObject
                 ThemeHelper.SetThemeColor(ThemeColor);
                 break;
             case nameof(BackgroundMode):
+            case nameof(BackgroundImagePath):
             case nameof(BackgroundSolidColor):
             case nameof(AcrylicOpacity):
-            case nameof(ImageOpacity):
+            case nameof(ImageBlurRadius):
                 TabWindow.ApplyBackgroundToAllWindows();
-                break;
-            case nameof(BackgroundImagePath):
-                if (!string.IsNullOrEmpty(BackgroundImagePath) && ImageEnabled)
-                    BackgroundMode = BackgroundMode.Image;
-                TabWindow.ApplyBackgroundToAllWindows();
-                break;
-            case nameof(AcrylicEnabled):
-                if (AcrylicEnabled) ImageEnabled = false;
-                BackgroundMode = AcrylicEnabled ? BackgroundMode.Acrylic : BackgroundMode.Default;
-                break;
-            case nameof(ImageEnabled):
-                if (ImageEnabled) AcrylicEnabled = false;
-                BackgroundMode = ImageEnabled ? BackgroundMode.Image : BackgroundMode.Default;
                 break;
         }
 
