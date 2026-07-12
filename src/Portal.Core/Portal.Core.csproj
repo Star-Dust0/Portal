@@ -9,16 +9,20 @@
         <TargetFramework>net10.0</TargetFramework>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <PropertyGroup Condition="$(RuntimeIdentifier.Contains('win'))">
         <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
         <DefineConstants>WINDOWS</DefineConstants>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-        <TargetFramework>net10.0</TargetFramework>
-        <DefineConstants>LINUX</DefineConstants>
+    <PropertyGroup Condition="$(RuntimeIdentifier.Contains('osx'))">
+        <DefineConstants>MACOS</DefineConstants>
+        <UseMauiEssentials>false</UseMauiEssentials>
     </PropertyGroup>
 
+    <PropertyGroup Condition="$(RuntimeIdentifier.Contains('linux'))">
+        <DefineConstants>LINUX</DefineConstants>
+    </PropertyGroup>
+    
     <ItemGroup>
       <PackageReference Include="MinecraftLaunch" />
       <PackageReference Include="CommunityToolkit.Mvvm" />

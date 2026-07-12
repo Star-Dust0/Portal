@@ -1,11 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Portal.Classes.Entries;
-using ReactiveUI.Fody.Helpers;
 using Tio.Avalonia.Standard.Modules.Platform;
 
 namespace Portal.Const;
 
-public class Data : ObservableObject
+public partial class Data : ObservableObject
 {
     private static Data? _instance;
 
@@ -18,5 +17,5 @@ public class Data : ObservableObject
 
     public static DesktopType DesktopType => DesktopTypeDetector.CurrentPlatform; 
     public static UiProperty UiProperty { get; } = UiProperty.Instance;
-    [Reactive] public string Version { get; set; }
+    [ObservableProperty] public partial string Version { get; set; }
 }
