@@ -1,8 +1,36 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Portal.Views.Pages.SettingPage">
-    Welcome to Avalonia!
+﻿<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="Portal.Views.Pages.SettingPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel>
+        <tio:NavMenu
+            DockPanel.Dock="Left"
+            HorizontalAlignment="Left"
+            Margin="7,0,10,10"
+            Width="230">
+            <tio:NavMenuItem Header="启动器">
+                <tio:NavMenuItem Header="主题与背景" />
+                <tio:NavMenuItem Header="默认行为" />
+                <tio:NavMenuItem Header="按键绑定" />
+                <tio:NavMenuItem Header="通知" />
+                <tio:NavMenuItem Header="存储" />
+            </tio:NavMenuItem>
+            <tio:NavMenuItem Header="游戏">
+                <tio:NavMenuItem Header="账户与档案" />
+                <tio:NavMenuItem Header="Java 虚拟机与内存" />
+                <tio:NavMenuItem Header="游戏文件夹" />
+                <tio:NavMenuItem Header="高级" />
+            </tio:NavMenuItem>
+            <tio:NavMenuItem Header="网络">
+                <tio:NavMenuItem Header="下载" />
+                <tio:NavMenuItem Header="代理" />
+            </tio:NavMenuItem>
+        </tio:NavMenu>
+    </DockPanel>
 </UserControl>
