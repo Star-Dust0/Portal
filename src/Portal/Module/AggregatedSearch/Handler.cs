@@ -4,13 +4,14 @@ using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Portal.Classes.Entries;
 using Portal.Const;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using Portal.Core.Operations.Account;
 using Tio.Avalonia.Standard.Tab.Extensions;
 using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common;
 using TioUi.Common.Extensions;
 using TioUi.Controls;
+using AuthServer = Portal.Core.Minecraft.Classes.AuthServer;
 using TopLevel = Avalonia.Controls.TopLevel;
 
 
@@ -34,7 +35,7 @@ public class Handler
 
     private static async Task EditAuthServer(AggregatedSearchEntry entry, TopLevel sender)
     {
-        var authServer = entry.Data as Core.Minecraft.Account.AuthServer;
+        var authServer = entry.Data as AuthServer;
         if (authServer == null) return;
 
         var hostId = sender.TryGetHostId();

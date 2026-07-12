@@ -1,4 +1,4 @@
-﻿namespace Portal.Core.Minecraft.Account;
+﻿namespace Portal.Core.Minecraft.Classes;
 
 public record AuthServer(AccountType AuthType, string DisplayText)
 {

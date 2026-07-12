@@ -10,6 +10,7 @@
     xmlns:settingPages="clr-namespace:Portal.Views.Pages.SettingPages"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <StackPanel Spacing="15">
+        <TextBlock FontSize="26" Text="通知" />
         <StackPanel Spacing="5">
             <Label
                 Content="通知方式"

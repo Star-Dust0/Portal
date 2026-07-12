@@ -11,7 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Skin.Class.Fetchers;
 using Portal.Core.Helpers;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using TioUi.Common;
 using TioUi.Common.Interfaces;
@@ -29,7 +29,7 @@ public partial class Yggdrasil : UserControl
 
 public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContext, INotifyDataErrorInfo
 {
-    private readonly ObservableCollection<Core.Minecraft.Account.AuthServer> _authServers;
+    private readonly ObservableCollection<Minecraft.Classes.AuthServer> _authServers;
     private readonly string? _hostId;
 
     [ObservableProperty] public partial string? ServerUrl { get; set; }
@@ -42,11 +42,11 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
     [ObservableProperty] public partial bool IsAuthing { get; set; }
     [ObservableProperty] public partial bool IsError { get; set; }
 
-    public List<Core.Minecraft.Account.AuthServer> BuiltInServers { get; } = [];
+    public List<Minecraft.Classes.AuthServer> BuiltInServers { get; } = [];
 
-    private Core.Minecraft.Account.AuthServer? _selectedBuiltInServer;
+    private Minecraft.Classes.AuthServer? _selectedBuiltInServer;
 
-    public Core.Minecraft.Account.AuthServer? SelectedBuiltInServer
+    public Minecraft.Classes.AuthServer? SelectedBuiltInServer
     {
         get => _selectedBuiltInServer;
         set
@@ -66,13 +66,13 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
 
     private readonly Dictionary<string, List<string>> _errors = new();
 
-    public YggdrasilAccountViewModel(ObservableCollection<Core.Minecraft.Account.AuthServer> authServers,
+    public YggdrasilAccountViewModel(ObservableCollection<Minecraft.Classes.AuthServer> authServers,
         string? hostId = null)
     {
         _authServers = authServers;
         _hostId = hostId;
-        BuiltInServers.Add(new Core.Minecraft.Account.AuthServer(AccountType.Yggdrasil, "自定义"));
-        BuiltInServers.Add(new Core.Minecraft.Account.AuthServer(AccountType.Yggdrasil, "LittleSkin")
+        BuiltInServers.Add(new Minecraft.Classes.AuthServer(AccountType.Yggdrasil, "自定义"));
+        BuiltInServers.Add(new Minecraft.Classes.AuthServer(AccountType.Yggdrasil, "LittleSkin")
         {
             ServerUrl = "https://littleskin.cn/api/yggdrasil"
         });
@@ -145,7 +145,7 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
             VerticalAnchor = VerticalPosition.Top
         };
 
-        var result = await OverlayDialog.ShowCustomAsync<AuthServer, AuthServerViewModel, Minecraft.Account.AuthServer>(
+        var result = await OverlayDialog.ShowCustomAsync<AuthServer, AuthServerViewModel, Minecraft.Classes.AuthServer>(
             new AuthServerViewModel(_authServers.ToArray()), hostId: _hostId, options: options);
 
         if (result != null)

@@ -7,7 +7,7 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Portal.Core.Helpers;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using TioUi.Common.Interfaces;
 
 namespace Portal.Core.Operations.Account;
@@ -33,11 +33,11 @@ public partial class EditAuthServerViewModel : ObservableObject, IDialogContext,
     public ICommand DeleteCommand { get; }
 
     private readonly Dictionary<string, List<string>> _errors = new();
-    private readonly Core.Minecraft.Account.AuthServer[] _existingServers;
-    private readonly Core.Minecraft.Account.AuthServer _editingServer;
+    private readonly Minecraft.Classes.AuthServer[] _existingServers;
+    private readonly Minecraft.Classes.AuthServer _editingServer;
 
-    public EditAuthServerViewModel(Core.Minecraft.Account.AuthServer editingServer,
-        Core.Minecraft.Account.AuthServer[] existingServers)
+    public EditAuthServerViewModel(Minecraft.Classes.AuthServer editingServer,
+        Minecraft.Classes.AuthServer[] existingServers)
     {
         _editingServer = editingServer;
         _existingServers = existingServers;
@@ -154,4 +154,4 @@ public partial class EditAuthServerViewModel : ObservableObject, IDialogContext,
     }
 }
 
-public record EditAuthServerResult(Core.Minecraft.Account.AuthServer Server, bool IsDeleted);
+public record EditAuthServerResult(Minecraft.Classes.AuthServer Server, bool IsDeleted);

@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -39,45 +38,24 @@ public partial class Storage : UserControl
 public partial class StorageViewModel : ObservableObject
 {
     [ObservableProperty]
-    public partial bool IsWindowsPlatform { get; set; }
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(TotalSizeString))]
     [NotifyPropertyChangedFor(nameof(PortalSizeString))]
-    [NotifyPropertyChangedFor(nameof(PortalPercentage))]
+    [NotifyPropertyChangedFor(nameof(TotalSizeString))]
     public partial double PortalBytesRaw { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(TotalSizeString))]
     [NotifyPropertyChangedFor(nameof(GameSizeString))]
+    [NotifyPropertyChangedFor(nameof(TotalSizeString))]
     public partial double GameBytesRaw { get; set; }
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(PortalPercentage))]
-    [NotifyPropertyChangedFor(nameof(SystemDriveSizeString))]
-    public partial double SystemDriveBytesRaw { get; set; }
-
-    public string TotalSizeString => (PortalBytesRaw + GameBytesRaw).ToHumanReadableSize(1);
+    public string TotalSizeString => (GameBytesRaw + PortalBytesRaw).ToHumanReadableSize(1);
     public string PortalSizeString => PortalBytesRaw.ToHumanReadableSize(1);
     public string GameSizeString => GameBytesRaw.ToHumanReadableSize(1);
-    public string SystemDriveSizeString => SystemDriveBytesRaw.ToHumanReadableSize(0);
-
-    public double PortalPercentage
-    {
-        get
-        {
-            if (SystemDriveBytesRaw <= 0) return 0;
-            var percent = (PortalBytesRaw / SystemDriveBytesRaw) * 100;
-            return Math.Min(100, Math.Max(0, percent));
-        }
-    }
 
     private readonly string _portalDataPath = ConfigPath.UserDataRootPath;
     private readonly string _gameDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Portal", "Games");
 
     public StorageViewModel()
     {
-        IsWindowsPlatform = false;
         _ = RefreshStorageDataAsync();
     }
 
@@ -86,25 +64,15 @@ public partial class StorageViewModel : ObservableObject
     {
         string portalPath = _portalDataPath;
         string gamePath = _gameDataPath;
-        bool isWin = IsWindowsPlatform;
 
         await Task.Run(() =>
         {
             try
             {
-                double driveTotalBytes = 0;
-
-                if (isWin)
-                {
-                    var driveInfo = new DriveInfo("C:\\");
-                    driveTotalBytes = driveInfo.TotalSize;
-                }
-
                 (long portalBytes, long gameBytes) = GetPortalAndGameSizes(portalPath, gamePath);
 
                 PortalBytesRaw = portalBytes;
                 GameBytesRaw = gameBytes;
-                SystemDriveBytesRaw = driveTotalBytes;
             }
             catch (Exception ex)
             {

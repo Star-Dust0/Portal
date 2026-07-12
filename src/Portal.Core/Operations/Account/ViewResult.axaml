@@ -5,8 +5,8 @@
     x:Class="Portal.Core.Operations.Account.ViewResult"
     x:DataType="account1:ViewResultViewModel"
     xmlns="https://github.com/avaloniaui"
-    xmlns:account="clr-namespace:Portal.Core.Minecraft.Account;assembly=Portal.Core"
     xmlns:account1="clr-namespace:Portal.Core.Operations.Account"
+    xmlns:classes="clr-namespace:Portal.Core.Minecraft.Classes"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
@@ -33,7 +33,7 @@
             Margin="0,12,0,16">
             <ListBox ItemsSource="{Binding Accounts}" Margin="8">
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="account:MinecraftAccount">
+                    <DataTemplate DataType="classes:MinecraftAccount">
                         <Grid Background="Transparent" ColumnDefinitions="Auto, *">
                             <Border
                                 ClipToBounds="True"

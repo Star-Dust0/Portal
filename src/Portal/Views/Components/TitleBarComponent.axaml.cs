@@ -7,7 +7,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Portal.Const;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using Portal.Core.Operations;
 using Portal.Core.Operations.Account;
 using Portal.Views.Pages;

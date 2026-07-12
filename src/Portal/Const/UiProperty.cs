@@ -46,6 +46,7 @@ public partial class UiProperty : ObservableObject
         (x => x.IsActive) as ITioWindow ?? App.MainWindow;
 
     [ObservableProperty] public partial string AggregatedSearchQuery { get; set; }
+    [ObservableProperty] public partial bool ConfigLoaded { get; set; }
     public ObservableCollection<AggregatedSearchEntry> AggregatedSearchResults { get; set; } = [];
 
     [ObservableProperty] public partial AggregatedSearchType AggregatedSelectedType { get; set; } = AggregatedSearchTypes[0];

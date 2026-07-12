@@ -3,7 +3,8 @@ using System.ComponentModel;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Portal.Classes.Enums;
-using Portal.Core.Minecraft.Account;
+using Portal.Const;
+using Portal.Core.Minecraft.Classes;
 using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common.Helpers;
 using TioUi.Shared;
@@ -17,6 +18,7 @@ public partial class ConfigEntry : ObservableObject
         PropertyChanged += OnPropertyChanged;
         MinecraftAccounts.CollectionChanged += (_, _) => App.Method.SaveConfig();
         AuthServers.CollectionChanged += (_, _) => App.Method.SaveConfig();
+        MinecraftFolders.CollectionChanged += (_, _) => App.Method.SaveConfig();
     }
 
     [ObservableProperty] public partial Theme Theme { get; set; } = Theme.Light;
@@ -25,8 +27,10 @@ public partial class ConfigEntry : ObservableObject
     [ObservableProperty] public partial NoticeWay NoticeWay { get; set; } = NoticeWay.Toast;
     [ObservableProperty] public partial FilePicker FilePicker { get; set; } = FilePicker.System;
     public ObservableCollection<MinecraftAccount> MinecraftAccounts { get; } = [];
+    public ObservableCollection<MinecraftFolderEntry> MinecraftFolders { get; } = [];
     public ObservableCollection<AuthServer> AuthServers { get; } = [];
     [ObservableProperty] public partial MinecraftAccount? UsingMinecraftMinecraftAccount { get; set; }
+    [ObservableProperty] public partial MinecraftFolderEntry? DefaultMinecraftFolder { get; set; }
     [ObservableProperty] public partial bool ShowDragDropPrompt { get; set; } = true;
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -41,6 +45,10 @@ public partial class ConfigEntry : ObservableObject
                 break;
         }
 
+        if (Data.UiProperty.ConfigLoaded)
+        {
+            ConfigIdentifyExtension.MinecraftFolder(this);
+        }
         App.Method.SaveConfig();
     }
 }

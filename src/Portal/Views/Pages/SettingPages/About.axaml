@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <StackPanel Spacing="15">
+        <TextBlock FontSize="26" Text="关于" />
         <Border
             Background="{DynamicResource PanelBackgroundColor}"
             BorderBrush="{DynamicResource PanelBorderBrush}"

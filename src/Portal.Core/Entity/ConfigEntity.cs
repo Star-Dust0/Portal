@@ -27,7 +27,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
-namespace Round.SDK.Entity;
+namespace Portal.Core.Entity;
 
 public class ConfigEntity<T> where T : new()
 {

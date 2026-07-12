@@ -61,6 +61,9 @@ public class Config
         Helper.ClearFolder(ConfigPath.TempFolderPath);
         App.Method.SaveConfig();
 
+        Data.UiProperty.ConfigLoaded = true;
+        ConfigIdentifyExtension.MinecraftFolder(Data.ConfigEntry);
+        
         InitializationEvents.RaiseBeforeUiLoaded();
     }
 }

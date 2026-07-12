@@ -3,7 +3,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using MinecraftLaunch.Components.Authenticator;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using TioUi.Common;
 using TioUi.Common.Extensions;
 using TioUi.Controls;
@@ -13,7 +13,7 @@ namespace Portal.Core.Operations.Account;
 public class AddAccount
 {
     public static async Task<MinecraftAccount[]?> Main(string hostId,
-        ObservableCollection<Minecraft.Account.AuthServer> authServers)
+        ObservableCollection<Minecraft.Classes.AuthServer> authServers)
     {
         var options = new OverlayDialogOptions
         {
@@ -56,8 +56,8 @@ public class AddAccount
         return null;
     }
 
-    private static async Task<MinecraftAccount[]?> HandleAccountType(Minecraft.Account.AuthServer authServer,
-        ObservableCollection<Minecraft.Account.AuthServer> authServers, string? hostId)
+    private static async Task<MinecraftAccount[]?> HandleAccountType(Minecraft.Classes.AuthServer authServer,
+        ObservableCollection<Minecraft.Classes.AuthServer> authServers, string? hostId)
     {
         var options = new OverlayDialogOptions
         {
@@ -82,7 +82,7 @@ public class AddAccount
 
     public static async Task<MinecraftAccount[]?> Offline(string? hostId, OverlayDialogOptions options)
     {
-        var result = await OverlayDialog.ShowCustomAsync<Offline, OfflineAccountViewModel, MinecraftAccount>(
+        var result = await OverlayDialog.ShowCustomAsync<OpenFile.NewMinecraftFolder, OfflineAccountViewModel, MinecraftAccount>(
             new OfflineAccountViewModel(), hostId: hostId, options: options);
 
         return [result];
@@ -102,7 +102,7 @@ public class AddAccount
     }
 
     public static async Task<MinecraftAccount[]?> Yggdrasil(string? hostId, OverlayDialogOptions options,
-        ObservableCollection<Minecraft.Account.AuthServer> authServers)
+        ObservableCollection<Minecraft.Classes.AuthServer> authServers)
     {
         var result = await OverlayDialog.ShowCustomAsync<Yggdrasil, YggdrasilAccountViewModel, MinecraftAccount[]>(
             new YggdrasilAccountViewModel(authServers, hostId), hostId: hostId, options: options);

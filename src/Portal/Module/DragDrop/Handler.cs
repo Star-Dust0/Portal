@@ -5,7 +5,7 @@ using Avalonia;
 using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Portal.Const;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using Portal.Core.Operations.Account;
 using Tio.Avalonia.Standard.Tab.Extensions;
 using Tio.Avalonia.Standard.Tab.Gateway;
@@ -101,7 +101,7 @@ public class Handler
         };
 
         var result = await OverlayDialog
-            .ShowCustomAsync<AuthServer, AuthServerViewModel, global::Portal.Core.Minecraft.Account.AuthServer>(
+            .ShowCustomAsync<AuthServer, AuthServerViewModel, global::Portal.Core.Minecraft.Classes.AuthServer>(
                 vm, hostId: hostId, options: options);
 
         if (result != null)

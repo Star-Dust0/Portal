@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using Portal.Classes.Entries;
 using Portal.Const;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 
 namespace Portal.Module.AggregatedSearch;
 

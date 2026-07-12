@@ -10,6 +10,7 @@
     xmlns:settingPages="clr-namespace:Portal.Views.Pages.SettingPages"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <StackPanel Spacing="15">
+        <TextBlock FontSize="26" Text="默认行为" />
         <StackPanel Spacing="5">
             <Label
                 Content="默认页面"
@@ -27,8 +28,8 @@
                 Foreground="{DynamicResource InnerForegroundColor}" />
             <ComboBox HorizontalAlignment="Stretch" SelectedIndex="{Binding Data.ConfigEntry.FilePicker}">
                 <ComboBoxItem Content="系统对话框" />
-                <ComboBoxItem Content="接管系统对话框" />
-                <ComboBoxItem Content="输入路径" />
+                <ComboBoxItem Content="接管对话框" />
+                <!-- <ComboBoxItem Content="输入路径" /> -->
             </ComboBox>
             <TextBlock
                 FontSize="11"

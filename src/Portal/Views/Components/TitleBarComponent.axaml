@@ -6,7 +6,7 @@
     x:Class="Portal.Views.Components.TitleBarComponent"
     x:DataType="components:TitleBarComponent"
     xmlns="https://github.com/avaloniaui"
-    xmlns:account="clr-namespace:Portal.Core.Minecraft.Account;assembly=Portal.Core"
+    xmlns:classes="clr-namespace:Portal.Core.Minecraft.Classes;assembly=Portal.Core"
     xmlns:components="clr-namespace:Portal.Views.Components"
     xmlns:const="clr-namespace:Portal.Const"
     xmlns:converter="clr-namespace:Portal.Module.Converter"
@@ -209,7 +209,7 @@
                             </ListBox.Styles>
 
                             <ListBox.ItemTemplate>
-                                <DataTemplate DataType="account:MinecraftAccount">
+                                <DataTemplate DataType="classes:MinecraftAccount">
                                     <Grid Background="Transparent" ColumnDefinitions="Auto, *, Auto">
 
                                         <Border

@@ -8,7 +8,7 @@ using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Portal.Core.Helpers;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using TioUi.Common.Interfaces;
 
 namespace Portal.Core.Operations.Account;
@@ -33,9 +33,9 @@ public partial class AuthServerViewModel : ObservableObject, IDialogContext, INo
     public ICommand CancelCommand { get; }
 
     private readonly Dictionary<string, List<string>> _errors = new();
-    private readonly Core.Minecraft.Account.AuthServer[] _existingServers;
+    private readonly Minecraft.Classes.AuthServer[] _existingServers;
 
-    public AuthServerViewModel(Core.Minecraft.Account.AuthServer[] existingServers)
+    public AuthServerViewModel(Minecraft.Classes.AuthServer[] existingServers)
     {
         _existingServers = existingServers;
         NextCommand = new RelayCommand(Next, CanNext);
@@ -111,7 +111,7 @@ public partial class AuthServerViewModel : ObservableObject, IDialogContext, INo
 
     private void Next()
     {
-        RequestClose?.Invoke(this, new Core.Minecraft.Account.AuthServer(AccountType.Yggdrasil, ServerName!)
+        RequestClose?.Invoke(this, new Minecraft.Classes.AuthServer(AccountType.Yggdrasil, ServerName!)
         {
             ServerUrl = ServerUrl!
         });

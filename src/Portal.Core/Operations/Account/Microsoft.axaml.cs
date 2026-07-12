@@ -14,7 +14,7 @@ using CommunityToolkit.Mvvm.Input;
 using MinecraftLaunch.Base.Models.Authentication;
 using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Skin.Class.Fetchers;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Gateway;
 using Tio.Avalonia.Standard.Tab.Interface;
