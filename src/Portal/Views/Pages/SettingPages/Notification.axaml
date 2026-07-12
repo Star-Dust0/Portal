@@ -30,12 +30,11 @@
                 Foreground="{DynamicResource InnerForegroundColor}" />
             <StackPanel Spacing="10">
                 <DockPanel>
-                    <Label
-                        Content="文件拖入提示"
+                    <TextBlock
                         DockPanel.Dock="Left"
-                        FontSize="13"
-                        Foreground="{DynamicResource InnerForegroundColor}"
-                        HorizontalAlignment="Left" />
+                        FontSize="14"
+                        HorizontalAlignment="Left"
+                        Text="文件拖入提示" />
                     <ToggleSwitch
                         DockPanel.Dock="Right"
                         HorizontalAlignment="Right"
