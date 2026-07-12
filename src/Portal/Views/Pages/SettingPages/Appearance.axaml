@@ -93,8 +93,8 @@
                 Foreground="{DynamicResource InnerForegroundColor}" />
             <ComboBox SelectedIndex="{Binding BackgroundMode, Source={x:Static const:Data.ConfigEntry}}" Width="200">
                 <ComboBoxItem>默认主题</ComboBoxItem>
-                <ComboBoxItem>纯色</ComboBoxItem>
                 <ComboBoxItem>图片</ComboBoxItem>
+                <ComboBoxItem>纯色</ComboBoxItem>
                 <ComboBoxItem>亚克力</ComboBoxItem>
             </ComboBox>
             <Border

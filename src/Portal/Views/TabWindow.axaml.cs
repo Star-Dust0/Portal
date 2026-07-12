@@ -353,7 +353,7 @@ public partial class TabWindow : TioTabWindowBase
 
             case BackgroundMode.Acrylic:
                 var color = entry.BackgroundSolidColor;
-                var alpha = (byte)((1.0 - entry.AcrylicOpacity) * 160 + 80);
+                var alpha = (byte)((1.0 - entry.AcrylicOpacity) * 80 + 160);
                 var acrylicBrush = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
                 if (RootBorder != null)
                     RootBorder.Background = acrylicBrush;
