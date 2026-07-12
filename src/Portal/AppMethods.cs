@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Avalonia;
 using Newtonsoft.Json;
+using Portal.Classes.Enums;
 using Portal.Const;
 using Tio.Avalonia.Standard.Modules.Events;
 using Tio.Avalonia.Standard.Modules.Helper;
@@ -19,6 +20,8 @@ public partial class App : Application
             ApplicationEvents.RaiseSaveSettings();
             File.WriteAllText(ConfigPath.SettingDataPath,
                 JsonConvert.SerializeObject(Data.ConfigEntry, Formatting.Indented));
+            File.WriteAllText(Path.Combine(ConfigPath.UserDataRootPath, "ManagedSystemDialogs.portal"),
+                Data.ConfigEntry.FilePicker == FilePicker.Managed ? "true" : "false");
         }, 300);
 
         public static void SaveConfig()

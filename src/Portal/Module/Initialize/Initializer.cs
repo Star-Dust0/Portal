@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.IO;
 using Avalonia;
+using Avalonia.Controls.Notifications;
+using Portal.Classes.Enums;
 using Portal.Const;
 using Portal.Core.Minecraft;
 using Portal.Views;
@@ -8,6 +10,7 @@ using Tio.Avalonia.Standard.Modules.Events;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Modules.Platform;
 using Tio.Avalonia.Standard.Tab.Common;
+using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common.Helpers;
 
 namespace Portal.Module.Initialize;
@@ -31,7 +34,8 @@ public static class Initializer
         LoopGc.BeginLoop();
         
         Functions.CreateNewTabWindowFunc = _ => new TabWindow(false);
-        
+        NotificationGateway.IsToastFunc = () => Data.ConfigEntry.NoticeWay == NoticeWay.Toast;
+
         InitializationEvents.RaiseAfterUiLoaded();
     }
 }

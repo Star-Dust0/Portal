@@ -2,7 +2,9 @@
 using System.ComponentModel;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Portal.Classes.Enums;
 using Portal.Core.Minecraft.Account;
+using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common.Helpers;
 using TioUi.Shared;
 
@@ -18,11 +20,14 @@ public partial class ConfigEntry : ObservableObject
     }
 
     [ObservableProperty] public partial Theme Theme { get; set; } = Theme.Light;
+    [ObservableProperty] public partial DefaultPage DefaultPage { get; set; } = DefaultPage.NewTabPage;
     [ObservableProperty] public partial Color ThemeColor { get; set; } = Color.Parse("#1890ff");
-    [ObservableProperty] public partial bool UseFilePicker { get; set; } = true;
+    [ObservableProperty] public partial NoticeWay NoticeWay { get; set; } = NoticeWay.Toast;
+    [ObservableProperty] public partial FilePicker FilePicker { get; set; } = FilePicker.System;
     public ObservableCollection<MinecraftAccount> MinecraftAccounts { get; } = [];
     public ObservableCollection<AuthServer> AuthServers { get; } = [];
     [ObservableProperty] public partial MinecraftAccount? UsingMinecraftMinecraftAccount { get; set; }
+    [ObservableProperty] public partial bool ShowDragDropPrompt { get; set; }
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

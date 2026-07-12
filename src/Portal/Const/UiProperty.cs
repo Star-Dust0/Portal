@@ -56,6 +56,4 @@ public partial class UiProperty : ObservableObject
         new() { DisplayText = "下级搜索", EnumFlag = AggregatedSearchEntryType.NextLevelSearch },
         new() { DisplayText = "账户", EnumFlag = AggregatedSearchEntryType.Account },
     ];
-    
-    public readonly Dictionary<Type, UserControl> SettingPageCache = new();
 }

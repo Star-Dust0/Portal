@@ -5,6 +5,7 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Portal.Const;
+using Portal.Views.Pages.SettingPages;
 using Tio.Avalonia.Standard.Tab.Entries;
 using Tio.Avalonia.Standard.Tab.Interface;
 
@@ -15,7 +16,14 @@ public partial class SettingPage : UserControl, ITioTabPage
     public SettingPage()
     {
         InitializeComponent();
-        DataContext = new SettingPageViewModel();
+        var settingPageViewModel = new SettingPageViewModel();
+        DataContext = settingPageViewModel;
+        Loaded += (s, e) =>
+        {
+            var a = settingPageViewModel.CurrentPage;
+            settingPageViewModel.CurrentPage = null;
+            settingPageViewModel.CurrentPage = a;
+        };
     }
 
     public PageInfo PageInfo { get; init; } = new()
@@ -32,7 +40,14 @@ public partial class SettingPageViewModel : ObservableObject
 {
     [ObservableProperty]
     public partial UserControl? CurrentPage { get; set; }
-
+    
+    private readonly Dictionary<Type, UserControl> _settingPageCache = new();
+    
+    public SettingPageViewModel()
+    {
+        NavigateType(typeof(About));
+    }
+    
     [RelayCommand]
     private void NavigateType(object? parameter)
     {
@@ -40,12 +55,12 @@ public partial class SettingPageViewModel : ObservableObject
 
         if (!typeof(UserControl).IsAssignableFrom(pageType)) return;
 
-        if (!Data.UiProperty.SettingPageCache.TryGetValue(pageType, out var page))
+        if (!_settingPageCache.TryGetValue(pageType, out var page))
         {
             if (Activator.CreateInstance(pageType) is UserControl newPage)
             {
                 page = newPage;
-                Data.UiProperty.SettingPageCache[pageType] = page;
+                _settingPageCache[pageType] = page;
             }
         }
 

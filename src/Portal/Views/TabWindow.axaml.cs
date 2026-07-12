@@ -8,6 +8,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.Input;
 using HotAvalonia;
+using Portal.Classes.Enums;
 using Portal.Const;
 using Portal.Module.DragDrop;
 using Portal.Views.Components;
@@ -59,7 +60,14 @@ public partial class TabWindow : TioTabWindowBase
         };
         if (IsMainWindow)
         {
-            CreateNewTabFunc();
+            var tab = Data.ConfigEntry.DefaultPage switch
+            {
+                DefaultPage.NewTabPage => new TabEntry(this, new NewTabPage()),
+                DefaultPage.SettingPage => new TabEntry(this, new SettingPage()),
+                _ => new TabEntry(this, new NewTabPage())
+            };
+            AddTab(tab);
+            SelectTab(tab);
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

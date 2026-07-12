@@ -16,6 +16,7 @@ using MinecraftLaunch.Components.Authenticator;
 using MinecraftLaunch.Skin.Class.Fetchers;
 using Portal.Core.Minecraft.Account;
 using Tio.Avalonia.Standard.Modules.Extensions;
+using Tio.Avalonia.Standard.Tab.Gateway;
 using Tio.Avalonia.Standard.Tab.Interface;
 using TioUi.Common.Interfaces;
 
@@ -40,20 +41,20 @@ public partial class Microsoft : UserControl
     {
         var clipboard = TopLevel.GetTopLevel(this).Clipboard;
         clipboard?.SetTextAsync((DataContext as MicrosoftAccountViewModel).Url);
-        (TopLevel.GetTopLevel(this) as TioTabWindowBase).Toast.Show("已复制到剪切板", NotificationType.Success);
+        NotificationGateway.Notice(TopLevel.GetTopLevel(this)!,"已复制到剪切板", NotificationType.Success);
     }
     private void CopyCode(object? sender, RoutedEventArgs e)
     {
         var clipboard = TopLevel.GetTopLevel(this).Clipboard;
         clipboard?.SetTextAsync((DataContext as MicrosoftAccountViewModel)._code);
-        (TopLevel.GetTopLevel(this) as TioTabWindowBase).Toast.Show("已复制到剪切板", NotificationType.Success);
+        NotificationGateway.Notice(TopLevel.GetTopLevel(this)!,"已复制到剪切板", NotificationType.Success);
     }
 
     private void OpenBrowser(object? sender, RoutedEventArgs e)
     {
         var launcher = TopLevel.GetTopLevel(this).Launcher;
         launcher.LaunchUriAsync(new Uri((DataContext as MicrosoftAccountViewModel).Url));
-        (TopLevel.GetTopLevel(this) as TioTabWindowBase).Toast.Show("已打开浏览器", NotificationType.Success);
+        NotificationGateway.Notice(TopLevel.GetTopLevel(this)!,"已打开浏览器", NotificationType.Success);
     }
 }
 

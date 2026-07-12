@@ -10,6 +10,8 @@
     <StackPanel Spacing="15">
         <Border
             Background="{DynamicResource PanelBackgroundColor}"
+            BorderBrush="{DynamicResource PanelBorderBrush}"
+            BorderThickness="1"
             CornerRadius="{DynamicResource TioCornerRadius}"
             Padding="10">
             <Panel>
@@ -66,9 +68,9 @@
                 <ComboBoxItem Content="Github" />
             </ComboBox>
             <TextBlock
-                FontSize="12"
+                FontSize="11"
                 Foreground="{DynamicResource InnerForegroundColor}"
-                Text="前往 设置-代理 开启GitHub代理可加快更新速度" />
+                Text=" *前往 设置-代理 开启GitHub代理可加快更新速度" />
         </StackPanel>
         <StackPanel Spacing="5">
             <Label
