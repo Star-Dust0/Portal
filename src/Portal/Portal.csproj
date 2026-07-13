@@ -26,6 +26,9 @@
         </EmbeddedResource>
         <EmbeddedResource Include="..\..\assets\Icon-Pattern-Shadow.png">
             <Link>Icon-Pattern-Shadow.png</Link>
+        </EmbeddedResource>   
+        <EmbeddedResource Include="..\..\assets\Icon-Pattern.png">
+            <Link>Icon-Pattern.png</Link>
         </EmbeddedResource>
         <EmbeddedResource Include="..\..\assets\Icon-Pattern.ico">
             <Link>Icon-Pattern.ico</Link>

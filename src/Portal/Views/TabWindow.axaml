@@ -1,5 +1,5 @@
 <tio:TioWindow
-    Icon="/Assets/avalonia-logo.ico"
+    Icon="/Icon-Pattern.ico"
     IsCloseBtnShow="{OnPlatform Default=True,
                                 macOS=False}"
     IsMaxBtnShow="{OnPlatform Default=True,
