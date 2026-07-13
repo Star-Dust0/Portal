@@ -106,7 +106,7 @@ jobs:
           cd "../../dist"
           Rename-Item -Path "Portal.Desktop.exe" -NewName "Portal.${{ matrix.rid }}.executable.exe" -Force
           Compress-Archive -Path "Portal.${{ matrix.rid }}.executable.exe" -DestinationPath "../Portal.${{ matrix.rid }}.executable.zip" -Force
-            
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -185,6 +185,11 @@ jobs:
           dotnet msbuild -t:BundleApp -p:RuntimeIdentifier=${{ matrix.rid }} -property:Configuration=Release -p:SelfContained=true
           cp "../../assets/Icon-Pattern-Shadow-Border.icns" "./bin/Release/net10.0/${{ matrix.rid }}/publish/Portal.app/Contents/Resources/"
 
+      - name: Package APP to ZIP
+        run: |
+          cd ./src/Portal.Desktop/bin/Release/net10.0/${{ matrix.rid }}/publish/
+          zip -r ../../../../../../Portal.osx.mac.${{ matrix.dmg_arch }}.app.zip Portal.app
+
       - name: Build DMG
         uses: L-Super/create-dmg-actions@v1.0.3
         with:
@@ -195,7 +200,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: osx-${{ matrix.dmg_arch }}-artifacts
-          path: ./Portal.osx.mac.${{ matrix.dmg_arch }}.dmg
+          path: |
+            ./Portal.osx.mac.${{ matrix.dmg_arch }}.dmg
+            ./Portal.osx.mac.${{ matrix.dmg_arch }}.app.zip
 
   publish:
     needs: [prepare, appImage, win-exe, win-installer, mac-dmg]
