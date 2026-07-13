@@ -48,7 +48,7 @@ public partial class About : DataUserControl
 
         HyperlinkButton.Content = "检查更新中";
         HyperlinkButton.IsEnabled = false;
-        var result = await CheckUpdate.Main(sender!.AsTopLevel());
+        var result = await UpdateChecker.Check(sender!.AsTopLevel());
         HyperlinkButton.Content = "检查更新";
         HyperlinkButton.IsEnabled = true;
         if (result == null)

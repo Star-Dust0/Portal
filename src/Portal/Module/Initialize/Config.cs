@@ -59,11 +59,8 @@ public class Config
         var result = reader.ReadToEnd();
         Data.Instance.Version = JsonConvert.DeserializeObject<CiVersionInfo>(result) ?? new CiVersionInfo()
         {
-            Action = "local",
-            Version = "0.0.0",
-            BuildTime = DateTime.Now, 
-            Commit = "000000",
-            Type = "dev"
+            Type = "commit",
+            VersionTitle = "local-build"
         };
         Data.UiProperty.OverrideUpdateChannel = Data.Instance.Version.Type;
 

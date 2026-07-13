@@ -11,6 +11,7 @@ using Portal.Core.Minecraft.Classes;
 using Portal.Core.Operations;
 using Portal.Core.Operations.Account;
 using Portal.Views.Pages;
+using Portal.Views.Pages.SettingPages;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Entries;
 using Tio.Avalonia.Standard.Tab.Extensions;
@@ -148,6 +149,17 @@ public partial class TitleBarComponent : Grid
     {
         var tioTabWindowBase = Root.GetTopLevel() as TioTabWindowBase;
         var tabEntry = new TabEntry(tioTabWindowBase!, new SettingPage());
+        tioTabWindowBase.CreateTab(tabEntry);
+        tioTabWindowBase.SelectTab(tabEntry);
+    }
+
+    private void GoToAbout(object? sender, RoutedEventArgs e)
+    {
+        var tioTabWindowBase = Root.GetTopLevel() as TioTabWindowBase;
+        var tioTabPage = new SettingPage();
+        tioTabPage.SettingPageViewModel.NavigateType(typeof(About));
+        tioTabPage.NavMenu.SelectedItem = tioTabPage.AboutItem;
+        var tabEntry = new TabEntry(tioTabWindowBase!, tioTabPage);
         tioTabWindowBase.CreateTab(tabEntry);
         tioTabWindowBase.SelectTab(tabEntry);
     }

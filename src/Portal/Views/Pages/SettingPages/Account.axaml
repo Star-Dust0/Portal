@@ -1,0 +1,66 @@
+﻿<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="Portal.Views.Pages.SettingPages.Account"
+    x:DataType="settingPages:Account"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:classes="clr-namespace:Portal.Core.Minecraft.Classes;assembly=Portal.Core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settingPages="clr-namespace:Portal.Views.Pages.SettingPages"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Spacing="15">
+        <TextBlock FontSize="26" Text="账户与档案" />
+        <ListBox
+            HorizontalAlignment="Center"
+            ItemsSource="{Binding Data.ConfigEntry.MinecraftAccounts}"
+            Theme="{DynamicResource BorderListBox}">
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListBox.Styles>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel ItemSpacing="10" LineSpacing="20" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="classes:MinecraftAccount">
+                    <Border Background="Transparent" VerticalAlignment="Top">
+                        <StackPanel VerticalAlignment="Top">
+                            <Border
+                                Background="Aquamarine"
+                                CornerRadius="6"
+                                Height="140"
+                                Margin="5,15,5,10"
+                                Width="140">
+                                <Image
+                                    Height="140"
+                                    Source="{Binding Head25D}"
+                                    Width="140" />
+                            </Border>
+                            <TextBlock
+                                FontSize="17"
+                                HorizontalAlignment="Left"
+                                Margin="5,0,0,0"
+                                MaxWidth="140"
+                                Text="{Binding Name}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Margin="5,3,0,0"
+                                Text="{Binding DisplayAccountNote}"
+                                TextWrapping="Wrap" />
+                            <TextBlock Margin="5,-1,0,13">
+                                <Run Text="{Binding ShortType}" />
+                                <Run Text="•" />
+                                <Run Text="{Binding DisplayLastLoginTime}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </StackPanel>
+</UserControl>

@@ -17,38 +17,11 @@ using TioUi.Common.Helpers;
 
 namespace Portal.Module.Initialize;
 
-public static class Initializer
+public static partial class Initializer
 {
     public static void App()
     {
         Config.Initialize();
         MinecraftCoreInitializer.Initialize(Data.Instance.Version.VersionTitle);
-    }
-
-    public static void Ui()
-    {
-        File.WriteAllText(ConfigPath.AppPathDataPath,
-            Process.GetCurrentProcess().MainModule.FileName);
-
-        ThemeHelper.SetThemeColor(Data.ConfigEntry.ThemeColor);
-        ThemeHelper.ToggleTheme(Data.ConfigEntry.Theme);
-        if (Data.ConfigEntry.EnableCustomForegroundColor)
-        {
-            ConfigEntry.SetForegroundColor(Data.ConfigEntry.ForegroundColor);
-        }
-
-        LoopGc.BeginLoop();
-
-        Functions.CreateNewTabWindowFunc = _ => new TabWindow(false);
-        NotificationGateway.IsToastFunc = () => Data.ConfigEntry.NoticeWay == NoticeWay.Toast;
-
-        Events.CoreSaveSettings += Portal.App.Method.SaveConfig;
-
-        if (Data.ConfigEntry.BackgroundMode == BackgroundMode.Default)
-            Application.Current.Resources.Remove("BackGroundOpacity");
-        else
-            Application.Current.Resources["BackGroundOpacity"] = Data.ConfigEntry.ControlOpacity;
-
-        InitializationEvents.RaiseAfterUiLoaded();
     }
 }

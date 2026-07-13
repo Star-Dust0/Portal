@@ -49,6 +49,7 @@ public class MinecraftAccount(AccountType accountType)
 
     [JsonIgnore] private Bitmap? _body;
     [JsonIgnore] private Bitmap? _head;
+    [JsonIgnore] private Bitmap? _head_25d;
 
     [JsonIgnore]
     public string ShortDisplay
@@ -65,6 +66,21 @@ public class MinecraftAccount(AccountType accountType)
             return $"{t} · {Name}";
         }
     }
+    [JsonIgnore]
+    public string ShortType
+    {
+        get
+        {
+            var t = AccountType switch
+            {
+                AccountType.Offline => "离线",
+                AccountType.Yggdrasil => "外置",
+                AccountType.Microsoft => "微软",
+                _ => "未知"
+            };
+            return $"{t}";
+        }
+    }
 
     [JsonIgnore]
     public Bitmap Head
@@ -78,6 +94,18 @@ public class MinecraftAccount(AccountType accountType)
         get { return _body ??= HandleBodySkin(); }
     }
 
+    [JsonIgnore]
+    public Bitmap Head25D
+    {
+        get { return _head_25d ??= HandleHead25DSkin(); }
+    }
+
+    private Bitmap HandleHead25DSkin()
+    {
+        var imageBytes = Convert.FromBase64String(Skin);
+        return SideCapturer.Default.Capture(SKBitmap.Decode(imageBytes)).ToBitmap(140);
+        
+    }
 
     private Bitmap HandleBodySkin()
     {

@@ -13,16 +13,18 @@ namespace Portal.Views.Pages;
 
 public partial class SettingPage : UserControl, ITioTabPage
 {
+    public SettingPageViewModel SettingPageViewModel;
+
     public SettingPage()
     {
         InitializeComponent();
-        var settingPageViewModel = new SettingPageViewModel();
-        DataContext = settingPageViewModel;
+        SettingPageViewModel = new SettingPageViewModel();
+        DataContext = SettingPageViewModel;
         Loaded += (s, e) =>
         {
-            var a = settingPageViewModel.CurrentPage;
-            settingPageViewModel.CurrentPage = null;
-            settingPageViewModel.CurrentPage = a;
+            var a = SettingPageViewModel.CurrentPage;
+            SettingPageViewModel.CurrentPage = null;
+            SettingPageViewModel.CurrentPage = a;
         };
     }
 
@@ -49,7 +51,7 @@ public partial class SettingPageViewModel : ObservableObject
     }
     
     [RelayCommand]
-    private void NavigateType(object? parameter)
+    public void NavigateType(object? parameter)
     {
         if (parameter is not Type pageType) return;
 

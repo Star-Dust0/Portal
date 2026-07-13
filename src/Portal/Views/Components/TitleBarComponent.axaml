@@ -20,7 +20,7 @@
             <converter:ThemeCompareConverter x:Key="ThemeCompareConverter" />
             <converter:IntCompareConverter x:Key="IntCompareConverter" />
         </StackPanel.Resources>
-        <Border IsVisible="{Binding DropMsg, Converter={StaticResource StringIsNotWriteSpaceOrNullConverter}}">
+        <Border IsVisible="{Binding DropMsg, Converter={StaticResource StringIsNotWriteSpaceOrNullConverter}}" Margin="3,0">
             <Border
                 Background="{DynamicResource PopupBackgroundColor}"
                 BorderBrush="{DynamicResource PopupBorderBrush}"
@@ -37,7 +37,12 @@
                 </Panel>
             </Border>
         </Border>
-        <Border IsVisible="{Binding Data.ConfigEntry.ShowUpdatePrompt}">
+        <Button
+            Click="GoToAbout"
+            IsVisible="{Binding Data.ConfigEntry.ShowUpdatePrompt}"
+            Margin="3,0"
+            Theme="{StaticResource TransparentButton}"
+            VerticalAlignment="Center">
             <Border
                 Background="{DynamicResource PopupBackgroundColor}"
                 BorderBrush="{DynamicResource PopupBorderBrush}"
@@ -53,10 +58,10 @@
                         VerticalAlignment="Center" />
                 </Panel>
             </Border>
-        </Border>
+        </Button>
         <Button
             Click="AccountButton_Click"
-            Margin="5,0"
+            Margin="3,0"
             Theme="{StaticResource TransparentButton}"
             VerticalAlignment="Center"
             x:Name="AccountButton">
@@ -82,6 +87,7 @@
         <Button
             Classes="custom-title-bar-button"
             Click="OpenSearch"
+            Margin="3,0,0,0"
             ToolTip.ShowDelay="900"
             ToolTip.Tip="搜索">
             <PathIcon
