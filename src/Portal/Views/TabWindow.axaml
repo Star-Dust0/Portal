@@ -91,7 +91,6 @@
         </DockPanel>
     </tio:TioWindow.TitleBarRightContent>
     <Grid Background="Transparent">
-        <Image Name="BackgroundImage" IsHitTestVisible="False" Stretch="UniformToFill" />
         <ScrollViewer
             Background="Transparent"
             Classes="Flat"

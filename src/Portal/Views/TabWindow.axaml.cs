@@ -17,6 +17,7 @@ using Portal.Const;
 using Portal.Module.DragDrop;
 using Portal.Views.Components;
 using Portal.Views.Pages;
+using SkiaSharp;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Modules.Helper;
 using Tio.Avalonia.Standard.Tab.Entries;
@@ -317,8 +318,6 @@ public partial class TabWindow : TioTabWindowBase
         switch (entry.BackgroundMode)
         {
             case BackgroundMode.Default:
-                BackgroundImage.Source = null;
-                BackgroundImage.IsVisible = false;
                 if (RootBorder != null)
                     RootBorder.ClearValue(Border.BackgroundProperty);
                 ClearValue(BackgroundProperty);
@@ -327,27 +326,57 @@ public partial class TabWindow : TioTabWindowBase
                 break;
 
             case BackgroundMode.Image:
-                if (!string.IsNullOrEmpty(entry.BackgroundImagePath) && File.Exists(entry.BackgroundImagePath))
-                {
-                    var blurRadius = entry.ImageBlurRadius * 20;
-                    BackgroundImage.Source = new Bitmap(entry.BackgroundImagePath);
-                    BackgroundImage.IsVisible = true;
-                    BackgroundImage.Effect = blurRadius > 0.5 ? new BlurEffect { Radius = blurRadius } : null;
-                }
-                else
-                {
-                    BackgroundImage.Source = null;
-                    BackgroundImage.IsVisible = false;
-                }
                 if (RootBorder != null)
-                    RootBorder.ClearValue(Border.BackgroundProperty);
+                {
+                    if (!string.IsNullOrEmpty(entry.BackgroundImagePath) && File.Exists(entry.BackgroundImagePath))
+                    {
+                        try
+                        {
+                            using var original = SKBitmap.Decode(entry.BackgroundImagePath);
+                            var blurRadius = entry.ImageBlurRadius * 20;
+                            if (blurRadius > 0.5)
+                            {
+                                using var surface = SKSurface.Create(new SKImageInfo(original.Width, original.Height));
+                                var canvas = surface.Canvas;
+                                using var paint = new SKPaint
+                                {
+                                    ImageFilter = SKImageFilter.CreateBlur((float)blurRadius, (float)blurRadius)
+                                };
+                                canvas.DrawBitmap(original, 0, 0, new SKSamplingOptions(), paint);
+                                using var blurredImage = surface.Snapshot();
+                                using var data = blurredImage.Encode(SKEncodedImageFormat.Png, 80);
+                                RootBorder.Background = new ImageBrush(new Bitmap(data.AsStream()))
+                                {
+                                    Stretch = Stretch.UniformToFill,
+                                    AlignmentX = AlignmentX.Center,
+                                    AlignmentY = AlignmentY.Center
+                                };
+                            }
+                            else
+                            {
+                                RootBorder.Background = new ImageBrush(new Bitmap(entry.BackgroundImagePath))
+                                {
+                                    Stretch = Stretch.UniformToFill,
+                                    AlignmentX = AlignmentX.Center,
+                                    AlignmentY = AlignmentY.Center
+                                };
+                            }
+                        }
+                        catch
+                        {
+                            RootBorder.ClearValue(Border.BackgroundProperty);
+                        }
+                    }
+                    else
+                    {
+                        RootBorder.ClearValue(Border.BackgroundProperty);
+                    }
+                }
                 ClearValue(TransparencyBackgroundFallbackProperty);
                 TransparencyLevelHint = new[] { WindowTransparencyLevel.None };
                 break;
 
             case BackgroundMode.SolidColor:
-                BackgroundImage.Source = null;
-                BackgroundImage.IsVisible = false;
                 if (RootBorder != null)
                     RootBorder.Background = new SolidColorBrush(entry.BackgroundSolidColor);
                 ClearValue(TransparencyBackgroundFallbackProperty);
@@ -355,8 +384,6 @@ public partial class TabWindow : TioTabWindowBase
                 break;
 
             case BackgroundMode.Acrylic:
-                BackgroundImage.Source = null;
-                BackgroundImage.IsVisible = false;
                 var color = entry.BackgroundSolidColor;
                 var alpha = (byte)((1.0 - entry.AcrylicOpacity) * 80 + 160);
                 var acrylicBrush = new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
