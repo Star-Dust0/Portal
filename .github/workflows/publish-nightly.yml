@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: "recursive"
 
       - name: Generate Meta and JSON
         id: meta
@@ -42,6 +43,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
       - name: Write CI Config
         run: echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
       - name: Dependency
@@ -69,6 +72,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
       - name: Write CI Config
         run: echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
         shell: bash
@@ -91,6 +96,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
       - name: Dependencies
         run: |
           choco install innosetup -y
@@ -126,6 +133,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
       - name: Write CI Config
         run: echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
       - name: Build macOS App
