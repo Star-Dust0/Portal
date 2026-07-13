@@ -10,15 +10,21 @@ public class UpdateChannelToIndexConverter : IValueConverter
     {
         return value switch
         {
-            "dev" => 0,
-            "nightly" => 1,
-            "commit" => 2,
-            _ => 0
+            "dev" => -1,
+            "nightly" => 0,
+            "commit" => 1,
+            _ => -1
         };
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        throw new NotSupportedException();
+        return value switch
+        {
+            -1 => "dev",
+            0 => "nightly",
+            1 => "commit",
+            _ => "dev"
+        };
     }
 }

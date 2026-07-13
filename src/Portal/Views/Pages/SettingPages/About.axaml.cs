@@ -22,10 +22,15 @@ public partial class About : DataUserControl
         AboutViewModel = new AboutViewModel();
         DataContext = AboutViewModel;
         if (Data.Version.Type == "dev")
-            UpdateChannel.IsEnabled = false;
+            AboutViewModel.IsDev = true;
     }
 
     private async void Button_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _ = Check(sender);
+    }
+
+    private async Task Check(object? sender)
     {
         Data.UiProperty.IsLatestVersion = false;
         Data.UiProperty.FoundNewVersion = false;
@@ -49,17 +54,27 @@ public partial class About : DataUserControl
         if (result == "latest")
         {
             Data.UiProperty.IsLatestVersion = true;
+            sender!.AsTopLevel().Notice("当前是最新版本", NotificationType.Success);
             return;
         }
+
         Data.UiProperty.NewVersion = result;
         Data.UiProperty.FoundNewVersion = true;
+    }
+
+    private void UpdateChannel_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        _ = Check(sender!);
     }
 }
 
 public partial class AboutViewModel : ObservableObject
 {
     public Data Data => Data.Instance;
+
     public string Version { get; } =
         $"v{Data.Instance.Version.Version}-{Data.Instance.Version.Type}-{Data.Instance.Version.BuildTime:yyyy.MMdd.HHmm}-" +
         $"{Data.Instance.Version.Action}-{Data.Instance.Version.Commit}";
+
+    [ObservableProperty] public partial bool IsDev { get; set; }
 }

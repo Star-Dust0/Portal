@@ -63,6 +63,7 @@
                         Content="检查更新"
                         FontSize="12"
                         HorizontalAlignment="Right"
+                        IsVisible="{Binding !IsDev}"
                         Margin="0,2,5,0"
                         Name="HyperlinkButton"
                         Theme="{StaticResource TransparentHyperlinkButton}"
@@ -112,7 +113,7 @@
                 Foreground="{DynamicResource InnerForegroundColor}"
                 Text=" *前往 设置-代理 开启GitHub代理可加快更新速度" />
         </StackPanel>
-        <StackPanel Spacing="5">
+        <StackPanel IsVisible="{Binding !IsDev}" Spacing="5">
             <Label
                 Content="更新通道"
                 FontSize="13"
@@ -120,8 +121,8 @@
             <ComboBox
                 HorizontalAlignment="Stretch"
                 Name="UpdateChannel"
-                SelectedIndex="{Binding Data.UiProperty.OverrideUpdateChannel, Converter={StaticResource UpdateChannelToIndexConverter}, Mode=OneWay}">
-                <ComboBoxItem Content="本地开发版本" />
+                SelectedIndex="{Binding Data.UiProperty.OverrideUpdateChannel, Converter={StaticResource UpdateChannelToIndexConverter}, Mode=TwoWay}"
+                SelectionChanged="UpdateChannel_OnSelectionChanged">
                 <ComboBoxItem Content="每日构建版本" />
                 <ComboBoxItem Content="提交构建版本" />
             </ComboBox>
