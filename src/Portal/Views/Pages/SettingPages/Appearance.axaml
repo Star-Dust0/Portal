@@ -3,9 +3,12 @@
     d:DesignWidth="800"
     mc:Ignorable="d"
     x:Class="Portal.Views.Pages.SettingPages.Appearance"
+    x:DataType="settingPages:Appearance"
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settingPages="clr-namespace:Portal.Views.Pages.SettingPages"
+    xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <StackPanel Spacing="15">
         <TextBlock FontSize="26" Text="显示与外观" />
@@ -14,7 +17,7 @@
                 Content="主题样式"
                 FontSize="13"
                 Foreground="{DynamicResource InnerForegroundColor}" />
-            <TabStrip Theme="{DynamicResource BorderTabStrip}">
+            <TabStrip SelectedIndex="{Binding Data.ConfigEntry.Theme}" Theme="{DynamicResource BorderTabStrip}">
                 <TabStripItem Background="{DynamicResource PopupBackgroundColor}">
                     <StackPanel Orientation="Horizontal">
                         <PathIcon
@@ -80,6 +83,29 @@
                     </StackPanel>
                 </TabStripItem>
             </TabStrip>
+        </StackPanel>
+        <StackPanel Spacing="5">
+            <Panel>
+                <Label
+                    Content="主题色"
+                    FontSize="13"
+                    Foreground="{DynamicResource InnerForegroundColor}"
+                    HorizontalAlignment="Left" />
+                <SelectableTextBlock
+                    FontSize="13"
+                    Foreground="{DynamicResource InnerForegroundColor}"
+                    HorizontalAlignment="Right"
+                    Text="{Binding Data.ConfigEntry.ThemeColor}" />
+            </Panel>
+            <tio:TioColorPicker
+                Color="{Binding Data.ConfigEntry.ThemeColor}"
+                ColorSpectrumShape="Box"
+                HorizontalAlignment="Stretch"
+                SelectedIndex="1">
+                <tio:TioColorPicker.Palette>
+                    <tio:TioColorLightPalette />
+                </tio:TioColorPicker.Palette>
+            </tio:TioColorPicker>
         </StackPanel>
     </StackPanel>
 </UserControl>

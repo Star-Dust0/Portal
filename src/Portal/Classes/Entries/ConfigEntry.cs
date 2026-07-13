@@ -31,6 +31,7 @@ public partial class ConfigEntry : ObservableObject
     public ObservableCollection<AuthServer> AuthServers { get; } = [];
     [ObservableProperty] public partial MinecraftAccount? UsingMinecraftMinecraftAccount { get; set; }
     [ObservableProperty] public partial MinecraftFolderEntry? DefaultMinecraftFolder { get; set; }
+    [ObservableProperty] public partial bool EnableCheckAutoUpdate { get; set; } = true;
     [ObservableProperty] public partial bool ShowDragDropPrompt { get; set; } = true;
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)

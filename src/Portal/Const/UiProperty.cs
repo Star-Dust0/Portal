@@ -49,6 +49,10 @@ public partial class UiProperty : ObservableObject
     
     [ObservableProperty] public partial string AggregatedSearchQuery { get; set; }
     [ObservableProperty] public partial bool ConfigLoaded { get; set; }
+    [ObservableProperty] public partial bool FoundNewVersion { get; set; }
+    [ObservableProperty] public partial bool IsLatestVersion { get; set; }
+    [ObservableProperty] public partial string NewVersion { get; set; }
+    [ObservableProperty] public partial string OverrideUpdateChannel { get; set; }
     public ObservableCollection<AggregatedSearchEntry> AggregatedSearchResults { get; set; } = [];
 
     [ObservableProperty] public partial AggregatedSearchType AggregatedSelectedType { get; set; } = AggregatedSearchTypes[0];
