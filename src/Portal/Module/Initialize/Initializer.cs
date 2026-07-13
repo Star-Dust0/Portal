@@ -21,24 +21,26 @@ public static class Initializer
     public static void App()
     {
         Config.Initialize();
-        MinecraftCoreInitializer.Initialize(Data.Instance.Version);
+        MinecraftCoreInitializer.Initialize(
+            $"build-{Data.Instance.Version.Type}-{Data.Instance.Version.BuildTime:yyyy.MMdd.HHmm}-" +
+            $"{Data.Instance.Version.Action}-{Data.Instance.Version.Commit}");
     }
 
     public static void Ui()
     {
         File.WriteAllText(ConfigPath.AppPathDataPath,
             Process.GetCurrentProcess().MainModule.FileName);
-        
+
         ThemeHelper.SetThemeColor(Data.ConfigEntry.ThemeColor);
         ThemeHelper.ToggleTheme(Data.ConfigEntry.Theme);
-        
+
         LoopGc.BeginLoop();
-        
+
         Functions.CreateNewTabWindowFunc = _ => new TabWindow(false);
         NotificationGateway.IsToastFunc = () => Data.ConfigEntry.NoticeWay == NoticeWay.Toast;
 
         Events.CoreSaveSettings += Portal.App.Method.SaveConfig;
-        
+
         InitializationEvents.RaiseAfterUiLoaded();
     }
 }

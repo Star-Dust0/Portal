@@ -17,5 +17,5 @@ public partial class Data : ObservableObject
 
     public static DesktopType DesktopType => DesktopTypeDetector.CurrentPlatform; 
     public static UiProperty UiProperty { get; } = UiProperty.Instance;
-    [ObservableProperty] public partial string Version { get; set; }
+    [ObservableProperty] public partial CiVersionInfo Version { get; set; }
 }

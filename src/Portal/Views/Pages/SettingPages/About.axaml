@@ -3,9 +3,11 @@
     d:DesignWidth="800"
     mc:Ignorable="d"
     x:Class="Portal.Views.Pages.SettingPages.About"
+    x:DataType="settingPages:AboutViewModel"
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settingPages="clr-namespace:Portal.Views.Pages.SettingPages"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <StackPanel Spacing="15">
         <TextBlock FontSize="26" Text="关于" />
@@ -24,16 +26,20 @@
                     <SelectableTextBlock
                         FontSize="17"
                         Margin="5,2,0,2"
-                        Text="v0.0.0-nightly-19700101-456-abc32f" />
+                        Text="{Binding Version}" />
                     <TextBlock
                         FontSize="13"
                         Foreground="{DynamicResource InnerForegroundColor}"
-                        Margin="5,0,0,0"
-                        Text="Nightly | 1970-01-01" />
+                        Margin="5,0,0,0">
+                        <Run Text="{Binding Data.Version.Type}" />
+                        <Run Text="|" />
+                        <Run Text="{Binding Data.Version.BuildTime, StringFormat='{}{0:yyyy-MM-dd}'}" />
+                    </TextBlock>
                 </StackPanel>
                 <Border
                     CornerRadius="10"
                     HorizontalAlignment="Right"
+                    IsVisible="{Binding IsLatest}"
                     Padding="6,3,6,1"
                     VerticalAlignment="Top">
                     <TextBlock

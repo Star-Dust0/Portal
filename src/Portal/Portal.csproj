@@ -18,8 +18,8 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**"/>
-        <EmbeddedResource Include="..\Version.txt">
-            <Link>Version.txt</Link>
+        <EmbeddedResource Include="..\version-ci.txt">
+            <Link>version-ci.txt</Link>
         </EmbeddedResource>
         <EmbeddedResource Include="..\..\Readme.md">
             <Link>Readme.md</Link>

@@ -51,13 +51,12 @@ public class Config
         }
         if (FailedSettingKeys.Count > 0) Logger.Error($"Setting load with errors: {FailedSettingKeys.AsJson()}");
         
-        const string resourceName = "Portal.Version.txt";
+        const string RESOURCE_NAME = "Portal.version-ci.txt";
         var assembly = Assembly.GetExecutingAssembly();
-        var stream = assembly.GetManifestResourceStream(resourceName);
+        var stream = assembly.GetManifestResourceStream(RESOURCE_NAME);
         using var reader = new StreamReader(stream!);
         var result = reader.ReadToEnd();
-        //TODO Get version from assembly
-        Data.Instance.Version = $"v{result.Trim()}";
+        Data.Instance.Version = JsonConvert.DeserializeObject<CiVersionInfo>(result);
         
         Helper.ClearFolder(ConfigPath.TempFolderPath);
         App.Method.SaveConfig();
