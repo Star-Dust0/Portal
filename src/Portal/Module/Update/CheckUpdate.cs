@@ -6,6 +6,7 @@ using Avalonia.Threading;
 using Flurl.Http;
 using Newtonsoft.Json.Linq;
 using Portal.Const;
+using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Tab.Gateway;
 
 namespace Portal.Module.Update;
@@ -16,16 +17,10 @@ public class CheckUpdate
     {
         var channel = Data.UiProperty.OverrideUpdateChannel;
 
-        var shanghaiZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Shanghai");
-        var buildTimeInShanghai = TimeZoneInfo.ConvertTime(Data.Instance.Version.BuildTime, shanghaiZone);
-        var startEpoch = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
-        
-        var totalHours = (int)((buildTimeInShanghai - startEpoch).TotalSeconds / 3600);
-        var appVersion = $"{Data.Instance.Version.Version}.{totalHours}";
-
-        var current = $"build-{Data.Instance.Version.Type}-{appVersion}-{Data.Instance.Version.Action}-{Data.Instance.Version.Commit}";
+        var current = Data.Instance.Version.VersionTitle;
         var tagName = $"publish-{channel}";
         var apiUrl = $"https://api.github.com/repos/tiouoo/Portal/releases/tags/{tagName}";
+        Logger.Info($"Checking update for {current} from {apiUrl}");
 
         try
         {
@@ -35,6 +30,7 @@ public class CheckUpdate
             
             var json = JObject.Parse(release);
             var remoteTitle = json["name"]?.ToString();
+            Logger.Info($"Version {current} Remote title: {remoteTitle}");
 
             if (!string.IsNullOrEmpty(remoteTitle))
             {

@@ -24,4 +24,8 @@ public partial class CiVersionInfo : ObservableObject
     [JsonProperty("version")]
     [ObservableProperty]
     public partial string Version { get; set; } = string.Empty;
+
+    [JsonProperty("version_title")]
+    [ObservableProperty]
+    public partial string VersionTitle { get; set; } = string.Empty;
 }

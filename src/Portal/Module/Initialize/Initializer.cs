@@ -22,9 +22,7 @@ public static class Initializer
     public static void App()
     {
         Config.Initialize();
-        MinecraftCoreInitializer.Initialize(
-            $"build-{Data.Instance.Version.Type}-{Data.Instance.Version.BuildTime:yyyy.MMdd.HHmm}-" +
-            $"{Data.Instance.Version.Action}-{Data.Instance.Version.Commit}");
+        MinecraftCoreInitializer.Initialize(Data.Instance.Version.VersionTitle);
     }
 
     public static void Ui()
@@ -45,12 +43,12 @@ public static class Initializer
         NotificationGateway.IsToastFunc = () => Data.ConfigEntry.NoticeWay == NoticeWay.Toast;
 
         Events.CoreSaveSettings += Portal.App.Method.SaveConfig;
-        
+
         if (Data.ConfigEntry.BackgroundMode == BackgroundMode.Default)
             Application.Current.Resources.Remove("BackGroundOpacity");
         else
             Application.Current.Resources["BackGroundOpacity"] = Data.ConfigEntry.ControlOpacity;
-        
+
         InitializationEvents.RaiseAfterUiLoaded();
     }
 }

@@ -83,9 +83,5 @@ public partial class AboutViewModel : ObservableObject
 {
     public Data Data => Data.Instance;
 
-    public string Version { get; } =
-        $"v{Data.Instance.Version.Version}-{Data.Instance.Version.Type}-{Data.Instance.Version.BuildTime:yyyy.MMdd.HHmm}-" +
-        $"{Data.Instance.Version.Action}-{Data.Instance.Version.Commit}";
-
     [ObservableProperty] public partial bool IsDev { get; set; }
 }

@@ -48,7 +48,7 @@
                         <SelectableTextBlock
                             FontSize="17"
                             Margin="5,2,0,2"
-                            Text="{Binding Version}" />
+                            Text="{Binding Data.Version.VersionTitle}" />
                         <TextBlock
                             FontSize="13"
                             Foreground="{DynamicResource InnerForegroundColor}"
