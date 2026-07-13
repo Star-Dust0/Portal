@@ -1,0 +1,92 @@
+name: build/pr
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      app_version: ${{ steps.meta.outputs.app_version }}
+      version_json: ${{ steps.meta.outputs.version_json }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: "recursive"
+
+      - name: Update Submodules
+        run: |
+          git submodule update --init --recursive
+          git submodule foreach --recursive 'git fetch origin main && git checkout -B main origin/main'
+
+      - name: Generate Meta
+        id: meta
+        run: |
+          BASE_VERSION=$(cat ./src/version.txt | tr -d '[:space:]')
+          Y=$(TZ='Asia/Shanghai' date +'%Y')
+          MD=$(TZ='Asia/Shanghai' date +'%m%d')
+          HM=$(TZ='Asia/Shanghai' date +'%H%M')
+          APP_VERSION="${Y}.${MD}.${HM}-PR${{ github.event.number }}"
+          COMMIT_HASH=$(git rev-parse --short=6 HEAD)
+          BUILD_TIME=$(TZ='Asia/Shanghai' date -Iseconds)
+          JSON_STRING="{\"type\":\"pr-test\",\"build-time\":\"${BUILD_TIME}\",\"action\":\"${{ github.run_id }}\",\"commit\":\"${COMMIT_HASH}\",\"version\":\"${BASE_VERSION}\"}"
+          echo "app_version=${APP_VERSION}" >> $GITHUB_OUTPUT
+          echo "version_json=${JSON_STRING}" >> $GITHUB_OUTPUT
+
+  win-x64-build:
+    runs-on: windows-latest
+    needs: prepare
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Update Submodules
+        run: |
+          git submodule update --init --recursive
+          git submodule foreach --recursive "git fetch origin main && git checkout -B main origin/main"
+        shell: bash
+
+      - name: Write CI Config
+        run: echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+        shell: bash
+
+      - name: Build & Package (Windows x64)
+        shell: pwsh
+        run: |
+          cd ./src/Portal.Desktop
+          New-Item -ItemType Directory -Force -Path "../../dist"
+          dotnet restore -r win-x64
+          dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true /p:PublishReadyToRun=true /p:IncludeNativeLibrariesForSelfExtract=true /p:SelfContained=true /p:Version=${{ needs.prepare.outputs.app_version }} -o "../../dist" -p:DebugType=none -p:DebugSymbols=false
+          cd "../../dist"
+          Rename-Item -Path "Portal.Desktop.exe" -NewName "Portal.win-x64.PR-${{ github.event.number }}.exe" -Force
+          Compress-Archive -Path "Portal.win-x64.PR-${{ github.event.number }}.exe" -DestinationPath "../Portal.win-x64.PR-${{ github.event.number }}.zip" -Force
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Portal.win-x64.PR-${{ github.event.number }}
+          path: ./Portal.*.zip
+          retention-days: 7
+
+  comment-pr:
+    runs-on: ubuntu-latest
+    needs: [prepare, win-x64-build]
+    steps:
+      - name: Comment on PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            PR 自动化构建已完成
+            
+            win.x64 版本下载链接：
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          comment_tag: pr_build_status_comment
