@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
@@ -6,15 +6,20 @@
     x:DataType="settingPages:Account"
     xmlns="https://github.com/avaloniaui"
     xmlns:classes="clr-namespace:Portal.Core.Minecraft.Classes;assembly=Portal.Core"
+    xmlns:converter="clr-namespace:Portal.Module.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:settingPages="clr-namespace:Portal.Views.Pages.SettingPages"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <StackPanel Spacing="15">
+        <StackPanel.Resources>
+            <converter:AccountTypeToBrushConverter x:Key="AccountTypeToBrushConverter" />
+        </StackPanel.Resources>
         <TextBlock FontSize="26" Text="账户与档案" />
         <ListBox
             HorizontalAlignment="Center"
             ItemsSource="{Binding Data.ConfigEntry.MinecraftAccounts}"
+            SelectedItem="{Binding Data.ConfigEntry.UsingMinecraftMinecraftAccount}"
             Theme="{DynamicResource BorderListBox}">
             <ListBox.Styles>
                 <Style Selector="ListBoxItem">
@@ -31,15 +36,16 @@
                     <Border Background="Transparent" VerticalAlignment="Top">
                         <StackPanel VerticalAlignment="Top">
                             <Border
-                                Background="Aquamarine"
+                                Background="{Binding AccountType, Converter={StaticResource AccountTypeToBrushConverter}}"
                                 CornerRadius="6"
                                 Height="140"
                                 Margin="5,15,5,10"
                                 Width="140">
                                 <Image
-                                    Height="140"
+                                    Height="130"
                                     Source="{Binding Cover}"
-                                    Width="140" />
+                                    VerticalAlignment="Bottom"
+                                    Width="130" />
                             </Border>
                             <TextBlock
                                 FontSize="17"

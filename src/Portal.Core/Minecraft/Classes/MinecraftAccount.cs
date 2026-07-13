@@ -102,7 +102,7 @@ public class MinecraftAccount(AccountType accountType)
     private Bitmap HandleCoverSkin()
     {
         var imageBytes = Convert.FromBase64String(Skin);
-        return CoverCapturer.Default.Capture(SKBitmap.Decode(imageBytes)).ToBitmap();
+        return CoverCapturer.Default.Capture(SKBitmap.Decode(imageBytes)).ToBitmap(130);
     }
 
     private Bitmap HandleBodySkin()
