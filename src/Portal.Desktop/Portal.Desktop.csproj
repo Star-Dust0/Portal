@@ -9,7 +9,6 @@
         <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/tiouoo/Portal</RepositoryUrl>
         <Description>Portal</Description>
-        <PackageReadmeFile>Readme.md</PackageReadmeFile>
         <PackageIcon>Icon-Pattern-Shadow.png</PackageIcon>
         <PackageProjectUrl>portal.tiouo.xyz</PackageProjectUrl>
         <PackageTags>Portal</PackageTags>
@@ -49,18 +48,16 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Portal\Portal.csproj"/>
+    </ItemGroup>
 
-        <EmbeddedResource Include="..\..\Readme.md">
-            <Link>Readme.md</Link>
-        </EmbeddedResource>  
-        <EmbeddedResource Include="..\..\assets\Icon-Pattern-Shadow.png">
-            <Link>Icon-Pattern-Shadow.png</Link>
-        </EmbeddedResource>
-        <EmbeddedResource Include="..\..\assets\Icon-Pattern.ico">
-            <Link>Icon-Pattern.ico</Link>
-        </EmbeddedResource> 
-        <EmbeddedResource Include="..\..\assets\Icon-Pattern-Shadow-Border.icns">
-            <Link>Icon-Pattern-Shadow-Border.icns</Link>
-        </EmbeddedResource>
+    <ItemGroup>
+      <AvaloniaResource Include="Icon-Pattern.ico" />
+      <AvaloniaResource Include="Icon-Pattern.svg" />
+      <AvaloniaResource Include="Icon-Pattern-Shadow.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Icon-Pattern-Shadow-Border.icns" />
+      <AvaloniaResource Include="Icon-Pattern-Shadow-Border.icns" />
     </ItemGroup>
 </Project>
