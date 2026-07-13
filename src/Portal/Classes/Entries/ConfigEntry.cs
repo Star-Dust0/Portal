@@ -28,25 +28,24 @@ public partial class ConfigEntry : ObservableObject
     [ObservableProperty] public partial Color ThemeColor { get; set; } = Color.Parse("#1890ff");
     [ObservableProperty] public partial NoticeWay NoticeWay { get; set; } = NoticeWay.Toast;
     [ObservableProperty] public partial FilePicker FilePicker { get; set; } = FilePicker.System;
-    public ObservableCollection<MinecraftAccount> MinecraftAccounts { get; } = [];
-    public ObservableCollection<MinecraftFolderEntry> MinecraftFolders { get; } = [];
-    public ObservableCollection<AuthServer> AuthServers { get; } = [];
-    [ObservableProperty] public partial MinecraftAccount? UsingMinecraftMinecraftAccount { get; set; }
-    [ObservableProperty] public partial MinecraftFolderEntry? DefaultMinecraftFolder { get; set; }
+    [ObservableProperty] public partial BackgroundMode BackgroundMode { get; set; } = BackgroundMode.Default;
+    [ObservableProperty] public partial bool EnableCustomForegroundColor { get; set; } = false;
     [ObservableProperty] public partial bool EnableCheckAutoUpdate { get; set; } = true;
     [ObservableProperty] public partial bool ShowDragDropPrompt { get; set; } = true;
     [ObservableProperty] public partial bool ShowUpdatePrompt { get; set; } = true;
-
-    [ObservableProperty] public partial BackgroundMode BackgroundMode { get; set; } = BackgroundMode.Default;
     [ObservableProperty] public partial string? BackgroundImagePath { get; set; }
     [ObservableProperty] public partial Color BackgroundSolidColor { get; set; } = Color.Parse("#2d2d2d");
+    [ObservableProperty] public partial Color ForegroundColor { get; set; } = Color.Parse("#494c4f");
     [ObservableProperty] public partial double ControlOpacity { get; set; } = 1;
     [ObservableProperty] public partial double AcrylicOpacity { get; set; } = 0.2;
     [ObservableProperty] public partial double ImageBlurRadius { get; set; } = 0.0;
-    [ObservableProperty] public partial Color ForegroundColor { get; set; } = Color.Parse("#494c4f");
-    [ObservableProperty] public partial bool EnableCustomForegroundColor { get; set; } = false;
     [ObservableProperty] public partial double MicaOpacity { get; set; } = 0.8;
     [ObservableProperty] public partial double BlurOpacity { get; set; } = 0.5;
+    [ObservableProperty] public partial MinecraftAccount? UsingMinecraftMinecraftAccount { get; set; }
+    [ObservableProperty] public partial MinecraftFolderEntry? DefaultMinecraftFolder { get; set; }
+    public ObservableCollection<MinecraftAccount> MinecraftAccounts { get; } = [];
+    public ObservableCollection<MinecraftFolderEntry> MinecraftFolders { get; } = [];
+    public ObservableCollection<AuthServer> AuthServers { get; } = [];
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
