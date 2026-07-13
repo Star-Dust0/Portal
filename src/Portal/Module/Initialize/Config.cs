@@ -15,17 +15,17 @@ namespace Portal.Module.Initialize;
 public class Config
 {
     public static List<object> FailedSettingKeys { get; } = [];
-    
+
     public static void Initialize()
     {
         Helper.TryCreateFolder(ConfigPath.UserDataRootPath);
         Helper.TryCreateFolder(ConfigPath.TempFolderPath);
-        
+
         if (!File.Exists(ConfigPath.SettingDataPath))
             File.WriteAllText(ConfigPath.SettingDataPath, new ConfigEntry().AsJson());
-        
+
         Logger.Info($"配置文件夹：{ConfigPath.UserDataRootPath}");
-        
+
         InitializationEvents.RaiseBeforeReadSettings();
 
         try
@@ -49,17 +49,28 @@ public class Config
             FailedSettingKeys.Add($"Setting completely load failed: {ex.Message}");
             Data.ConfigEntry = new ConfigEntry();
         }
+
         if (FailedSettingKeys.Count > 0) Logger.Error($"Setting load with errors: {FailedSettingKeys.AsJson()}");
-        
-        const string resourceName = "Portal.Const.Version.txt";
+
+        const string RESOURCE_NAME = "Portal.version-ci.txt";
         var assembly = Assembly.GetExecutingAssembly();
-        var stream = assembly.GetManifestResourceStream(resourceName);
+        var stream = assembly.GetManifestResourceStream(RESOURCE_NAME);
         using var reader = new StreamReader(stream!);
         var result = reader.ReadToEnd();
-        Data.Instance.Version = $"v{result.Trim()}";
-        
+        Data.Instance.Version = JsonConvert.DeserializeObject<CiVersionInfo>(result) ?? new CiVersionInfo()
+        {
+            Action = "local",
+            Version = "0.0.0",
+            BuildTime = DateTime.Now, 
+            Commit = "000000",
+            Type = "dev"
+        };
+
         Helper.ClearFolder(ConfigPath.TempFolderPath);
         App.Method.SaveConfig();
+
+        Data.UiProperty.ConfigLoaded = true;
+        ConfigIdentifyExtension.MinecraftFolder(Data.ConfigEntry);
 
         InitializationEvents.RaiseBeforeUiLoaded();
     }

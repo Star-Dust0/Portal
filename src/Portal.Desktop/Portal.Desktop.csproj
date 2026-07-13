@@ -6,6 +6,29 @@
     <PropertyGroup>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <HotAvaloniaAutoEnable>false</HotAvaloniaAutoEnable>
+        <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/tiouoo/Portal</RepositoryUrl>
+        <Description>Portal</Description>
+        <PackageIcon>Icon-Pattern-Shadow.png</PackageIcon>
+        <PackageProjectUrl>portal.tiouo.xyz</PackageProjectUrl>
+        <PackageTags>Portal</PackageTags>
+        <PackageVersion>1.0.0</PackageVersion>
+        <Copyright>https://github.com/tiouoo/Portal</Copyright>
+        <Authors>github.com/tiouoo/Portal</Authors>
+        <ApplicationIcon>Icon-Pattern.ico</ApplicationIcon>
+        <Title>Portal</Title>
+        
+        <CFBundleName>Portal</CFBundleName>
+        <CFBundleDisplayName>Portal</CFBundleDisplayName>
+        <CFBundleIdentifier>xyz.tiouoo.portal</CFBundleIdentifier>
+        <CFBundleVersion>1.0.0</CFBundleVersion>
+        <CFBundlePackageType>AAPL</CFBundlePackageType>
+        <CFBundleSignature>Porta</CFBundleSignature>
+        <CFBundleExecutable>Portal.Desktop</CFBundleExecutable>
+        <CFBundleIconFile>Icon-Pattern-Shadow-Border.icns</CFBundleIconFile>
+        <CFBundleShortVersionString>1.0</CFBundleShortVersionString>
+        <NSPrincipalClass>NSApplication</NSPrincipalClass>
+        <NSHighResolutionCapable>true</NSHighResolutionCapable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,13 +38,26 @@
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
 
-        <PackageReference Include="Avalonia.Markup.Xaml.Loader" PrivateAssets="All" Publish="True" />
-        <PackageReference Include="HotAvalonia" PrivateAssets="All" Publish="True" />
-        <PackageReference Include="SkiaSharp" />
-        <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
+        <PackageReference Include="Avalonia.Markup.Xaml.Loader" PrivateAssets="All" Publish="True"/>
+
+        <PackageReference Include="DotNet.Bundle"/>
+        <PackageReference Include="HotAvalonia" PrivateAssets="All" Publish="True"/>
+        <PackageReference Include="SkiaSharp"/>
+        <PackageReference Include="SkiaSharp.NativeAssets.Linux"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Portal\Portal.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="Icon-Pattern.ico" />
+      <AvaloniaResource Include="Icon-Pattern.svg" />
+      <AvaloniaResource Include="Icon-Pattern-Shadow.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Icon-Pattern-Shadow-Border.icns" />
+      <AvaloniaResource Include="Icon-Pattern-Shadow-Border.icns" />
     </ItemGroup>
 </Project>

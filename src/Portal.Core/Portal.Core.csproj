@@ -8,7 +8,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Minecraft\Account\Authenticator\" />
       <Folder Include="Minecraft\Instance\Java\" />
       <Folder Include="Minecraft\Instance\Manifest\Bedrock\" />
     </ItemGroup>
@@ -23,6 +22,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Portal.Bedrock.Standard\Portal.Bedrock.Standard.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Operations\OpenFile\NewMinecraftFolder.axaml.cs">
+        <DependentUpon>Offline.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
 </Project>

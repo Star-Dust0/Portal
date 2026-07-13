@@ -10,7 +10,7 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
     
-  <PropertyGroup Condition="$(RuntimeIdentifier.Contains('win'))">
+  <PropertyGroup Condition="$(RuntimeIdentifier.Contains('win')) And ('$(OutputType)' == 'WinExe' Or '$(OutputType)' == 'Exe')">
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <DefineConstants>WINDOWS</DefineConstants>
   </PropertyGroup>

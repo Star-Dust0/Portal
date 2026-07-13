@@ -7,13 +7,14 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Portal.Const;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using Portal.Core.Operations;
 using Portal.Core.Operations.Account;
 using Portal.Views.Pages;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Entries;
 using Tio.Avalonia.Standard.Tab.Extensions;
+using Tio.Avalonia.Standard.Tab.Gateway;
 using Tio.Avalonia.Standard.Tab.Interface;
 using TioUi.Common;
 using TioUi.Common.Classes;
@@ -104,7 +105,7 @@ public partial class TitleBarComponent : Grid
             Data.ConfigEntry.MinecraftAccounts.Remove(account);
         }
 
-        Root.TryGetToast()?.Show(new NotificationOptions()
+        NotificationGateway.Notice(Root.GetTopLevel(), new NotificationOptions()
         {
             Content = $"已移除账户：{account.Name} ({account.DisplayAccountNote})",
             Type = NotificationType.Success,

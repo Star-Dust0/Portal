@@ -6,7 +6,7 @@
     x:Class="Portal.Views.Components.TitleBarComponent"
     x:DataType="components:TitleBarComponent"
     xmlns="https://github.com/avaloniaui"
-    xmlns:account="clr-namespace:Portal.Core.Minecraft.Account;assembly=Portal.Core"
+    xmlns:classes="clr-namespace:Portal.Core.Minecraft.Classes;assembly=Portal.Core"
     xmlns:components="clr-namespace:Portal.Views.Components"
     xmlns:const="clr-namespace:Portal.Const"
     xmlns:converter="clr-namespace:Portal.Module.Converter"
@@ -20,22 +20,23 @@
             <converter:ThemeCompareConverter x:Key="ThemeCompareConverter" />
             <converter:IntCompareConverter x:Key="IntCompareConverter" />
         </StackPanel.Resources>
-        <Button
-            IsVisible="{Binding DropMsg, Converter={StaticResource StringIsNotWriteSpaceOrNullConverter}}"
+        <Border
+            IsVisible="{Binding Data.ConfigEntry.ShowDragDropPrompt}"
             Margin="5,0"
-            Theme="{StaticResource TransparentButton}"
             VerticalAlignment="Center">
-            <Border
-                Background="{DynamicResource PopupBackgroundColor}"
-                BorderBrush="{DynamicResource PopupBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="999"
-                Padding="8,2">
-                <Panel>
-                    <TextBlock FontSize="13" Text="{Binding DropMsg}" />
-                </Panel>
-            </Border>
-        </Button>
+            <Button IsVisible="{Binding DropMsg, Converter={StaticResource StringIsNotWriteSpaceOrNullConverter}}" Theme="{StaticResource TransparentButton}">
+                <Border
+                    Background="{DynamicResource PopupBackgroundColor}"
+                    BorderBrush="{DynamicResource PopupBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="999"
+                    Padding="8,2">
+                    <Panel>
+                        <TextBlock FontSize="13" Text="{Binding DropMsg}" />
+                    </Panel>
+                </Border>
+            </Button>
+        </Border>
         <Button
             Click="AccountButton_Click"
             Margin="5,0"
@@ -208,7 +209,7 @@
                             </ListBox.Styles>
 
                             <ListBox.ItemTemplate>
-                                <DataTemplate DataType="account:MinecraftAccount">
+                                <DataTemplate DataType="classes:MinecraftAccount">
                                     <Grid Background="Transparent" ColumnDefinitions="Auto, *, Auto">
 
                                         <Border

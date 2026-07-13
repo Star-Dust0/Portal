@@ -14,6 +14,7 @@
         <converter:BackgroundModeCompareConverter x:Key="BackgroundModeCompareConverter" />
     </UserControl.Resources>
     <StackPanel Spacing="15">
+        <TextBlock FontSize="26" Text="显示与外观" />
         <StackPanel Spacing="5">
             <Label
                 Content="主题样式"

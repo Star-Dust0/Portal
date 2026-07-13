@@ -45,6 +45,7 @@ sealed class Program
             .UseHotReload()
             // .WithDeveloperTools()
 #endif
+            .WithManagedSystemDialogs()
             .WithInterFont()
             .LogToTrace();
 }

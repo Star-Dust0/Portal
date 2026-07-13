@@ -5,7 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using TioUi.Common;
 using TioUi.Controls;
 using TioUi.Common.Interfaces;
@@ -22,10 +22,10 @@ public partial class SelectAccountType : UserControl
 
 public partial class SelectAccountTypeViewModel : ObservableObject, IDialogContext
 {
-    public ObservableCollection<Minecraft.Account.AuthServer> AuthServers { get; } = [];
+    public ObservableCollection<Minecraft.Classes.AuthServer> AuthServers { get; } = [];
 
-    private Minecraft.Account.AuthServer? _selectedServer;
-    public Minecraft.Account.AuthServer? SelectedServer
+    private Minecraft.Classes.AuthServer? _selectedServer;
+    public Minecraft.Classes.AuthServer? SelectedServer
     {
         get => _selectedServer;
         set
@@ -41,9 +41,9 @@ public partial class SelectAccountTypeViewModel : ObservableObject, IDialogConte
 
     public SelectAccountTypeViewModel()
     {
-        AuthServers.Add(new Minecraft.Account.AuthServer(AccountType.Offline, "离线模式"));
-        AuthServers.Add(new Minecraft.Account.AuthServer(AccountType.Microsoft, "微软账户"));
-        AuthServers.Add(new Minecraft.Account.AuthServer(AccountType.Yggdrasil, "外置登录"));
+        AuthServers.Add(new Minecraft.Classes.AuthServer(AccountType.Offline, "离线模式"));
+        AuthServers.Add(new Minecraft.Classes.AuthServer(AccountType.Microsoft, "微软账户"));
+        AuthServers.Add(new Minecraft.Classes.AuthServer(AccountType.Yggdrasil, "外置登录"));
 
         NextCommand = new RelayCommand(Next, CanNext);
         CancelCommand = new RelayCommand(Cancel);
@@ -85,9 +85,9 @@ public enum SelectAccountTypeAction
 public class SelectAccountTypeResult
 {
     public SelectAccountTypeAction Action { get; }
-    public Minecraft.Account.AuthServer? SelectedServer { get; }
+    public Minecraft.Classes.AuthServer? SelectedServer { get; }
 
-    public SelectAccountTypeResult(SelectAccountTypeAction action, Minecraft.Account.AuthServer? selectedServer = null)
+    public SelectAccountTypeResult(SelectAccountTypeAction action, Minecraft.Classes.AuthServer? selectedServer = null)
     {
         Action = action;
         SelectedServer = selectedServer;

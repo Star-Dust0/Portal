@@ -6,7 +6,7 @@ using LiteSkinViewer2D.Extensions;
 using Newtonsoft.Json;
 using SkiaSharp;
 
-namespace Portal.Core.Minecraft.Account;
+namespace Portal.Core.Minecraft.Classes;
 
 public class MinecraftAccount(AccountType accountType)
 {

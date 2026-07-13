@@ -4,12 +4,14 @@ using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Portal.Classes.Entries;
 using Portal.Const;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using Portal.Core.Operations.Account;
 using Tio.Avalonia.Standard.Tab.Extensions;
+using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common;
 using TioUi.Common.Extensions;
 using TioUi.Controls;
+using AuthServer = Portal.Core.Minecraft.Classes.AuthServer;
 using TopLevel = Avalonia.Controls.TopLevel;
 
 
@@ -23,7 +25,7 @@ public class Handler
         {
             var minecraftAccount = entry.Data as MinecraftAccount;
             Data.ConfigEntry.UsingMinecraftMinecraftAccount = minecraftAccount;
-            sender.TryGetToast().Show($"已切换到 {minecraftAccount.Name}", NotificationType.Success);
+            NotificationGateway.Notice(sender, $"已切换到 {minecraftAccount.Name}", NotificationType.Success);
         }
         else if (entry.Type == AggregatedSearchEntryType.AuthServer)
         {
@@ -33,7 +35,7 @@ public class Handler
 
     private static async Task EditAuthServer(AggregatedSearchEntry entry, TopLevel sender)
     {
-        var authServer = entry.Data as Core.Minecraft.Account.AuthServer;
+        var authServer = entry.Data as AuthServer;
         if (authServer == null) return;
 
         var hostId = sender.TryGetHostId();
@@ -60,12 +62,12 @@ public class Handler
             if (result.IsDeleted)
             {
                 Data.ConfigEntry.AuthServers.Remove(result.Server);
-                sender.TryGetToast().Show($"已删除验证服务器：{result.Server.DisplayText}", NotificationType.Success);
+                NotificationGateway.Notice(sender, $"已删除验证服务器：{result.Server.DisplayText}", NotificationType.Success);
             }
             else
             {
                 App.Method.SaveConfig();
-                sender.TryGetToast().Show("验证服务器已更新", NotificationType.Success);
+                NotificationGateway.Notice(sender, "验证服务器已更新", NotificationType.Success);
             }
         }
     }

@@ -15,7 +15,7 @@
         </ResourceDictionary>
     </Application.Resources>
     <Application.Styles>
-        <tio:TioUiTheme />
+        <tio:TioUiTheme Language="zh_cn" />
         <StyleInclude Source="/Styles/Tab.axaml" />
         <StyleInclude Source="/Styles/Style.axaml" />
     </Application.Styles>

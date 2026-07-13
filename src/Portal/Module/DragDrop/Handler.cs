@@ -5,11 +5,13 @@ using Avalonia;
 using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Portal.Const;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using Portal.Core.Operations.Account;
 using Tio.Avalonia.Standard.Tab.Extensions;
+using Tio.Avalonia.Standard.Tab.Gateway;
 using Tio.Avalonia.Standard.Tab.Interface;
 using TioUi.Common;
+using TioUi.Common.Extensions;
 using TioUi.Controls;
 using AuthServer = Portal.Core.Operations.Account.AuthServer;
 
@@ -99,14 +101,14 @@ public class Handler
         };
 
         var result = await OverlayDialog
-            .ShowCustomAsync<AuthServer, AuthServerViewModel, global::Portal.Core.Minecraft.Account.AuthServer>(
+            .ShowCustomAsync<AuthServer, AuthServerViewModel, global::Portal.Core.Minecraft.Classes.AuthServer>(
                 vm, hostId: hostId, options: options);
 
         if (result != null)
         {
             Data.ConfigEntry.AuthServers.Add(result);
             App.Method.SaveConfig();
-            window.TryGetToast()?.Show("验证服务器已添加", NotificationType.Success);
+            NotificationGateway.Notice(window.GetTopLevel(), "验证服务器已添加", NotificationType.Success);
         }
     }
 

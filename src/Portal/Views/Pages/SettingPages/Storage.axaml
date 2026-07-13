@@ -1,0 +1,184 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="Portal.Views.Pages.SettingPages.Storage"
+    x:DataType="settingPages:StorageViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settingPages="clr-namespace:Portal.Views.Pages.SettingPages"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+            <TextBlock FontSize="26" Text="存储" />
+            <Button
+                Command="{Binding RefreshStorageDataAsync}"
+                Margin="5,0,0,2"
+                Theme="{StaticResource TransparentButton}"
+                VerticalAlignment="Bottom">
+                <PathIcon
+                    Data="F1 M640,640z M0,0z M500.7,138.7L512,149.4 512,96C512,78.3 526.3,64 544,64 561.7,64 576,78.3 576,96L576,224C576,241.7,561.7,256,544,256L416,256C398.3,256 384,241.7 384,224 384,206.3 398.3,192 416,192L463.9,192 456.3,184.8C456.1,184.6 455.9,184.4 455.7,184.2 380.7,109.2 259.2,109.2 184.2,184.2 109.2,259.2 109.2,380.7 184.2,455.7 259.2,530.7 380.7,530.7 455.7,455.7 463.9,447.5 471.2,438.8 477.6,429.6 487.7,415.1 507.7,411.6 522.2,421.7 536.7,431.8 540.2,451.8 530.1,466.3 521.6,478.5 511.9,490.1 501,501 401,601 238.9,601 139,501 39.1,401 39,239 139,139 238.9,39.1 400.7,39 500.7,138.7z"
+                    Foreground="{DynamicResource InnerForegroundColor}"
+                    Height="18"
+                    Width="18" />
+            </Button>
+        </StackPanel>
+        <DockPanel Margin="10,5,10,10">
+            <StackPanel DockPanel.Dock="Left" HorizontalAlignment="Left">
+                <Border
+                    CornerRadius="10"
+                    HorizontalAlignment="Left"
+                    Margin="0,0,0,2"
+                    Padding="5,3,5,1">
+                    <Border.Background>
+                        <SolidColorBrush Color="#1890ff" Opacity="0.2" />
+                    </Border.Background>
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="#1890ff"
+                        Text="总计" />
+                </Border>
+                <StackPanel Orientation="Horizontal">
+                    <settingPages:ByteSizeDisplayer FontSize="42" Value="{Binding TotalBytesRaw}" />
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel
+                DockPanel.Dock="Right"
+                HorizontalAlignment="Right"
+                Orientation="Horizontal"
+                Spacing="15">
+                <StackPanel>
+                    <Border
+                        CornerRadius="10"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,2"
+                        Padding="5,3,5,1">
+                        <Border.Background>
+                            <SolidColorBrush Color="#cc4e00" Opacity="0.2" />
+                        </Border.Background>
+                        <TextBlock
+                            FontSize="11"
+                            Foreground="#cc4e00"
+                            Text="Portal" />
+                    </Border>
+                    <StackPanel Orientation="Horizontal">
+                        <settingPages:ByteSizeDisplayer FontSize="42" Value="{Binding PortalBytesRaw}" />
+                    </StackPanel>
+                </StackPanel>
+                <Rectangle
+                    Fill="{DynamicResource LineColor}"
+                    Margin="0,4,0,10"
+                    VerticalAlignment="Stretch"
+                    Width="1" />
+                <StackPanel>
+                    <Border
+                        CornerRadius="10"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,2"
+                        Padding="5,3,5,1">
+                        <Border.Background>
+                            <SolidColorBrush Color="#953ea3" Opacity="0.2" />
+                        </Border.Background>
+                        <TextBlock
+                            FontSize="11"
+                            Foreground="#953ea3"
+                            Text="游戏" />
+                    </Border>
+                    <StackPanel Orientation="Horizontal">
+                        <settingPages:ByteSizeDisplayer FontSize="42" Value="{Binding GameBytesRaw}" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </DockPanel>
+
+        <Separator Background="{DynamicResource LineColor}" Margin="0,5,0,15" />
+
+        <StackPanel Spacing="10">
+            <Border
+                Background="{DynamicResource PopupBackgroundColor}"
+                BorderBrush="{DynamicResource PopupBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="10">
+                <StackPanel>
+                    <DockPanel>
+                        <TextBlock
+                            HorizontalAlignment="Left"
+                            Margin="5,0,0,0"
+                            Text="Portal 数据文件夹" />
+                        <settingPages:ByteSizeDisplayer
+                            DockPanel.Dock="Right"
+                            HorizontalAlignment="Right"
+                            Margin="0,0,5,0"
+                            Value="{Binding PortalBytesRaw}" />
+                    </DockPanel>
+
+                    <DockPanel Margin="0,4,0,0">
+                        <Label
+                            Content="Portal 用户数据，删除将丢失所有账户信息、游戏设置等"
+                            FontSize="13"
+                            Foreground="{DynamicResource InnerForegroundColor}"
+                            Margin="5,0,0,0" />
+                        <HyperlinkButton
+                            Click="OpenFolder_Click"
+                            Content="打开文件夹"
+                            FontSize="12"
+                            HorizontalAlignment="Right"
+                            Margin="0,0,5,0"
+                            Theme="{StaticResource TransparentHyperlinkButton}" />
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding GameFolders}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="10" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="settingPages:GameFolderStorageItem">
+                        <Border
+                            Background="{DynamicResource PopupBackgroundColor}"
+                            BorderBrush="{DynamicResource PopupBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="10">
+                            <StackPanel>
+                                <DockPanel>
+                                    <TextBlock
+                                        HorizontalAlignment="Left"
+                                        Margin="5,0,0,0"
+                                        Text="{Binding FolderName}" />
+                                    <settingPages:ByteSizeDisplayer
+                                        DockPanel.Dock="Right"
+                                        HorizontalAlignment="Right"
+                                        Margin="0,0,5,0"
+                                        Value="{Binding SizeBytes}" />
+                                </DockPanel>
+
+                                <DockPanel Margin="0,4,0,0">
+                                    <Label
+                                        Content="{Binding FolderPath}"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Margin="5,0,0,0" />
+                                    <HyperlinkButton
+                                        Command="{Binding OpenFolderCommand}"
+                                        CommandParameter="{Binding $self}"
+                                        Content="打开文件夹"
+                                        FontSize="12"
+                                        HorizontalAlignment="Right"
+                                        Margin="0,0,5,0"
+                                        Theme="{StaticResource TransparentHyperlinkButton}" />
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

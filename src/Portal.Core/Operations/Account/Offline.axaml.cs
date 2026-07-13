@@ -8,7 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Portal.Core.Minecraft.Account;
+using Portal.Core.Minecraft.Classes;
 using TioUi.Common.Interfaces;
 
 namespace Portal.Core.Operations.Account;
