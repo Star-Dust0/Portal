@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Portal.Core.Minecraft.Account;
 using Portal.Views;
 using Portal.Classes.Enums;
 using Portal.Const;
