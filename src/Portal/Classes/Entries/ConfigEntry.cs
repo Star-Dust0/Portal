@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Portal.Views;
@@ -52,7 +53,7 @@ public partial class ConfigEntry : ObservableObject
                 ThemeHelper.SetThemeColor(ThemeColor);
                 break;
             case nameof(ForegroundColor):
-                ThemeHelper.SetForegroundColor(ForegroundColor);
+                SetForegroundColor(ForegroundColor);
                 break;
             case nameof(BackgroundMode):
             case nameof(BackgroundImagePath):
@@ -68,5 +69,15 @@ public partial class ConfigEntry : ObservableObject
             ConfigIdentifyExtension.MinecraftFolder(this);
         }
         App.Method.SaveConfig();
+    }
+
+    public static void SetForegroundColor(Color color)
+    {
+        var app = Application.Current;
+        if (app?.Resources == null) return;
+
+        app.Resources["ForegroundColor"] = new SolidColorBrush(color);
+        app.Resources["InnerForegroundColor"] = new SolidColorBrush(
+            Color.FromRgb((byte)(color.R * 0.8), (byte)(color.G * 0.8), (byte)(color.B * 0.8)));
     }
 }

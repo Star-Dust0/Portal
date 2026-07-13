@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls.Notifications;
+using Portal.Classes.Entries;
 using Portal.Classes.Enums;
 using Portal.Const;
 using Portal.Core;
@@ -33,7 +34,7 @@ public static class Initializer
 
         ThemeHelper.SetThemeColor(Data.ConfigEntry.ThemeColor);
         ThemeHelper.ToggleTheme(Data.ConfigEntry.Theme);
-        ThemeHelper.SetForegroundColor(Data.ConfigEntry.ForegroundColor);
+        ConfigEntry.SetForegroundColor(Data.ConfigEntry.ForegroundColor);
 
         LoopGc.BeginLoop();
 
