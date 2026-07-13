@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Avalonia;
 using Avalonia.Media;
@@ -40,9 +40,11 @@ public partial class ConfigEntry : ObservableObject
     [ObservableProperty] public partial BackgroundMode BackgroundMode { get; set; } = BackgroundMode.Default;
     [ObservableProperty] public partial string? BackgroundImagePath { get; set; }
     [ObservableProperty] public partial Color BackgroundSolidColor { get; set; } = Color.Parse("#2d2d2d");
+    [ObservableProperty] public partial double ControlOpacity { get; set; } = 0.15;
     [ObservableProperty] public partial double AcrylicOpacity { get; set; } = 0.2;
     [ObservableProperty] public partial double ImageBlurRadius { get; set; } = 0.0;
     [ObservableProperty] public partial Color ForegroundColor { get; set; } = Color.Parse("#494c4f");
+    [ObservableProperty] public partial bool EnableCustomForegroundColor { get; set; } = false;
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -55,14 +57,20 @@ public partial class ConfigEntry : ObservableObject
                 ThemeHelper.SetThemeColor(ThemeColor);
                 break;
             case nameof(ForegroundColor):
-                SetForegroundColor(ForegroundColor);
+            case nameof(EnableCustomForegroundColor):
+                ApplyForegroundColor();
                 break;
             case nameof(BackgroundMode):
             case nameof(BackgroundImagePath):
             case nameof(BackgroundSolidColor):
             case nameof(AcrylicOpacity):
+            case nameof(ControlOpacity):
             case nameof(ImageBlurRadius):
                 TabWindow.ApplyBackgroundToAllWindows();
+                if (BackgroundMode == BackgroundMode.Default)
+                    Application.Current.Resources.Remove("BackGroundOpacity");
+                else
+                    Application.Current.Resources["BackGroundOpacity"] = ControlOpacity;
                 break;
         }
 
@@ -70,7 +78,20 @@ public partial class ConfigEntry : ObservableObject
         {
             ConfigIdentifyExtension.MinecraftFolder(this);
         }
+
         App.Method.SaveConfig();
+    }
+
+    private void ApplyForegroundColor()
+    {
+        if (EnableCustomForegroundColor)
+        {
+            SetForegroundColor(ForegroundColor);
+        }
+        else
+        {
+            ClearForegroundColor();
+        }
     }
 
     public static void SetForegroundColor(Color color)
@@ -81,5 +102,14 @@ public partial class ConfigEntry : ObservableObject
         app.Resources["ForegroundColor"] = new SolidColorBrush(color);
         app.Resources["InnerForegroundColor"] = new SolidColorBrush(
             Color.FromRgb((byte)(color.R * 0.8), (byte)(color.G * 0.8), (byte)(color.B * 0.8)));
+    }
+
+    public static void ClearForegroundColor()
+    {
+        var app = Application.Current;
+        if (app?.Resources == null) return;
+
+        app.Resources.Remove("ForegroundColor");
+        app.Resources.Remove("InnerForegroundColor");
     }
 }

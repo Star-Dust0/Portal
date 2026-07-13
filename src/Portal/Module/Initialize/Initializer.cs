@@ -34,7 +34,10 @@ public static class Initializer
 
         ThemeHelper.SetThemeColor(Data.ConfigEntry.ThemeColor);
         ThemeHelper.ToggleTheme(Data.ConfigEntry.Theme);
-        ConfigEntry.SetForegroundColor(Data.ConfigEntry.ForegroundColor);
+        if (Data.ConfigEntry.EnableCustomForegroundColor)
+        {
+            ConfigEntry.SetForegroundColor(Data.ConfigEntry.ForegroundColor);
+        }
 
         LoopGc.BeginLoop();
 
@@ -42,7 +45,12 @@ public static class Initializer
         NotificationGateway.IsToastFunc = () => Data.ConfigEntry.NoticeWay == NoticeWay.Toast;
 
         Events.CoreSaveSettings += Portal.App.Method.SaveConfig;
-
+        
+        if (Data.ConfigEntry.BackgroundMode == BackgroundMode.Default)
+            Application.Current.Resources.Remove("BackGroundOpacity");
+        else
+            Application.Current.Resources["BackGroundOpacity"] = Data.ConfigEntry.ControlOpacity;
+        
         InitializationEvents.RaiseAfterUiLoaded();
     }
 }

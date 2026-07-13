@@ -4,6 +4,6 @@ public enum BackgroundMode
 {
     Default,
     Image,
-    SolidColor,
+    Color,
     Acrylic
 }

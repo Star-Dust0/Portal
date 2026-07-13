@@ -12,14 +12,17 @@ public class BackgroundModeCompareConverter : IValueConverter
         if (value is not BackgroundMode currentMode || parameter is not string targetModeName)
             return false;
 
-        return targetModeName switch
+        var re = targetModeName.StartsWith('!');
+
+        var res = targetModeName.Trim('!') switch
         {
             "Default" => currentMode == BackgroundMode.Default,
             "Image" => currentMode == BackgroundMode.Image,
-            "SolidColor" => currentMode == BackgroundMode.SolidColor,
+            "SolidColor" => currentMode == BackgroundMode.Color,
             "Acrylic" => currentMode == BackgroundMode.Acrylic,
             _ => false
         };
+        return re ? !res : res;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

@@ -390,11 +390,11 @@ public partial class TabWindow : TioTabWindowBase
                 TransparencyLevelHint = new[] { WindowTransparencyLevel.None };
                 break;
 
-            case BackgroundMode.SolidColor:
+            case BackgroundMode.Color:
                 if (RootBorder != null)
                     RootBorder.Background = new SolidColorBrush(entry.BackgroundSolidColor);
                 ClearValue(TransparencyBackgroundFallbackProperty);
-                TransparencyLevelHint = new[] { WindowTransparencyLevel.None };
+                TransparencyLevelHint = new[] { WindowTransparencyLevel.Transparent };
                 break;
 
             case BackgroundMode.Acrylic:
