@@ -1,0 +1,344 @@
+name: publish/nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 北京时间 04:00
+    - cron: "00 20 * * *"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version_json: ${{ steps.meta.outputs.json }}
+      app_version: ${{ steps.meta.outputs.app_version }}
+      base_version: ${{ steps.meta.outputs.base_version }}
+      commit: ${{ steps.meta.outputs.commit_hash }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Meta and JSON
+        id: meta
+        run: |
+          BASE_VERSION=$(cat ./src/version.txt | tr -d '[:space:]')
+
+          Y=$(TZ='Asia/Shanghai' date +'%Y')
+          MD=$(TZ='Asia/Shanghai' date +'%m%d')
+          HM=$(TZ='Asia/Shanghai' date +'%H%M')
+          APP_VERSION="${Y}.${MD}.${HM}"
+
+          COMMIT_HASH=$(git rev-parse --short=6 HEAD)
+
+          BUILD_TIME=$(TZ='Asia/Shanghai' date -Iseconds)
+          ACTION_RUN_ID="${{ github.run_id }}"
+
+          JSON_STRING="{\"type\":\"nightly\",\"build-time\":\"${BUILD_TIME}\",\"action\":\"${ACTION_RUN_ID}\",\"commit\":\"${COMMIT_HASH}\",\"version\":\"${BASE_VERSION}\"}"
+
+          echo "组装的 JSON 为: $JSON_STRING"
+
+          echo "json=${JSON_STRING}" >> $GITHUB_OUTPUT
+          echo "app_version=${APP_VERSION}" >> $GITHUB_OUTPUT
+          echo "base_version=${BASE_VERSION}" >> $GITHUB_OUTPUT
+          echo "commit_hash=${COMMIT_HASH}" >> $GITHUB_OUTPUT
+
+  appImage:
+    runs-on: ubuntu-22.04
+    needs: prepare
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Write CI Version Config
+        run: |
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+      - name: Dependency
+        run: |
+          dotnet tool install -g KuiperZone.PupNet --version 1.8.0
+          sudo apt-get update
+          sudo apt-get install fuse
+      - name: Build-AppImage
+        run: |
+          cd ./src/Portal.Desktop
+          sudo su
+          pupnet --runtime linux-x64 --kind appimage -o Portal.linux.x64.AppImage -y --app-version ${{ needs.prepare.outputs.app_version }}
+          pupnet --runtime linux-arm --kind appimage -o Portal.linux.arm.AppImage -y --app-version ${{ needs.prepare.outputs.app_version }}
+          pupnet --runtime linux-arm64 --kind appimage -o Portal.linux.arm64.AppImage -y --app-version ${{ needs.prepare.outputs.app_version }}
+      - name: UploadArtifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: |
+            src/Portal.Desktop/Deploy/OUT/*
+            src/Portal.Desktop/bin/Release/net10.0/*.zip
+
+  osxApp:
+    runs-on: ubuntu-22.04
+    needs: prepare
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Write CI Version Config
+        run: |
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+      - name: Build-MacOsApp-x64
+        run: |
+          cd ./src/Portal.Desktop
+          sudo su
+          dotnet restore -r osx-x64
+          dotnet msbuild -t:BundleApp -p:RuntimeIdentifier=osx-x64 -property:Configuration=Release -p:SelfContained=true
+          cp "../../assets/Icon-Pattern-Shadow-Border.icns" "./bin/Release/net10.0/osx-x64/publish/Portal.app/Contents/Resources/Icon-Pattern-Shadow-Border.icns"
+          cd ./bin/Release/net10.0/
+          cd ./osx-x64/publish/
+          zip -9 -r ../../Portal.osx.mac.x64.app.zip "./Portal.app"
+      - name: Build-MacOsApp-arm64
+        run: |
+          cd ./src/Portal.Desktop
+          sudo su
+          dotnet restore -r osx-arm64
+          dotnet msbuild -t:BundleApp -p:RuntimeIdentifier=osx-arm64 -property:Configuration=Release -p:SelfContained=true
+          cp "../../assets/Icon-Pattern-Shadow-Border.icns" "./bin/Release/net10.0/osx-arm64/publish/Portal.app/Contents/Resources/Icon-Pattern-Shadow-Border.icns"
+          cd ./bin/Release/net10.0/
+          cd ./osx-arm64/publish/
+          zip -9 -r ../../Portal.osx.mac.arm64.app.zip "./Portal.app"
+      - name: UploadArtifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: osx-app-artifacts
+          path: |
+            src/Portal.Desktop/Deploy/OUT/*
+            src/Portal.Desktop/bin/Release/net10.0/*.zip
+
+  win-exe-x64:
+    runs-on: windows-latest
+    needs: prepare
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Write CI Version Config
+        run: |
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+        shell: bash
+      - name: Build
+        run: |
+          cd ./src/Portal.Desktop
+          dotnet publish -c Release -r win-x64 `
+            /p:PublishSingleFile=true `
+            /p:PublishReadyToRun=true `
+            /p:IncludeNativeLibrariesForSelfExtract=true `
+            /p:SelfContained=true `
+            /p:Version=${{ needs.prepare.outputs.app_version }} `
+            -o "../../publish/win-x64" -p:DebugType=none -p:DebugSymbols=false
+      - name: Rename Executable
+        run: |
+          Rename-Item -Path "./publish/win-x64/Portal.Desktop.exe" -NewName "Portal.win.x64.executable.exe" -Force
+      - name: ZIP
+        run: |
+          Compress-Archive -Path "./publish/win-x64/*" -DestinationPath "./publish/Portal.win.x64.executable.zip" -Force
+      - name: UploadArtifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-exe-x64-artifacts
+          path: |
+            ./publish/*.zip
+
+  win-exe-x86:
+    runs-on: windows-latest
+    needs: prepare
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Write CI Version Config
+        run: |
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+        shell: bash
+      - name: Build
+        run: |
+          cd ./Portal.Main/Portal.Desktop
+          dotnet publish -c Release -r win-x86 `
+            /p:PublishSingleFile=true `
+            /p:PublishReadyToRun=true `
+            /p:IncludeNativeLibrariesForSelfExtract=true `
+            /p:SelfContained=true `
+            /p:Version=${{ needs.prepare.outputs.app_version }} `
+            -o "../../publish/win-x86" -p:DebugType=none -p:DebugSymbols=false
+      - name: Rename Executable
+        run: |
+          Rename-Item -Path "./publish/win-x86/Portal.Desktop.exe" -NewName "Portal.win.x86.executable.exe" -Force
+      - name: ZIP
+        run: |
+          Compress-Archive -Path "./publish/win-x86/*" -DestinationPath "./publish/Portal.win.x86.executable.zip" -Force
+      - name: UploadArtifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-exe-x86-artifacts
+          path: |
+            ./publish/*.zip
+
+  win-exe-arm64:
+    runs-on: windows-latest
+    needs: prepare
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Write CI Version Config
+        run: |
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+        shell: bash
+      - name: Build
+        run: |
+          cd ./Portal.Main/Portal.Desktop
+          dotnet publish -c Release -r win-arm64 `
+            /p:PublishSingleFile=true `
+            /p:PublishReadyToRun=true `
+            /p:IncludeNativeLibrariesForSelfExtract=true `
+            /p:SelfContained=true `
+            /p:Version=${{ needs.prepare.outputs.app_version }} `
+            -o "../../publish/win-arm64" -p:DebugType=none -p:DebugSymbols=false
+      - name: Rename Executable
+        run: |
+          Rename-Item -Path "./publish/win-arm64/Portal.Desktop.exe" -NewName "Portal.win.arm64.executable.exe" -Force
+      - name: ZIP
+        run: |
+          Compress-Archive -Path "./publish/win-arm64/*" -DestinationPath "./publish/Portal.win.arm64.executable.zip" -Force
+      - name: UploadArtifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-exe-arm64-artifacts
+          path: |
+            ./publish/*.zip
+
+  win-installer:
+    runs-on: windows-latest
+    needs: prepare
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Dependency-InnoSetup
+        uses: ConorMacBride/install-package@v1
+        with:
+          choco: innosetup
+      - name: Chinesize-InnoSetup
+        run: |
+          Copy-Item "./assets/ChineseSimplified.isl" "C:\Program Files (x86)\Inno Setup 6\Default.isl" -Force
+      - name: Dependency-Pupnet
+        run: |
+          dotnet tool install -g KuiperZone.PupNet --version 1.8.0
+      - name: Write CI Version Config
+        run: |
+          mkdir -p ./src
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+        shell: bash
+      - name: Build
+        run: |
+          cd ./Portal.Main/Portal.Desktop
+          pupnet -r win-x64 -k setup -y -o Portal.win.x64.installer.exe --app-version ${{ needs.prepare.outputs.app_version }}
+          pupnet -r win-x86 -k setup -y -o Portal.win.x86.installer.exe --app-version ${{ needs.prepare.outputs.app_version }}
+          pupnet -r win-arm64 -k setup -y -o Portal.win.arm64.installer.exe --app-version ${{ needs.prepare.outputs.app_version }}
+      - name: UploadArtifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-installer-artifacts
+          path: |
+            ./Portal.Main/Portal.Desktop/Deploy/OUT/*
+
+  mac-dmg:
+    needs: [osxApp]
+    runs-on: macos-latest
+    steps:
+      - name: Download-LinuxArtifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: osx-app-artifacts
+          path: ./Portal.Release/
+      - name: Unzip
+        run: |
+          unzip -n ./Portal.Release/bin/Release/net8.0/Portal.osx.mac.x64.app.zip -d ./app.x64
+          unzip -n ./Portal.Release/bin/Release/net8.0/Portal.osx.mac.arm64.app.zip -d ./app.arm64
+      - name: Build-MacOsDmg-x64
+        uses: L-Super/create-dmg-actions@v1.0.3
+        with:
+          dmg_name: "Portal.osx.mac.x64"
+          src_dir: "./app.x64/Portal.app"
+      - name: Build-MacOsDmg-arm64
+        uses: L-Super/create-dmg-actions@v1.0.3
+        with:
+          dmg_name: "Portal.osx.mac.arm64"
+          src_dir: "./app.arm64/Portal.app"
+      - name: UploadArtifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: osx-artifacts
+          path: |
+            ./Portal.osx.mac.arm64.dmg
+            ./Portal.osx.mac.x64.dmg
+
+  publish:
+    needs:
+      [
+        prepare,
+        mac-dmg,
+        win-installer,
+        win-exe-x64,
+        win-exe-arm64,
+        win-exe-x86,
+        appImage,
+      ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download-LinuxArtifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-artifacts
+          path: ./Portal.Release/
+      - name: Download-OsxAppArtifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: osx-app-artifacts
+          path: ./Portal.Release/
+      - name: Download-WindowsInstallerArtifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: win-installer-artifacts
+          path: ./Portal.Release/
+      - name: Download-WindowsExeX64Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: win-exe-x64-artifacts
+          path: ./Portal.Release/
+      - name: Download-WindowsExeX86Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: win-exe-x86-artifacts
+          path: ./Portal.Release/
+      - name: Download-WindowsExeArm64Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: win-exe-arm64-artifacts
+          path: ./Portal.Release/
+      - name: Download-MacArtifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: osx-artifacts
+          path: ./Portal.Release/
+      - name: List Files
+        run: |
+          ls -la ./Portal.Release/
+      - name: Publish Release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.TOKEN }}"
+          title: "build-nightly-${{ needs.prepare.outputs.app_version }}-${{ github.run_id }}-${{ needs.prepare.outputs.commit }}"
+          automatic_release_tag: "publish-nightly"
+          prerelease: false
+          files: |
+            Portal.Release/*.exe
+            Portal.Release/*.dmg
+            Portal.Release/*.zip
+            Portal.Release/Deploy/OUT/*.AppImage
+            Portal.Release/bin/Release/net8.0/*.zip
