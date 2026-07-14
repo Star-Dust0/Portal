@@ -80,6 +80,27 @@ public partial class InstanceListViewModelBase : ObservableObject
         }
     }
 
+    public string SummaryText
+    {
+        get;
+        private set => SetProperty(ref field, value);
+    } = string.Empty;
+
+    private MinecraftInstance? _recentInstance;
+    public MinecraftInstance? RecentInstance
+    {
+        get => _recentInstance;
+        private set
+        {
+            if (SetProperty(ref _recentInstance, value))
+            {
+                OnPropertyChanged(nameof(HasRecentInstance));
+            }
+        }
+    }
+
+    public bool HasRecentInstance => RecentInstance != null;
+
     protected virtual bool FolderFilterEnabled => false;
 
     public void RefreshFolderFilterOptions()
@@ -99,6 +120,7 @@ public partial class InstanceListViewModelBase : ObservableObject
 
     public void ApplyFilterAndSort()
     {
+        UpdateRecentInstance();
         FilteredMinecraftInstances.Clear();
         var query = InstanceManager.Instance.Instances.AsEnumerable();
 
@@ -170,6 +192,43 @@ public partial class InstanceListViewModelBase : ObservableObject
         };
 
         FilteredMinecraftInstances.AddRange(sortedResult);
+        UpdateSummaryText(sortedResult);
+    }
+
+    private void UpdateRecentInstance()
+    {
+        var recent = InstanceManager.Instance.Instances
+            .Where(x => x.LastPlayTime != DateTime.MinValue)
+            .OrderByDescending(x => x.LastPlayTime)
+            .FirstOrDefault();
+        RecentInstance = recent;
+    }
+
+    private void UpdateSummaryText(IEnumerable<MinecraftInstance> instances)
+    {
+        var list = instances.ToList();
+        var totalCount = list.Count;
+        var javaCount = list.Count(x => x.Type == MinecraftInstanceType.Java);
+        var bedrockCount = list.Count(x => x.Type == MinecraftInstanceType.Bedrock);
+
+        if (FolderFilterEnabled)
+        {
+            var selectedFolder = _selectedFolderFilter?.FolderName;
+            if (string.IsNullOrEmpty(selectedFolder))
+            {
+                var folderCount = list.Select(x => x.FolderName).Distinct().Count();
+                SummaryText = $"找到{folderCount}个文件夹的{totalCount}个实例\nJava版{javaCount}个，基岩版{bedrockCount}个";
+            }
+            else
+            {
+                SummaryText = $"找到{totalCount}个实例\nJava版{javaCount}个，基岩版{bedrockCount}个";
+            }
+        }
+        else
+        {
+            var folderCount = list.Select(x => x.FolderName).Distinct().Count();
+            SummaryText = $"找到{folderCount}个文件夹的{totalCount}个实例\nJava版{javaCount}个，基岩版{bedrockCount}个";
+        }
     }
 
     protected static Version? ParseVersion(string? versionId)

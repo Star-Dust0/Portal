@@ -23,7 +23,29 @@ public class MinecraftInstance : ObservableObject
 
     public string InstanceFolderPath { get; init; }
 
-    public DateTime LastPlayTime { get; init; } = DateTime.MinValue;
+    public DateTime LastPlayTime => Config?.LastPlayTime ?? DateTime.MinValue;
+
+    [JsonIgnore]
+    public string DisplayLastPlayTime
+    {
+        get
+        {
+            var time = LastPlayTime;
+            if (time == DateTime.MinValue)
+                return "从未游玩";
+
+            var timeSpan = DateTime.Now - time;
+
+            if (timeSpan.TotalMinutes < 1)
+                return "刚刚";
+
+            if (!(timeSpan.TotalDays <= 30)) return time.ToString("yyyy-MM-dd HH:mm");
+            if (timeSpan.TotalDays >= 1)
+                return $"{(int)timeSpan.TotalDays} 天前";
+
+            return timeSpan.TotalHours >= 1 ? $"{(int)timeSpan.TotalHours} 小时前" : $"{(int)timeSpan.TotalMinutes} 分钟前";
+        }
+    }
 
     public string MinecraftPath
     {
@@ -253,6 +275,7 @@ public partial class MinecraftInstanceConfig : ObservableObject
     [ObservableProperty] public partial string Note { get; set; }
     [ObservableProperty] public partial bool IsFavorite { get; set; }
     [ObservableProperty] public partial bool EnableIndependentInstance { get; set; } = true;
+    [ObservableProperty] public partial DateTime LastPlayTime { get; set; } = DateTime.MinValue;
 }
 
 public enum MinecraftInstanceType

@@ -6,6 +6,7 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Portal.Const;
 using Portal.Core.Minecraft.Classes;
+using Portal.Core.Minecraft.Instance;
 using Portal.ViewModels;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Entries;
@@ -22,6 +23,7 @@ public partial class InstancesPage : DataUserControl, ITioTabPage
         InitializeComponent();
         InstancesPageViewModel = new InstancesPageViewModel();
         DataContext = InstancesPageViewModel;
+        Loaded += (_, _) => InstancesPageViewModel.ApplyFilterAndSort();
     }
 
     public PageInfo PageInfo { get; init; } = new()
@@ -42,6 +44,14 @@ public partial class InstancesPage : DataUserControl, ITioTabPage
         instance.SaveConfig();
         InstancesPageViewModel.ApplyFilterAndSort();
     }
+
+    private void RefreshInstance_Click(object? sender, RoutedEventArgs e)
+    {
+        InstanceManager.Instance.RefreshAll(
+            Data.ConfigEntry.MinecraftFolders.Select(f => (f.FolderPath, f.FolderName))
+        );
+        InstancesPageViewModel.ApplyFilterAndSort();
+    }
 }
 
 public partial class InstancesPageViewModel : InstanceListViewModelBase
@@ -52,6 +62,5 @@ public partial class InstancesPageViewModel : InstanceListViewModelBase
     {
         SelectedSortOption = SortOptions.FirstOrDefault(o => o.SortType == Data.ConfigEntry.DefaultInstanceSortType);
         RefreshFolderFilterOptions();
-        ApplyFilterAndSort();
     }
 }

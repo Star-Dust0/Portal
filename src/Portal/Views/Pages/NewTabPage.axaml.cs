@@ -37,6 +37,7 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
         InitializeComponent();
         NewTabViewModel = new NewTabViewModel();
         DataContext = NewTabViewModel;
+        Loaded += (_, _) => NewTabViewModel.ApplyFilterAndSort();
     }
 
     public PageInfo PageInfo { get; init; } = new()
@@ -131,7 +132,6 @@ public partial class NewTabViewModel : InstanceListViewModelBase
     public NewTabViewModel()
     {
         SelectedSortOption = SortOptions.FirstOrDefault(o => o.SortType == Data.ConfigEntry.DefaultInstanceSortType);
-        ApplyFilterAndSort();
     }
 
     [RelayCommand]
