@@ -41,7 +41,6 @@ public partial class UiProperty : ObservableObject
 
     public static ObservableCollection<NotificationEntry> Notifications { get; } = [];
     public static ObservableCollection<NotificationEntry> HistoryNotifications { get; } = [];
-    public static ObservableCollection<MinecraftInstance> MinecraftInstances { get; } = [];
     public static IReadOnlyList<Window> Windows => (Application.Current!.ApplicationLifetime as
         IClassicDesktopStyleApplicationLifetime).Windows;
     public static ITioWindow? ActiveWindow => Windows.FirstOrDefault

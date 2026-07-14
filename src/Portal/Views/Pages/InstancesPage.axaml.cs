@@ -6,8 +6,9 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Portal.Classes.Enums;
-using Portal.Const;
+using Portal.Classes.Entries;
 using Portal.Core.Minecraft.Classes;
+using Portal.Core.Minecraft.Instance;
 using Portal.ViewModels;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Entries;
@@ -60,6 +61,21 @@ public partial class InstancesPageViewModel : ObservableObject
         new SortOption { DisplayText = "版本", SortType = InstanceSortType.Version },
     };
 
+    public List<FolderFilterOption> FolderFilterOptions { get; set; } = [];
+
+    private FolderFilterOption? _selectedFolderFilter;
+    public FolderFilterOption? SelectedFolderFilter
+    {
+        get => _selectedFolderFilter;
+        set
+        {
+            if (SetProperty(ref _selectedFolderFilter, value))
+            {
+                ApplyFilterAndSort();
+            }
+        }
+    }
+
     private SortOption? _selectedSortOption;
 
     public SortOption? SelectedSortOption
@@ -82,7 +98,23 @@ public partial class InstancesPageViewModel : ObservableObject
     public InstancesPageViewModel()
     {
         _selectedSortOption = SortOptions.FirstOrDefault(o => o.SortType == Data.ConfigEntry.DefaultInstanceSortType);
+        RefreshFolderFilterOptions();
         ApplyFilterAndSort();
+    }
+
+    public void RefreshFolderFilterOptions()
+    {
+        var currentSelection = _selectedFolderFilter;
+        FolderFilterOptions.Clear();
+        FolderFilterOptions.Add(new FolderFilterOption { DisplayText = "所有文件夹", FolderName = null });
+        foreach (var folder in Data.ConfigEntry.MinecraftFolders)
+        {
+            FolderFilterOptions.Add(new FolderFilterOption { DisplayText = folder.FolderName, FolderName = folder.FolderName });
+        }
+        _selectedFolderFilter = currentSelection != null
+            ? FolderFilterOptions.FirstOrDefault(o => o.FolderName == currentSelection.FolderName)
+            : FolderFilterOptions[0];
+        OnPropertyChanged(nameof(SelectedFolderFilter));
     }
 
     public string SearchText
@@ -100,7 +132,13 @@ public partial class InstancesPageViewModel : ObservableObject
     public void ApplyFilterAndSort()
     {
         FilteredMinecraftInstances.Clear();
-        var query = UiProperty.MinecraftInstances.AsEnumerable();
+        var query = InstanceManager.Instance.Instances.AsEnumerable();
+
+        var selectedFolder = _selectedFolderFilter?.FolderName;
+        if (!string.IsNullOrEmpty(selectedFolder))
+        {
+            query = query.Where(x => x.FolderName == selectedFolder);
+        }
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
@@ -111,7 +149,13 @@ public partial class InstancesPageViewModel : ObservableObject
                  x.InstanceName.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
                 (x.Config?.Note != null && x.Config.Note.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
                 (!string.IsNullOrEmpty(x.VersionId) &&
-                 x.VersionId.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                 x.VersionId.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(x.VersionType) &&
+                 x.VersionType.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(x.Description) &&
+                 x.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(x.LoaderDescription) &&
+                 x.LoaderDescription.Contains(keyword, StringComparison.OrdinalIgnoreCase))
             );
         }
 
@@ -179,4 +223,10 @@ public partial class InstancesPageViewModel : ObservableObject
 
         return null;
     }
+}
+
+public class FolderFilterOption
+{
+    public string DisplayText { get; set; } = string.Empty;
+    public string? FolderName { get; set; }
 }

@@ -101,13 +101,35 @@ public class MinecraftInstance : ObservableObject
         InstanceFolderPath = Path.GetDirectoryName(e.ClientJarPath);
     }
 
-    public MinecraftInstance(BedrockInstanceConfig bedrockConfig, string folderName)
+    public string Description
+    {
+        get
+        {
+            if (Type == MinecraftInstanceType.Bedrock && BedrockConfig != null)
+                return BedrockConfig.Description ?? string.Empty;
+            return Config?.Note ?? string.Empty;
+        }
+    }
+
+    public string VersionType
+    {
+        get
+        {
+            if (Type == MinecraftInstanceType.Java && MinecraftEntry != null)
+                return MinecraftEntry.Version.Type.ToString();
+            if (Type == MinecraftInstanceType.Bedrock && BedrockConfig != null)
+                return BedrockConfig.Type.ToString();
+            return string.Empty;
+        }
+    }
+
+    public MinecraftInstance(BedrockInstanceConfig bedrockConfig, string folderName, string folderPath)
     {
         Type = MinecraftInstanceType.Bedrock;
         BedrockConfig = bedrockConfig;
         FolderName = folderName;
+        FolderPath = folderPath;
         InstanceFolderPath = bedrockConfig.InstancePath;
-        FolderPath = bedrockConfig.;
     }
 
     private MinecraftInstanceConfig GetInstanceConfig()

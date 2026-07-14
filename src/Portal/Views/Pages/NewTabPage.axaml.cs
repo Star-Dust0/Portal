@@ -59,7 +59,7 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
 
     private void Button_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (UiProperty.MinecraftInstances.Count == 0)
+        if (InstanceManager.Instance.Instances.Count == 0)
         {
             sender.AsTopLevel().Notice("还没有实例可以抽签哦", NotificationType.Error);
             return;
@@ -85,7 +85,7 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
 
         async Task Show()
         {
-            var result = UiProperty.MinecraftInstances.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+            var result = InstanceManager.Instance.Instances.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
             var feed = await OverlayDialog.ShowCustomAsync<RandomMinecraft, RandomMinecraftViewModle, string>(
                 new RandomMinecraftViewModle(result), sender.AsTopLevel().TryGetHostId(), options: options);
 
@@ -119,7 +119,10 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
 
     private void RefreshInstance_Click(object? sender, RoutedEventArgs e)
     {
-        InstanceManager.
+        InstanceManager.Instance.RefreshAll(
+            Data.ConfigEntry.MinecraftFolders.Select(f => (f.FolderPath, f.FolderName))
+        );
+        NewTabViewModel.ApplyFilterAndSort();
     }
 }
 
@@ -193,7 +196,7 @@ public partial class NewTabViewModel : ObservableObject
     public void ApplyFilterAndSort()
     {
         FilteredMinecraftInstances.Clear();
-        var query = UiProperty.MinecraftInstances.AsEnumerable();
+        var query = InstanceManager.Instance.Instances.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
@@ -204,7 +207,13 @@ public partial class NewTabViewModel : ObservableObject
                  x.InstanceName.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
                 (x.Config?.Note != null && x.Config.Note.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
                 (!string.IsNullOrEmpty(x.VersionId) &&
-                 x.VersionId.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                 x.VersionId.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(x.VersionType) &&
+                 x.VersionType.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(x.Description) &&
+                 x.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(x.LoaderDescription) &&
+                 x.LoaderDescription.Contains(keyword, StringComparison.OrdinalIgnoreCase))
             );
         }
 

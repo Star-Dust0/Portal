@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using MinecraftLaunch.Components.Parser;
 using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Instance.Bedrock;
@@ -6,19 +7,61 @@ namespace Portal.Core.Minecraft.Instance;
 
 public class InstanceManager
 {
-    private readonly string _gameRootFolder;
-    private readonly string _folderName;
+    private static InstanceManager? _instance;
+
+    public static InstanceManager Instance
+    {
+        get { return _instance ??= new InstanceManager(); }
+    }
+
+    public ObservableCollection<MinecraftInstance> Instances { get; } = [];
 
     public List<string> VersionFolders { get; } = new() { "versions", "bedrock_versions" };
-    
-    
-    public InstanceManager(string gameRootFolder, string folderName)
+
+    private InstanceManager() { }
+
+    public void RefreshAll(IEnumerable<(string FolderPath, string FolderName)> folders)
+    {
+        Instances.Clear();
+
+        foreach (var (folderPath, folderName) in folders)
+        {
+            if (!Directory.Exists(folderPath)) continue;
+
+            var scanner = new FolderScanner(folderPath, folderName, VersionFolders);
+            var instances = scanner.Scan();
+            foreach (var instance in instances)
+            {
+                Instances.Add(instance);
+            }
+        }
+    }
+
+    public static MinecraftInstanceType GetInstanceType(string instanceFolder)
+    {
+        if (File.Exists(Path.Combine(instanceFolder, "appxmanifest.xml")))
+            return MinecraftInstanceType.Bedrock;
+        if (File.Exists(Path.Combine(instanceFolder, $"{Path.GetFileName(instanceFolder)}.json")))
+            return MinecraftInstanceType.Java;
+
+        return MinecraftInstanceType.Java;
+    }
+}
+
+internal class FolderScanner
+{
+    private readonly string _gameRootFolder;
+    private readonly string _folderName;
+    private readonly List<string> _versionFolders;
+
+    public FolderScanner(string gameRootFolder, string folderName, List<string> versionFolders)
     {
         _gameRootFolder = gameRootFolder;
         _folderName = folderName;
+        _versionFolders = versionFolders;
     }
 
-    public List<MinecraftInstance> RefreshInstances()
+    public List<MinecraftInstance> Scan()
     {
         var instances = new List<MinecraftInstance>();
 
@@ -27,7 +70,7 @@ public class InstanceManager
 
         var processedFolders = new HashSet<string>();
 
-        foreach (var versionFolder in VersionFolders)
+        foreach (var versionFolder in _versionFolders)
         {
             var versionsFolderPath = Path.Combine(_gameRootFolder, versionFolder);
             if (!Directory.Exists(versionsFolderPath))
@@ -44,7 +87,7 @@ public class InstanceManager
                     continue;
                 processedFolders.Add(folderKey);
 
-                var instanceType = GetInstanceType(instanceFolder);
+                var instanceType = InstanceManager.GetInstanceType(instanceFolder);
 
                 if (instanceType == MinecraftInstanceType.Java)
                 {
@@ -63,7 +106,7 @@ public class InstanceManager
                     try
                     {
                         var bedrockConfig = BedrockHelper.GetInstanceConfig(instanceFolder);
-                        instances.Add(new MinecraftInstance(bedrockConfig, _folderName));
+                        instances.Add(new MinecraftInstance(bedrockConfig, _folderName, _gameRootFolder));
                     }
                     catch
                     {
@@ -73,15 +116,5 @@ public class InstanceManager
         }
 
         return instances;
-    }
-
-    public static MinecraftInstanceType GetInstanceType(string instanceFolder)
-    {
-        if (File.Exists(Path.Combine(instanceFolder, "appxmanifest.xml")))
-            return MinecraftInstanceType.Bedrock;
-        if (File.Exists(Path.Combine(instanceFolder, $"{Path.GetFileName(instanceFolder)}.json")))
-            return MinecraftInstanceType.Java;
-
-        return MinecraftInstanceType.Java;
     }
 }

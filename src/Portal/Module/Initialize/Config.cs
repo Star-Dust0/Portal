@@ -5,7 +5,6 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Portal.Classes.Entries;
 using Portal.Const;
-using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Instance;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Modules.Events;
@@ -79,17 +78,9 @@ public class Config
         Data.UiProperty.ConfigLoaded = true;
         ConfigIdentifyExtension.MinecraftFolder(Data.ConfigEntry);
 
-        foreach (var folder in Data.ConfigEntry.MinecraftFolders)
-        {
-            if (!Directory.Exists(folder.FolderPath)) continue;
-
-            var instanceManager = new InstanceManager(folder.FolderPath, folder.FolderName);
-            var instances = instanceManager.RefreshInstances();
-            foreach (var instance in instances)
-            {
-                UiProperty.MinecraftInstances.Add(instance);
-            }
-        }
+        InstanceManager.Instance.RefreshAll(
+            Data.ConfigEntry.MinecraftFolders.Select(f => (f.FolderPath, f.FolderName))
+        );
 
         InitializationEvents.RaiseBeforeUiLoaded();
     }
