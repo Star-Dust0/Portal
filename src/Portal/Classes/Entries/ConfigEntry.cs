@@ -157,7 +157,7 @@ public partial class ConfigEntry : ObservableObject
 
         app.Resources["ForegroundColor"] = new SolidColorBrush(color);
         app.Resources["InnerForegroundColor"] = new SolidColorBrush(
-            Color.FromRgb((byte)(color.R * 0.8), (byte)(color.G * 0.8), (byte)(color.B * 0.8)));
+            Color.FromRgb((byte)(color.R * 0.9), (byte)(color.G * 0.9), (byte)(color.B * 0.9)));
     }
 
     public static void ClearForegroundColor()
