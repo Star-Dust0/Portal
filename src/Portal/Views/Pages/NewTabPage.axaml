@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d"
@@ -123,19 +123,33 @@
                                     VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
-                        <TextBox
+                        <StackPanel
                             HorizontalAlignment="Right"
-                            PlaceholderText="搜索"
-                            Text="{Binding SearchText}"
-                            Width="170">
-                            <TextBox.InnerRightContent>
-                                <PathIcon
-                                    Data="F1 M512,512z M0,0z M416,208C416,253.9,401.1,296.3,376,330.7L502.6,457.4C515.1,469.9 515.1,490.2 502.6,502.7 490.1,515.2 469.8,515.2 457.3,502.7L330.7,376C296.3,401.1 253.9,416 208,416 93.1,416 0,322.9 0,208 0,93.1 93.1,0 208,0 322.9,0 416,93.1 416,208z M208,352A144,144,0,1,0,208,64A144,144,0,1,0,208,352z"
-                                    Foreground="{DynamicResource InnerForegroundColor}"
-                                    Height="14"
-                                    Width="14" />
-                            </TextBox.InnerRightContent>
-                        </TextBox>
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <ComboBox
+                                ItemsSource="{Binding SortOptions}"
+                                SelectedItem="{Binding SelectedSortOption}"
+                                Width="120">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding DisplayText}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <TextBox
+                                PlaceholderText="搜索"
+                                Text="{Binding SearchText}"
+                                Width="170">
+                                <TextBox.InnerRightContent>
+                                    <PathIcon
+                                        Data="F1 M512,512z M0,0z M416,208C416,253.9,401.1,296.3,376,330.7L502.6,457.4C515.1,469.9 515.1,490.2 502.6,502.7 490.1,515.2 469.8,515.2 457.3,502.7L330.7,376C296.3,401.1 253.9,416 208,416 93.1,416 0,322.9 0,208 0,93.1 93.1,0 208,0 322.9,0 416,93.1 416,208z M208,352A144,144,0,1,0,208,64A144,144,0,1,0,208,352z"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Height="14"
+                                        Width="14" />
+                                </TextBox.InnerRightContent>
+                            </TextBox>
+                        </StackPanel>
                     </Panel>
                     <ScrollViewer
                         Background="Transparent"

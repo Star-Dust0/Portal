@@ -12,6 +12,7 @@ public class MinecraftInstance : ObservableObject
 {
     public MinecraftEntry MinecraftEntry { get; init; }
     public string FolderName { get; init; }
+    public DateTime LastPlayTime { get; init; } = DateTime.MinValue;
     public string MinecraftPath => Path.GetDirectoryName(MinecraftEntry.ClientJarPath);
     public MinecraftInstanceConfig Config => field ??= GetInstanceConfig();
 
