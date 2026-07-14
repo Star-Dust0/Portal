@@ -26,7 +26,7 @@ public partial class Account : DataUserControl
 
     private void SaveSkin_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is not MenuItem menuItem || menuItem.CommandParameter is not MinecraftAccount account)
+        if (sender is not MenuItem { CommandParameter: MinecraftAccount account })
             return;
 
         _ = SaveSkinAsync(account);
@@ -65,7 +65,7 @@ public partial class Account : DataUserControl
 
     private void RefreshInfo_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is not MenuItem menuItem || menuItem.CommandParameter is not MinecraftAccount account)
+        if (sender is not MenuItem { CommandParameter: MinecraftAccount account } menuItem)
             return;
 
         _ = RefreshAccountAsync(account, menuItem);
@@ -116,7 +116,7 @@ public partial class Account : DataUserControl
 
     private void Rename_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is not MenuItem menuItem || menuItem.CommandParameter is not MinecraftAccount account)
+        if (sender is not MenuItem { CommandParameter: MinecraftAccount account })
             return;
 
         _ = RenameAccountAsync(account, this);
@@ -129,24 +129,17 @@ public partial class Account : DataUserControl
 
         if (result != null)
         {
-            var index = Data.ConfigEntry.MinecraftAccounts.IndexOf(account);
-            if (index >= 0)
-            {
-                Data.ConfigEntry.MinecraftAccounts[index] = result;
-            }
-
-            if (Data.ConfigEntry.UsingMinecraftMinecraftAccount == account)
-            {
-                Data.ConfigEntry.UsingMinecraftMinecraftAccount = result;
-            }
+            account.Name = result.Name;
+            account.Uuid = result.Uuid;
+            Data.ConfigEntry.UsingMinecraftMinecraftAccount = account;
         }
     }
 
     private void Remove_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is not MenuItem menuItem || menuItem.CommandParameter is not MinecraftAccount account)
+        if (sender is not MenuItem { CommandParameter: MinecraftAccount account })
             return;
-        
+
         if (Data.ConfigEntry.UsingMinecraftMinecraftAccount == account)
         {
             Data.ConfigEntry.MinecraftAccounts.Remove(account);
@@ -186,5 +179,19 @@ public partial class Account : DataUserControl
 
         if (result.Length == 1 && result[0] == null) return;
         Data.ConfigEntry.UsingMinecraftMinecraftAccount = result.LastOrDefault();
+    }
+
+    private async void Renote_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem { CommandParameter: MinecraftAccount account })
+            return;
+
+        var hostId = this.TryGetHostId()!;
+        var result = await EditAccountNoteDialog.Show(hostId, account.AccountNote);
+
+        if (result != null)
+        {
+            account.AccountNote = result;
+        }
     }
 }

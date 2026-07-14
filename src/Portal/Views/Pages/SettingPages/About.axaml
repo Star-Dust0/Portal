@@ -63,7 +63,6 @@
                         Content="检查更新"
                         FontSize="12"
                         HorizontalAlignment="Right"
-                        IsVisible="{Binding !IsDev}"
                         Margin="0,2,5,0"
                         Name="HyperlinkButton"
                         Theme="{StaticResource TransparentHyperlinkButton}"
@@ -113,7 +112,7 @@
                 Foreground="{DynamicResource InnerForegroundColor}"
                 Text=" *前往 设置-代理 开启GitHub代理可加快更新速度" />
         </StackPanel>
-        <StackPanel IsVisible="{Binding !IsDev}" Spacing="5">
+        <StackPanel Spacing="5">
             <Label
                 Content="更新通道"
                 FontSize="13"

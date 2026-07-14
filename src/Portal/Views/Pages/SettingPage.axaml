@@ -13,14 +13,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <DockPanel>
         <ScrollViewer
+            Classes="Flat"
             DockPanel.Dock="Left"
             HorizontalAlignment="Left"
             Margin="7,0,10,10"
             Width="230">
             <tio:NavMenu
-                Classes="FlatScrollBar"
                 Margin="0,0,10,0"
-                Name="NavMenu">
+                Name="NavMenu"
+                Theme="{StaticResource FlatScrollBarTheme}">
                 <tio:NavMenuItem Header="Portal">
                     <tio:NavMenuItem
                         Command="{Binding NavigateTypeCommand}"

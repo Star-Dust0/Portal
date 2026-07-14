@@ -42,7 +42,7 @@ public static partial class Initializer
         else
             Application.Current.Resources["BackGroundOpacity"] = Data.ConfigEntry.ControlOpacity;
 
-        if (Data.ConfigEntry.EnableCheckAutoUpdate)
+        if (Data.ConfigEntry.EnableCheckAutoUpdate && Data.Instance.Version.Type != "dev")
             _ = CheckUpdate();
 
         InitializationEvents.RaiseAfterUiLoaded();

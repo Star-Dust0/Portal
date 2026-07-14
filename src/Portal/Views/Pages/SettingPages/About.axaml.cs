@@ -21,8 +21,6 @@ public partial class About : DataUserControl
         InitializeComponent();
         AboutViewModel = new AboutViewModel();
         DataContext = AboutViewModel;
-        if (Data.Version.Type == "dev")
-            AboutViewModel.IsDev = true;
     }
 
     private async void Button_OnClick(object? sender, RoutedEventArgs e)
@@ -34,14 +32,8 @@ public partial class About : DataUserControl
     {
         Data.UiProperty.IsLatestVersion = false;
         Data.UiProperty.FoundNewVersion = false;
-        if (Data.UiProperty.OverrideUpdateChannel == "dev")
-        {
-            sender!.AsTopLevel().Notice("开发版本(dev)不能更新", NotificationType.Error);
-            return;
-        }
-
         var channel = Data.UiProperty.OverrideUpdateChannel;
-        if (channel != "nightly" && channel != "commit")
+        if (channel != "nightly" && channel != "commit" && channel != "dev")
         {
             return;
         }
@@ -83,6 +75,4 @@ public partial class About : DataUserControl
 public partial class AboutViewModel : ObservableObject
 {
     public Data Data => Data.Instance;
-
-    [ObservableProperty] public partial bool IsDev { get; set; }
 }
