@@ -8,6 +8,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using MinecraftLaunch.Base.Enums;
 using Portal.Classes.Entries;
 using Portal.Classes.Enums;
@@ -28,10 +29,13 @@ namespace Portal.Views.Pages;
 
 public partial class NewTabPage : DataUserControl, ITioTabPage
 {
+    public NewTabViewModel NewTabViewModel;
+
     public NewTabPage()
     {
         InitializeComponent();
-        DataContext = new NewTabViewModel();
+        NewTabViewModel = new NewTabViewModel();
+        DataContext = NewTabViewModel;
     }
 
     public PageInfo PageInfo { get; init; } = new()
@@ -89,9 +93,19 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
                 _ = Show();
                 return;
             }
-            
+
             // TODO: Handle the result
         }
+    }
+
+    private void FavoritedButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var instance = (sender as Control)?.Tag as MinecraftInstance;
+        if (instance == null || instance.Config == null) return;
+
+        instance.Config.IsFavorite = !instance.Config.IsFavorite;
+        instance.SaveConfig();
+        NewTabViewModel.ApplyFilterAndSort();
     }
 }
 
@@ -105,6 +119,7 @@ public partial class NewTabViewModel : ObservableObject
 {
     public Data Data => Data.Instance;
     public ObservableCollection<MinecraftInstance> FilteredMinecraftInstances { get; set; } = [];
+
     public List<SortOption> SortOptions { get; } = new()
     {
         new SortOption { DisplayText = "名称", SortType = InstanceSortType.Name },
@@ -115,6 +130,7 @@ public partial class NewTabViewModel : ObservableObject
     };
 
     private SortOption? _selectedSortOption;
+
     public SortOption? SelectedSortOption
     {
         get => _selectedSortOption;
@@ -126,6 +142,7 @@ public partial class NewTabViewModel : ObservableObject
                 {
                     Data.ConfigEntry.DefaultInstanceSortType = value.SortType;
                 }
+
                 ApplyFilterAndSort();
             }
         }
@@ -134,6 +151,16 @@ public partial class NewTabViewModel : ObservableObject
     public NewTabViewModel()
     {
         _selectedSortOption = SortOptions.FirstOrDefault(o => o.SortType == Data.ConfigEntry.DefaultInstanceSortType);
+        ApplyFilterAndSort();
+    }
+
+    [RelayCommand]
+    public void ToggleFavorite(MinecraftInstance instance)
+    {
+        if (instance == null || instance.Config == null) return;
+
+        instance.Config.IsFavorite = !instance.Config.IsFavorite;
+        instance.SaveConfig();
         ApplyFilterAndSort();
     }
 

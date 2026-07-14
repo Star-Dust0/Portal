@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using MinecraftLaunch.Base.Models.Game;
 using Newtonsoft.Json;
 using System.IO;
@@ -39,6 +39,12 @@ public class MinecraftInstance : ObservableObject
         var config = new MinecraftInstanceConfig();
         File.WriteAllText(configPath, JsonConvert.SerializeObject(config, Formatting.Indented));
         return config;
+    }
+
+    public void SaveConfig()
+    {
+        var configPath = Path.Combine(MinecraftPath, "Portal.config.json");
+        File.WriteAllText(configPath, JsonConvert.SerializeObject(Config, Formatting.Indented));
     }
 
     public string GetSpecialFolder(MinecraftSpecialFolder folder)
