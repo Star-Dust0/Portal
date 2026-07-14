@@ -64,6 +64,13 @@ public class Config
         };
         Data.UiProperty.OverrideUpdateChannel = Data.Instance.Version.Type;
 
+        const string RESOURCE_NAME1 = "Portal.package-type.txt";
+        var assembly1 = Assembly.GetExecutingAssembly();
+        var stream1 = assembly1.GetManifestResourceStream(RESOURCE_NAME1);
+        using var reader1 = new StreamReader(stream1!);
+        var result1 = reader1.ReadToEnd();
+        Data.Instance.PackageType = string.IsNullOrEmpty(result1) ? "source-code" : result1;
+        
         Helper.ClearFolder(ConfigPath.TempFolderPath);
         App.Method.SaveConfig();
 

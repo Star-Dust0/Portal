@@ -49,14 +49,23 @@
                             FontSize="17"
                             Margin="5,2,0,2"
                             Text="{Binding Data.Version.VersionTitle}" />
-                        <TextBlock
-                            FontSize="13"
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            Margin="5,0,0,0">
-                            <Run Text="{Binding Data.Version.Type}" />
-                            <Run Text="|" />
-                            <Run Text="{Binding Data.Version.BuildTime, StringFormat='{}{0:yyyy-MM-dd}'}" />
-                        </TextBlock>
+                        <StackPanel Orientation="Horizontal" Spacing="3">
+                            <TextBlock
+                                FontSize="13"
+                                Foreground="{DynamicResource InnerForegroundColor}"
+                                Margin="5,0,0,0">
+                                <Run Text="{Binding Info}" />
+                            </TextBlock>
+                            <TextBlock
+                                FontSize="13"
+                                Foreground="{DynamicResource InnerForegroundColor}"
+                                Text="|" />
+                            <TextBlock
+                                FontSize="13"
+                                Foreground="{DynamicResource InnerForegroundColor}"
+                                Margin="0,1,0,0"
+                                Text="{Binding Data.Version.BuildTime, StringFormat='{}{0:yyyy-MM-dd HH:MM:ss}'}" />
+                        </StackPanel>
                     </StackPanel>
                     <HyperlinkButton
                         Click="Button_OnClick"

@@ -63,7 +63,7 @@ public partial class About : DataUserControl
 
     private void UpdateChannel_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (e.RemovedItems.Count > 0)
+        if (e.RemovedItems.Count > 0 && Data.Version.Type != "dev")
             _ = Check(sender!);
     }
 
@@ -75,4 +75,5 @@ public partial class About : DataUserControl
 public partial class AboutViewModel : ObservableObject
 {
     public Data Data => Data.Instance;
+    public string Info => $"{Data.Version.Type}.{Data.PackageType}";
 }

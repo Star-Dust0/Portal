@@ -24,6 +24,7 @@ public partial class Data : ObservableObject
     public static DesktopType DesktopType => DesktopTypeDetector.CurrentPlatform; 
     public static UiProperty UiProperty { get; } = UiProperty.Instance;
     [ObservableProperty] public partial CiVersionInfo Version { get; set; }
+    [ObservableProperty] public partial string PackageType { get; set; }
     public string UserAgent => ConfigEntry.EnableCustomUserAgent && !string.IsNullOrEmpty(ConfigEntry.CustomUserAgent) ? ConfigEntry.CustomUserAgent : $"Portal/{Version.VersionTitle}";
 
     private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
