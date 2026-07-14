@@ -3,6 +3,7 @@ using System.ComponentModel;
 using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using MinecraftLaunch;
 using Portal.Views;
 using Portal.Classes.Enums;
 using Portal.Const;
@@ -29,14 +30,30 @@ public partial class ConfigEntry : ObservableObject
     [ObservableProperty] public partial NoticeWay NoticeWay { get; set; } = NoticeWay.Toast;
     [ObservableProperty] public partial FilePicker FilePicker { get; set; } = FilePicker.System;
     [ObservableProperty] public partial BackgroundMode BackgroundMode { get; set; } = BackgroundMode.Default;
+    [ObservableProperty] public partial PortalVisibleMode PortalVisibleMode { get; set; } = PortalVisibleMode.NoOperation;
     [ObservableProperty] public partial bool EnableCustomForegroundColor { get; set; } = false;
     [ObservableProperty] public partial bool EnableCheckAutoUpdate { get; set; } = true;
+    [ObservableProperty] public partial bool EnableMinecraftMirror  { get; set; }
+    [ObservableProperty] public partial bool EnableFragmentDownload  { get; set; }
+    [ObservableProperty] public partial bool EnableCustomUserAgent  { get; set; }
     [ObservableProperty] public partial bool ShowDragDropTip { get; set; } = true;
     [ObservableProperty] public partial bool ShowUpdateTip { get; set; } = true;
     [ObservableProperty] public partial bool ShowUsingAccountTip { get; set; } = true;
     [ObservableProperty] public partial string? BackgroundImagePath { get; set; }
+    [ObservableProperty] public partial string? CustomUserAgent { get; set; }
+    [ObservableProperty] public partial string? CustomLauncherInfo { get; set; }
+    [ObservableProperty] public partial string? OverrideMinecraftWindowTitle { get; set; }
+    [ObservableProperty] public partial string? BeforeLaunchCommand { get; set; }
+    [ObservableProperty] public partial string? JvmArgs { get; set; }
+    [ObservableProperty] public partial string? PackagedCommand { get; set; }
     [ObservableProperty] public partial Color BackgroundSolidColor { get; set; } = Color.Parse("#2d2d2d");
     [ObservableProperty] public partial Color ForegroundColor { get; set; } = Color.Parse("#494c4f");
+    [ObservableProperty] public partial int DownloadMaxThreadCount { get; set; } = 256;
+    [ObservableProperty] public partial int DownloadMaxRetryCount { get; set; } = 4;
+    [ObservableProperty] public partial int DownloadMaxFragmentCount { get; set; } = 128;
+    [ObservableProperty] public partial int MinecraftWindowWidth { get; set; } = 854;
+    [ObservableProperty] public partial int MinecraftWindowHeight { get; set; } = 480;
+    [ObservableProperty] public partial int MinecraftMaxMemory { get; set; } = 4096;
     [ObservableProperty] public partial double ControlOpacity { get; set; } = 1;
     [ObservableProperty] public partial double AcrylicOpacity { get; set; } = 0.2;
     [ObservableProperty] public partial double ImageBlurRadius { get; set; } = 0.0;
@@ -75,6 +92,21 @@ public partial class ConfigEntry : ObservableObject
                     Application.Current.Resources.Remove("BackGroundOpacity");
                 else
                     Application.Current.Resources["BackGroundOpacity"] = ControlOpacity;
+                break;
+            case nameof(EnableFragmentDownload):
+                DownloadManager.IsEnableFragment = EnableFragmentDownload;
+                break;
+            case nameof(EnableMinecraftMirror):
+                DownloadManager.IsEnableMirror = EnableMinecraftMirror;
+                break;
+            case nameof(DownloadMaxThreadCount):
+                DownloadManager.MaxThread = DownloadMaxThreadCount;
+                break;
+            case nameof(DownloadMaxRetryCount):
+                DownloadManager.MaxRetryCount = DownloadMaxRetryCount;
+                break;
+            case nameof(DownloadMaxFragmentCount):
+                DownloadManager.MaxFragment = DownloadMaxFragmentCount;
                 break;
         }
 

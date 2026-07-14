@@ -56,11 +56,20 @@
                         Command="{Binding NavigateTypeCommand}"
                         CommandParameter="{x:Type p:GameFolder}"
                         Header="游戏文件夹" />
-                    <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="高级" />
+                    <tio:NavMenuItem
+                        Command="{Binding NavigateTypeCommand}"
+                        CommandParameter="{x:Type p:Advanced}"
+                        Header="高级" />
                 </tio:NavMenuItem>
                 <tio:NavMenuItem Header="网络">
-                    <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="下载" />
-                    <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="代理" />
+                    <tio:NavMenuItem
+                        Command="{Binding NavigateTypeCommand}"
+                        CommandParameter="{x:Type p:Download}"
+                        Header="下载" />
+                    <tio:NavMenuItem
+                        Command="{Binding NavigateTypeCommand}"
+                        CommandParameter="{x:Type p:Agent}"
+                        Header="代理" />
                 </tio:NavMenuItem>
             </tio:NavMenu>
         </ScrollViewer>

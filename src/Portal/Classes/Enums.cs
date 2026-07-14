@@ -18,3 +18,13 @@ public enum NoticeWay
     Toast,
     Notification
 }
+
+public enum PortalVisibleMode
+{
+    NoOperation,
+    QuitAfterLaunch,
+    HiddenAfterLaunch,
+    HiddenAfterLaunchAndReopen,
+    MinimizedAfterLaunch,
+    MinimizedAfterLaunchAndRestore
+}

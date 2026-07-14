@@ -22,6 +22,16 @@ public static partial class Initializer
     public static void App()
     {
         Config.Initialize();
-        MinecraftCoreInitializer.Initialize(Data.Instance.Version.VersionTitle);
+        MinecraftCoreInitializer.Initialize(new MinecraftCoreInitializeOptions()
+        {
+            AppVersion = Data.Instance.Version.VersionTitle,
+            EnableCustomUserAgent = Data.ConfigEntry.EnableCustomUserAgent,
+            CustomUserAgent = Data.ConfigEntry.CustomUserAgent,
+            MaxThread = Data.ConfigEntry.DownloadMaxThreadCount,
+            MaxFragment = Data.ConfigEntry.DownloadMaxFragmentCount,
+            MaxRetryCount = Data.ConfigEntry.DownloadMaxRetryCount,
+            IsEnableMirror = Data.ConfigEntry.EnableMinecraftMirror,
+            IsEnableFragment = Data.ConfigEntry.EnableFragmentDownload
+        });
     }
 }
