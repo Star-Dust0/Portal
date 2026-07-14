@@ -71,7 +71,9 @@ jobs:
           git submodule foreach --recursive 'git fetch origin main && git checkout -B main origin/main'
 
       - name: Write CI Config
-        run: echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+        run: |
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+          echo 'appimage' > ./src/package-type.txt
 
       - name: Dependency
         run: |
@@ -110,7 +112,9 @@ jobs:
         shell: bash
 
       - name: Write CI Config
-        run: echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+        run: |
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+          echo 'portable' > ./src/package-type.txt
         shell: bash
 
       - name: Build & Package
@@ -154,7 +158,9 @@ jobs:
         run: Copy-Item "./assets/ChineseSimplified.isl" "C:\Program Files (x86)\Inno Setup 6\Default.isl" -Force
 
       - name: Write CI Config
-        run: echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+        run: |
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+          echo 'installer' > ./src/package-type.txt
         shell: bash
 
       - name: Build
@@ -193,7 +199,9 @@ jobs:
           git submodule foreach --recursive 'git fetch origin main && git checkout -B main origin/main'
 
       - name: Write CI Config
-        run: echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+        run: |
+          echo '${{ needs.prepare.outputs.version_json }}' > ./src/version-ci.txt
+          echo 'dmg' > ./src/package-type.txt
 
       - name: Build macOS App
         run: |
