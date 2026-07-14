@@ -36,7 +36,13 @@ public class Searcher
             entries = entries.Where(e =>
                 e.Title.ToLowerInvariant().Contains(queryLower) ||
                 e.Description.ToLowerInvariant().Contains(queryLower) ||
-                e.TypeDescription.ToLowerInvariant().Contains(queryLower)
+                e.TypeDescription.ToLowerInvariant().Contains(queryLower) ||
+                e.TitlePinyins.Any(p => p.Contains(queryLower)) ||
+                e.TitleFirstLetters.Any(p => p.Contains(queryLower)) ||
+                e.DescriptionPinyins.Any(p => p.Contains(queryLower)) ||
+                e.DescriptionFirstLetters.Any(p => p.Contains(queryLower)) ||
+                e.TypeDescriptionPinyins.Any(p => p.Contains(queryLower)) ||
+                e.TypeDescriptionFirstLetters.Any(p => p.Contains(queryLower))
             );
         }
 

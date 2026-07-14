@@ -1,8 +1,10 @@
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Portal.Classes.Enums;
 using Portal.Const;
+using Portal.Core.Helpers;
 using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Instance;
 using Tio.Avalonia.Standard.Modules.Extensions;
@@ -21,10 +23,26 @@ public class FolderFilterOption
     public string? FolderName { get; set; }
 }
 
+internal class InstancePinyinCache
+{
+    public List<string> InstanceNamePinyins { get; set; } = [];
+    public List<string> InstanceNameFirstLetters { get; set; } = [];
+    public List<string> FolderNamePinyins { get; set; } = [];
+    public List<string> FolderNameFirstLetters { get; set; } = [];
+    public List<string> NotePinyins { get; set; } = [];
+    public List<string> NoteFirstLetters { get; set; } = [];
+    public List<string> DescriptionPinyins { get; set; } = [];
+    public List<string> DescriptionFirstLetters { get; set; } = [];
+    public List<string> LoaderDescriptionPinyins { get; set; } = [];
+    public List<string> LoaderDescriptionFirstLetters { get; set; } = [];
+}
+
 public partial class InstanceListViewModelBase : ObservableObject
 {
     public Data Data => Data.Instance;
     public ObservableCollection<MinecraftInstance> FilteredMinecraftInstances { get; set; } = [];
+
+    private readonly ConcurrentDictionary<MinecraftInstance, InstancePinyinCache> _pinyinCache = new();
 
     public List<SortOption> SortOptions { get; } =
     [
@@ -135,21 +153,34 @@ public partial class InstanceListViewModelBase : ObservableObject
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
-            var keyword = SearchText.Trim();
+            var keyword = SearchText.Trim().ToLowerInvariant();
             query = query.Where(x =>
-                (x.FolderName != null && x.FolderName.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(x.InstanceName) &&
-                 x.InstanceName.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
-                (x.Config?.Note != null && x.Config.Note.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(x.VersionId) &&
-                 x.VersionId.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(x.VersionType) &&
-                 x.VersionType.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(x.Description) &&
-                 x.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(x.LoaderDescription) &&
-                 x.LoaderDescription.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-            );
+            {
+                var cache = GetOrCreatePinyinCache(x);
+                return
+                    (x.FolderName != null && x.FolderName.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(x.InstanceName) &&
+                     x.InstanceName.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Config?.Note != null && x.Config.Note.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(x.VersionId) &&
+                     x.VersionId.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(x.VersionType) &&
+                     x.VersionType.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(x.Description) &&
+                     x.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(x.LoaderDescription) &&
+                     x.LoaderDescription.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    cache.FolderNamePinyins.Any(p => p.Contains(keyword)) ||
+                    cache.FolderNameFirstLetters.Any(p => p.Contains(keyword)) ||
+                    cache.InstanceNamePinyins.Any(p => p.Contains(keyword)) ||
+                    cache.InstanceNameFirstLetters.Any(p => p.Contains(keyword)) ||
+                    cache.NotePinyins.Any(p => p.Contains(keyword)) ||
+                    cache.NoteFirstLetters.Any(p => p.Contains(keyword)) ||
+                    cache.DescriptionPinyins.Any(p => p.Contains(keyword)) ||
+                    cache.DescriptionFirstLetters.Any(p => p.Contains(keyword)) ||
+                    cache.LoaderDescriptionPinyins.Any(p => p.Contains(keyword)) ||
+                    cache.LoaderDescriptionFirstLetters.Any(p => p.Contains(keyword));
+            });
         }
 
         var cultureInfo = CultureInfo.GetCultureInfo("zh-CN");
@@ -252,5 +283,26 @@ public partial class InstanceListViewModelBase : ObservableObject
         }
 
         return null;
+    }
+
+    private InstancePinyinCache GetOrCreatePinyinCache(MinecraftInstance instance)
+    {
+        return _pinyinCache.GetOrAdd(instance, _ =>
+        {
+            var cache = new InstancePinyinCache
+            {
+                InstanceNamePinyins = PinyinHelper.GetAllPinyins(instance.InstanceName ?? string.Empty),
+                InstanceNameFirstLetters = PinyinHelper.GetAllFirstLetters(instance.InstanceName ?? string.Empty),
+                FolderNamePinyins = PinyinHelper.GetAllPinyins(instance.FolderName ?? string.Empty),
+                FolderNameFirstLetters = PinyinHelper.GetAllFirstLetters(instance.FolderName ?? string.Empty),
+                NotePinyins = PinyinHelper.GetAllPinyins(instance.Config?.Note ?? string.Empty),
+                NoteFirstLetters = PinyinHelper.GetAllFirstLetters(instance.Config?.Note ?? string.Empty),
+                DescriptionPinyins = PinyinHelper.GetAllPinyins(instance.Description ?? string.Empty),
+                DescriptionFirstLetters = PinyinHelper.GetAllFirstLetters(instance.Description ?? string.Empty),
+                LoaderDescriptionPinyins = PinyinHelper.GetAllPinyins(instance.LoaderDescription ?? string.Empty),
+                LoaderDescriptionFirstLetters = PinyinHelper.GetAllFirstLetters(instance.LoaderDescription ?? string.Empty),
+            };
+            return cache;
+        });
     }
 }
