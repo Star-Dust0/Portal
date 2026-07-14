@@ -14,6 +14,7 @@ using Portal.Classes.Entries;
 using Portal.Classes.Enums;
 using Portal.Const;
 using Portal.Core.Minecraft.Classes;
+using Portal.Core.Minecraft.Instance;
 using Portal.Core.Operations;
 using Portal.ViewModels;
 using Tio.Avalonia.Standard.Modules.Extensions;
@@ -114,6 +115,11 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
         var tioTabWindowBase = sender.AsTopLevel() as TioTabWindowBase;
         tioTabWindowBase?.CreateTab(tab);
         tioTabWindowBase?.SelectTab(tab);
+    }
+
+    private void RefreshInstance_Click(object? sender, RoutedEventArgs e)
+    {
+        InstanceManager.
     }
 }
 

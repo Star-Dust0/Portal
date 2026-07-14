@@ -19,6 +19,7 @@ public class MinecraftInstance : ObservableObject
     public BedrockInstanceConfig? BedrockConfig { get; init; }
 
     public string FolderName { get; init; }
+    public string FolderPath { get; init; }
 
     public string InstanceFolderPath { get; init; }
 
@@ -106,6 +107,7 @@ public class MinecraftInstance : ObservableObject
         BedrockConfig = bedrockConfig;
         FolderName = folderName;
         InstanceFolderPath = bedrockConfig.InstancePath;
+        FolderPath = bedrockConfig.;
     }
 
     private MinecraftInstanceConfig GetInstanceConfig()

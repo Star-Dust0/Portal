@@ -1,86 +1,87 @@
-﻿using MinecraftLaunch.Base.Models.Game;
 using MinecraftLaunch.Components.Parser;
+using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Instance.Bedrock;
-using Portal.Core.Minecraft.Instance.Manifest;
 
 namespace Portal.Core.Minecraft.Instance;
 
 public class InstanceManager
 {
     private readonly string _gameRootFolder;
-    public List<string> VersionFolders { get; } = new() { "versions", "bedrock_versions" }; // 前一个是所有启动器公共的目录，后一个是 bedrockboot 规范中的目录
-    public List<InstanceInfo> Instances { get; private set; } = new();
+    private readonly string _folderName;
 
-    public InstanceManager(string gameRootFolder)
+    public List<string> VersionFolders { get; } = new() { "versions", "bedrock_versions" };
+    
+    
+    public InstanceManager(string gameRootFolder, string folderName)
     {
         _gameRootFolder = gameRootFolder;
+        _folderName = folderName;
     }
 
-    #region 公共方法
-
-    public List<InstanceInfo> RefreshInstances()
+    public List<MinecraftInstance> RefreshInstances()
     {
-        VersionFolders.ForEach(versionFolder =>
+        var instances = new List<MinecraftInstance>();
+
+        MinecraftParser minecraftParser = _gameRootFolder;
+        var javaEntries = minecraftParser.GetMinecrafts().ToDictionary(e => e.Id);
+
+        var processedFolders = new HashSet<string>();
+
+        foreach (var versionFolder in VersionFolders)
         {
-            var versionsFolder = Path.Combine(_gameRootFolder, versionFolder);
-            if (!Directory.Exists(versionsFolder))
-                Directory.CreateDirectory(versionsFolder);
-            
-            MinecraftParser minecraftParser = _gameRootFolder;
-
-            Directory.GetDirectories(versionsFolder).ToList().ForEach(instanceFolder =>
+            var versionsFolderPath = Path.Combine(_gameRootFolder, versionFolder);
+            if (!Directory.Exists(versionsFolderPath))
             {
-                if (GetInstanceType(instanceFolder) == InstanceType.Bedrock)
-                {
-                    var version = BedrockHelper.GetInstanceVersion(instanceFolder);
-                    Instances.Add(new()
-                    {
-                        Name = Path.GetFileName(instanceFolder),
-                        Version = version.Version,
-                        Description = string.Empty,
-                        Type = InstanceType.Bedrock,
-                        GameRootFolder = _gameRootFolder,
-                        InstanceFolder = instanceFolder
-                    });
-                }
+                if (versionFolder == "versions")
+                    Directory.CreateDirectory(versionsFolderPath);
+                continue;
+            }
 
-                if (GetInstanceType(instanceFolder) == InstanceType.Java)
+            foreach (var instanceFolder in Directory.GetDirectories(versionsFolderPath))
+            {
+                var folderKey = Path.GetFullPath(instanceFolder);
+                if (processedFolders.Contains(folderKey))
+                    continue;
+                processedFolders.Add(folderKey);
+
+                var instanceType = GetInstanceType(instanceFolder);
+
+                if (instanceType == MinecraftInstanceType.Java)
+                {
+                    var folderName = Path.GetFileName(instanceFolder);
+                    if (javaEntries.TryGetValue(folderName, out var minecraftEntry))
+                    {
+                        instances.Add(new MinecraftInstance(minecraftEntry)
+                        {
+                            FolderName = _folderName,
+                            FolderPath = _gameRootFolder
+                        });
+                    }
+                }
+                else if (instanceType == MinecraftInstanceType.Bedrock)
                 {
                     try
                     {
-                        Instances.Add(new()
-                        {
-                            Name = Path.GetFileName(instanceFolder),
-                            Version = minecraftParser.GetMinecraft(Path.GetFileName(instanceFolder)).Id,
-                            Description = string.Empty,
-                            Type = InstanceType.Java,
-                            GameRootFolder = _gameRootFolder,
-                            InstanceFolder = instanceFolder
-                        });
+                        var bedrockConfig = BedrockHelper.GetInstanceConfig(instanceFolder);
+                        instances.Add(new MinecraftInstance(bedrockConfig, _folderName));
                     }
                     catch
                     {
                     }
                 }
-            });
-        });
-        
-        return Instances;
+            }
+        }
+
+        return instances;
     }
 
-    public static InstanceType GetInstanceType(string instanceFolder)
+    public static MinecraftInstanceType GetInstanceType(string instanceFolder)
     {
         if (File.Exists(Path.Combine(instanceFolder, "appxmanifest.xml")))
-            return InstanceType.Bedrock;
+            return MinecraftInstanceType.Bedrock;
         if (File.Exists(Path.Combine(instanceFolder, $"{Path.GetFileName(instanceFolder)}.json")))
-            return InstanceType.Java;
-        
-        return InstanceType.Java;
+            return MinecraftInstanceType.Java;
+
+        return MinecraftInstanceType.Java;
     }
-
-    #endregion
-
-    #region 私有方法
-
-    #endregion
 }

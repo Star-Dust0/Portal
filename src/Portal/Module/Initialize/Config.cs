@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using MinecraftLaunch.Components.Parser;
 using Newtonsoft.Json;
 using Portal.Classes.Entries;
 using Portal.Const;
 using Portal.Core.Minecraft.Classes;
-using Portal.Core.Minecraft.Instance.Bedrock;
+using Portal.Core.Minecraft.Instance;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Modules.Events;
 using Tio.Avalonia.Standard.Modules.Extensions;
@@ -84,30 +83,11 @@ public class Config
         {
             if (!Directory.Exists(folder.FolderPath)) continue;
 
-            MinecraftParser parser = new(folder.FolderPath);
-            var mc = parser.GetMinecrafts();
-            foreach (var e in mc)
+            var instanceManager = new InstanceManager(folder.FolderPath, folder.FolderName);
+            var instances = instanceManager.RefreshInstances();
+            foreach (var instance in instances)
             {
-                UiProperty.MinecraftInstances.Add(new MinecraftInstance(e)
-                {
-                    FolderName = folder.FolderName
-                });
-            }
-
-            var bedrockVersionsFolder = Path.Combine(folder.FolderPath, "bedrock_versions");
-            if (Directory.Exists(bedrockVersionsFolder))
-            {
-                foreach (var instanceFolder in Directory.GetDirectories(bedrockVersionsFolder))
-                {
-                    try
-                    {
-                        var bedrockConfig = BedrockHelper.GetInstanceConfig(instanceFolder);
-                        UiProperty.MinecraftInstances.Add(new MinecraftInstance(bedrockConfig, folder.FolderName));
-                    }
-                    catch
-                    {
-                    }
-                }
+                UiProperty.MinecraftInstances.Add(instance);
             }
         }
 
