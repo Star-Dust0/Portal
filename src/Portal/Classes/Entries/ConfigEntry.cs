@@ -30,12 +30,15 @@ public partial class ConfigEntry : ObservableObject
     [ObservableProperty] public partial NoticeWay NoticeWay { get; set; } = NoticeWay.Toast;
     [ObservableProperty] public partial FilePicker FilePicker { get; set; } = FilePicker.System;
     [ObservableProperty] public partial BackgroundMode BackgroundMode { get; set; } = BackgroundMode.Default;
-    [ObservableProperty] public partial PortalVisibleMode PortalVisibleMode { get; set; } = PortalVisibleMode.NoOperation;
+
+    [ObservableProperty]
+    public partial PortalVisibleMode PortalVisibleMode { get; set; } = PortalVisibleMode.NoOperation;
+
     [ObservableProperty] public partial bool EnableCustomForegroundColor { get; set; } = false;
     [ObservableProperty] public partial bool EnableCheckAutoUpdate { get; set; } = true;
-    [ObservableProperty] public partial bool EnableMinecraftMirror  { get; set; }
-    [ObservableProperty] public partial bool EnableFragmentDownload  { get; set; }
-    [ObservableProperty] public partial bool EnableCustomUserAgent  { get; set; }
+    [ObservableProperty] public partial bool EnableMinecraftMirror { get; set; }
+    [ObservableProperty] public partial bool EnableFragmentDownload { get; set; }
+    [ObservableProperty] public partial bool EnableCustomUserAgent { get; set; }
     [ObservableProperty] public partial bool ShowDragDropTip { get; set; } = true;
     [ObservableProperty] public partial bool ShowUpdateTip { get; set; } = true;
     [ObservableProperty] public partial bool ShowUsingAccountTip { get; set; } = true;
@@ -55,6 +58,7 @@ public partial class ConfigEntry : ObservableObject
     [ObservableProperty] public partial int MinecraftWindowHeight { get; set; } = 480;
     [ObservableProperty] public partial int MinecraftMaxMemory { get; set; } = 4096;
     [ObservableProperty] public partial double ControlOpacity { get; set; } = 1;
+    [ObservableProperty] public partial double TranslucentControlOpacity { get; set; } = 1;
     [ObservableProperty] public partial double AcrylicOpacity { get; set; } = 0.2;
     [ObservableProperty] public partial double ImageBlurRadius { get; set; } = 0.0;
     [ObservableProperty] public partial double MicaOpacity { get; set; } = 0.8;
@@ -79,19 +83,21 @@ public partial class ConfigEntry : ObservableObject
             case nameof(EnableCustomForegroundColor):
                 ApplyForegroundColor();
                 break;
-            case nameof(BackgroundMode):
             case nameof(BackgroundImagePath):
             case nameof(BackgroundSolidColor):
             case nameof(AcrylicOpacity):
-            case nameof(ControlOpacity):
             case nameof(ImageBlurRadius):
             case nameof(MicaOpacity):
             case nameof(BlurOpacity):
                 TabWindow.ApplyBackgroundToAllWindows();
-                if (BackgroundMode == BackgroundMode.Default)
-                    Application.Current.Resources.Remove("BackGroundOpacity");
-                else
-                    Application.Current.Resources["BackGroundOpacity"] = ControlOpacity;
+                break;
+            case nameof(ControlOpacity):
+            case nameof(TranslucentControlOpacity):
+                SetResource();
+                break;
+            case nameof(BackgroundMode):
+                TabWindow.ApplyBackgroundToAllWindows();
+                SetResource();
                 break;
             case nameof(EnableFragmentDownload):
                 DownloadManager.IsEnableFragment = EnableFragmentDownload;
@@ -116,6 +122,20 @@ public partial class ConfigEntry : ObservableObject
         }
 
         App.Method.SaveConfig();
+    }
+
+    private void SetResource()
+    {
+        if (BackgroundMode == BackgroundMode.Default)
+        {
+            Application.Current.Resources.Remove("BackGroundOpacity");
+            Application.Current.Resources.Remove("TranslucentBackGroundOpacity");
+        }
+        else
+        {
+            Application.Current.Resources["BackGroundOpacity"] = ControlOpacity;
+            Application.Current.Resources["TranslucentBackGroundOpacity"] = TranslucentControlOpacity;
+        }
     }
 
     private void ApplyForegroundColor()

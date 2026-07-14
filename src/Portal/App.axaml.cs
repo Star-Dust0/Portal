@@ -43,14 +43,14 @@ public partial class App : Application
         Logger.Info("OnFrameworkInitializationCompleted");
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-// #if DEBUG
+#if DEBUG
             Logger.Debug("挂载 Devtools");
             this.AttachDeveloperTools();
-// #elif RELEASE
+#elif RELEASE
             Logger.Info("注册全局异常处理");
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             Dispatcher.UIThread.UnhandledException += UIThread_UnhandledException;
-// #endif
+#endif
             _win = new TabWindow(true);
             desktop.MainWindow = _win;
             _win.Loaded += Function;

@@ -60,8 +60,8 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="classes:MinecraftFolderEntry">
                         <tio:TioExpander
-                            Background="{DynamicResource PopupBackgroundColor}"
-                            BorderBrush="{DynamicResource PopupBorderBrush}"
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
                             BorderThickness="1"
                             HeaderHeight="52"
                             IconHeight="14"

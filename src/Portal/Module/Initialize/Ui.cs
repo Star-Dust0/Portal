@@ -38,9 +38,15 @@ public static partial class Initializer
         Events.CoreSaveSettings += Portal.App.Method.SaveConfig;
 
         if (Data.ConfigEntry.BackgroundMode == BackgroundMode.Default)
+        {
             Application.Current.Resources.Remove("BackGroundOpacity");
+            Application.Current.Resources.Remove("TranslucentBackGroundOpacity");
+        }
         else
+        {
             Application.Current.Resources["BackGroundOpacity"] = Data.ConfigEntry.ControlOpacity;
+            Application.Current.Resources["TranslucentBackGroundOpacity"] = Data.ConfigEntry.TranslucentControlOpacity;
+        }
 
         if (Data.ConfigEntry.EnableCheckAutoUpdate && Data.Instance.Version.Type != "dev")
             _ = CheckUpdate();
