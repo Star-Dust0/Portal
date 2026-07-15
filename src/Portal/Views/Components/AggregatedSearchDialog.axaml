@@ -80,9 +80,10 @@
             Name="SearchBox"
             PlaceholderText="输入搜索内容"
             Text="{Binding Data.UiProperty.AggregatedSearchQuery}" />
-        <ScrollViewer Classes="Flat" Margin="10,0,10,10">
+        <ScrollViewer Classes="Flat" Margin="10,0,5,10">
             <ListBox
                 ItemsSource="{Binding Data.UiProperty.AggregatedSearchResults}"
+                Margin="0,0,5,0"
                 Name="ListBox"
                 SelectionChanged="SelectingItemsControl_OnSelectionChanged">
                 <ListBox.ItemTemplate>
