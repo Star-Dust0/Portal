@@ -18,7 +18,20 @@ public class InstanceManager
 
     public List<string> VersionFolders { get; } = new() { "versions", "bedrock_versions" };
 
+    /// <summary>
+    /// 当实例统计数据发生变化时触发的事件
+    /// </summary>
+    public event EventHandler? StatisticsChanged;
+
     private InstanceManager() { }
+
+    /// <summary>
+    /// 通知统计数据已更新
+    /// </summary>
+    public void NotifyStatisticsChanged()
+    {
+        StatisticsChanged?.Invoke(this, EventArgs.Empty);
+    }
 
     public void RefreshAll(IEnumerable<(string FolderPath, string FolderName)> folders)
     {
@@ -35,6 +48,8 @@ public class InstanceManager
                 Instances.Add(instance);
             }
         }
+        
+        NotifyStatisticsChanged();
     }
 
     public static MinecraftInstanceType GetInstanceType(string instanceFolder)

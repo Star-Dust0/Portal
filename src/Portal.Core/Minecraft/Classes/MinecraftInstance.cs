@@ -7,6 +7,7 @@ using Avalonia.Media.Imaging;
 using MinecraftLaunch.Base.Enums;
 using Portal.Bedrock.Standard.Manifest;
 using Portal.Core.Minecraft.Instance.Bedrock;
+using Portal.Core.Minecraft.Instance;
 
 namespace Portal.Core.Minecraft.Classes;
 
@@ -171,6 +172,111 @@ public class MinecraftInstance : ObservableObject
         File.WriteAllText(configPath, JsonConvert.SerializeObject(Config, Formatting.Indented));
     }
 
+    /// <summary>
+    /// 增加游玩时长（秒），立即保存配置文件
+    /// 用于手动增加时长的场景（如导入历史数据）
+    /// </summary>
+    /// <param name="seconds">要增加的秒数</param>
+    public void AddPlayTime(long seconds)
+    {
+        AddPlayTime(seconds, true);
+    }
+
+    /// <summary>
+    /// 增加游玩时长（秒）
+    /// </summary>
+    /// <param name="seconds">要增加的秒数</param>
+    /// <param name="saveImmediately">是否立即保存配置文件</param>
+    public void AddPlayTime(long seconds, bool saveImmediately)
+    {
+        Config.PlayTimeSeconds += seconds;
+        if (saveImmediately)
+        {
+            SaveConfig();
+        }
+        InstanceManager.Instance.NotifyStatisticsChanged();
+    }
+
+    /// <summary>
+    /// 增加游戏会话次数
+    /// </summary>
+    public void IncrementPlaySessions()
+    {
+        Config.PlaySessions++;
+        SaveConfig();
+        InstanceManager.Instance.NotifyStatisticsChanged();
+    }
+
+    private System.Threading.Timer? _playTimer;
+    private readonly object _timerLock = new();
+    private long _unsavedSeconds;
+
+    /// <summary>
+    /// 开始计时（用于实时更新游玩时长）
+    /// 使用低资源占用的 Timer，每秒触发一次，但每60秒才保存一次配置文件
+    /// UI会实时更新显示，但配置文件只在间隔时间保存
+    /// </summary>
+    public void StartPlayTimer()
+    {
+        lock (_timerLock)
+        {
+            if (_playTimer != null)
+                return;
+
+            _playTimer = new Timer(
+                _ =>
+                {
+                    lock (_timerLock)
+                    {
+                        _unsavedSeconds++;
+                        InstanceManager.Instance.NotifyStatisticsChanged();
+                        
+                        if (_unsavedSeconds >= 60)
+                        {
+                            Config.PlayTimeSeconds += _unsavedSeconds;
+                            _unsavedSeconds = 0;
+                            SaveConfig();
+                        }
+                    }
+                },
+                null,
+                0,
+                1000
+            );
+        }
+    }
+
+    /// <summary>
+    /// 停止计时，立即保存所有未保存的秒数
+    /// </summary>
+    public void StopPlayTimer()
+    {
+        lock (_timerLock)
+        {
+            _playTimer?.Dispose();
+            _playTimer = null;
+
+            if (_unsavedSeconds > 0)
+            {
+                Config.PlayTimeSeconds += _unsavedSeconds;
+                _unsavedSeconds = 0;
+                SaveConfig();
+                InstanceManager.Instance.NotifyStatisticsChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 获取当前实例的总游玩时长（秒），包括已保存和未保存的秒数
+    /// </summary>
+    public long GetTotalPlayTimeSeconds()
+    {
+        lock (_timerLock)
+        {
+            return Config.PlayTimeSeconds + _unsavedSeconds;
+        }
+    }
+
     public string GetSpecialFolder(MinecraftSpecialFolder folder)
     {
         if (Type == MinecraftInstanceType.Java && MinecraftEntry != null)
@@ -276,6 +382,8 @@ public partial class MinecraftInstanceConfig : ObservableObject
     [ObservableProperty] public partial bool IsFavorite { get; set; }
     [ObservableProperty] public partial bool EnableIndependentInstance { get; set; } = true;
     [ObservableProperty] public partial DateTime LastPlayTime { get; set; } = DateTime.MinValue;
+    [ObservableProperty] public partial long PlayTimeSeconds { get; set; }
+    [ObservableProperty] public partial int PlaySessions { get; set; }
 }
 
 public enum MinecraftInstanceType

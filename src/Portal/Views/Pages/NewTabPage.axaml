@@ -161,18 +161,18 @@
                                 Orientation="Horizontal"
                                 Spacing="7">
                                 <TextBlock VerticalAlignment="Center">
-                                    <Run FontSize="22" Text="0" />
+                                    <Run FontSize="22" Text="{Binding DisplayTotalPlayTime}" />
                                     <Run
                                         FontSize="16"
                                         Foreground="{DynamicResource InnerForegroundColor}"
-                                        Text="min" />
+                                        Text="{Binding PlayTimeUnit}" />
                                 </TextBlock>
                                 <Rectangle
                                     Fill="{DynamicResource TranslucentBorderBrush}"
                                     Margin="0,3"
                                     Width="1" />
                                 <TextBlock VerticalAlignment="Center">
-                                    <Run FontSize="22" Text="0" />
+                                    <Run FontSize="22" Text="{Binding DisplayTotalPlaySessions}" />
                                     <Run
                                         FontSize="13"
                                         Foreground="{DynamicResource InnerForegroundColor}"

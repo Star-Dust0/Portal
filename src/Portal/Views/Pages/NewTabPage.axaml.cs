@@ -40,6 +40,13 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
         NewTabViewModel = new NewTabViewModel();
         DataContext = NewTabViewModel;
         Loaded += (_, _) => NewTabViewModel.ApplyFilterAndSort();
+        
+        InstanceManager.Instance.StatisticsChanged += OnStatisticsChanged;
+    }
+
+    private void OnStatisticsChanged(object? sender, EventArgs e)
+    {
+        NewTabViewModel.UpdateStatistics();
     }
 
     public PageInfo PageInfo { get; init; } = new()

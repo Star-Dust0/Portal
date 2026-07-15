@@ -44,6 +44,37 @@ public partial class InstanceListViewModelBase : ObservableObject
 
     private readonly ConcurrentDictionary<MinecraftInstance, InstancePinyinCache> _pinyinCache = new();
 
+    private long _totalPlayTimeSeconds;
+    public long TotalPlayTimeSeconds
+    {
+        get => _totalPlayTimeSeconds;
+        private set
+        {
+            if (SetProperty(ref _totalPlayTimeSeconds, value))
+            {
+                OnPropertyChanged(nameof(DisplayTotalPlayTime));
+                OnPropertyChanged(nameof(PlayTimeUnit));
+            }
+        }
+    }
+
+    private int _totalPlaySessions;
+    public int TotalPlaySessions
+    {
+        get => _totalPlaySessions;
+        private set
+        {
+            if (SetProperty(ref _totalPlaySessions, value))
+            {
+                OnPropertyChanged(nameof(DisplayTotalPlaySessions));
+            }
+        }
+    }
+
+    public string DisplayTotalPlayTime => FormatPlayTime(TotalPlayTimeSeconds);
+    public string DisplayTotalPlaySessions => FormatNumber(TotalPlaySessions);
+    public string PlayTimeUnit => GetPlayTimeUnit(TotalPlayTimeSeconds);
+
     public List<SortOption> SortOptions { get; } =
     [
         new SortOption { DisplayText = "名称", SortType = InstanceSortType.Name },
@@ -139,6 +170,7 @@ public partial class InstanceListViewModelBase : ObservableObject
     public void ApplyFilterAndSort()
     {
         UpdateRecentInstance();
+        UpdatePlayStatistics();
         FilteredMinecraftInstances.Clear();
         var query = InstanceManager.Instance.Instances.AsEnumerable();
 
@@ -233,6 +265,80 @@ public partial class InstanceListViewModelBase : ObservableObject
             .OrderByDescending(x => x.LastPlayTime)
             .FirstOrDefault();
         RecentInstance = recent;
+    }
+
+    private void UpdatePlayStatistics()
+    {
+        long totalTime = 0;
+        int totalSessions = 0;
+
+        foreach (var instance in InstanceManager.Instance.Instances)
+        {
+            totalTime += instance.GetTotalPlayTimeSeconds();
+            totalSessions += instance.Config?.PlaySessions ?? 0;
+        }
+
+        TotalPlayTimeSeconds = totalTime;
+        TotalPlaySessions = totalSessions;
+    }
+
+    /// <summary>
+    /// 公开方法，用于更新统计数据（支持外部调用）
+    /// </summary>
+    public void UpdateStatistics()
+    {
+        UpdatePlayStatistics();
+    }
+
+    /// <summary>
+    /// 获取游玩时长单位
+    /// </summary>
+    private static string GetPlayTimeUnit(long seconds)
+    {
+        if (seconds < 60)
+            return "s";
+        if (seconds < 3600)
+            return "min";
+        return "h";
+    }
+
+    /// <summary>
+    /// 格式化游玩时长，自动判断单位（秒/分钟/小时）
+    /// 小于1000保留一位小数，大于等于1000只保留整数
+    /// </summary>
+    private static string FormatPlayTime(long seconds)
+    {
+        double value;
+        
+        if (seconds < 60)
+        {
+            value = seconds;
+        }
+        else if (seconds < 3600)
+        {
+            value = seconds / 60.0;
+        }
+        else
+        {
+            value = seconds / 3600.0;
+        }
+        
+        return FormatNumber(value);
+    }
+
+    /// <summary>
+    /// 格式化数字：小于1000保留一位小数，大于等于1000只保留整数
+    /// </summary>
+    private static string FormatNumber(double value)
+    {
+        if (value < 1000)
+        {
+            return value.ToString("F1", CultureInfo.InvariantCulture);
+        }
+        else
+        {
+            return ((long)value).ToString();
+        }
     }
 
     private void UpdateSummaryText(IEnumerable<MinecraftInstance> instances)
