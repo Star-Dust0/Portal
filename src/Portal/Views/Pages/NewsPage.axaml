@@ -1,0 +1,127 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="Portal.Views.Pages.NewsPage"
+    x:DataType="pages:NewsPageViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+    xmlns:controls="clr-namespace:SmoothScroll.Avalonia.Controls;assembly=SmoothScroll.Avalonia.Controls"
+    xmlns:converters="clr-namespace:Portal.Module.Converter;assembly=Portal"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:entries="clr-namespace:Portal.Classes.Entries;assembly=Portal"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:pages="clr-namespace:Portal.Views.Pages"
+    xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <converters:WidthToColumnsConverter x:Key="WidthToColumnsConv" />
+        <converters:StringIsNotWriteSpaceOrNullConverter x:Key="StringNotEmptyConv" />
+    </UserControl.Resources>
+    <DockPanel Margin="12,0,12,10">
+        <StackPanel
+            DockPanel.Dock="Top"
+            IsVisible="{Binding IsVisible}"
+            Margin="0,0,0,12"
+            Spacing="12">
+            <TextBlock
+                FontSize="20"
+                FontWeight="Bold"
+                Text="新闻" />
+            <tio:SelectionList ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}">
+                <tio:SelectionList.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="8" />
+                    </ItemsPanelTemplate>
+                </tio:SelectionList.ItemsPanel>
+                <tio:SelectionList.ItemTemplate>
+                    <DataTemplate DataType="pages:NewsFilterOption">
+                        <TextBlock Text="{Binding DisplayText}" />
+                    </DataTemplate>
+                </tio:SelectionList.ItemTemplate>
+                <tio:SelectionList.Indicator>
+                    <Border
+                        Background="{DynamicResource SystemAccentColor}"
+                        CornerRadius="4"
+                        Height="3"
+                        VerticalAlignment="Bottom" />
+                </tio:SelectionList.Indicator>
+            </tio:SelectionList>
+        </StackPanel>
+        <controls:ScrollView
+            Background="Transparent"
+            Classes="Flat"
+            IsVisible="{Binding IsVisible}"
+            Name="ScrollViewer">
+            <ItemsControl ItemsSource="{Binding FilteredNews}" Margin="0,0,5,5">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid
+                            ColumnSpacing="12"
+                            Columns="{Binding #ScrollViewer.Bounds.Width, Converter={StaticResource WidthToColumnsConv}, ConverterParameter=280}"
+                            RowSpacing="12" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="entries:NewsEntry">
+                        <Border
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12">
+                            <DockPanel>
+                                <Border
+                                    ClipToBounds="True"
+                                    CornerRadius="12,12,0,0"
+                                    DockPanel.Dock="Top"
+                                    Height="135">
+                                    <asyncImageLoader:AdvancedImage Source="{Binding ImageUrl}" Width="135" />
+                                </Border>
+                                <StackPanel
+                                    DockPanel.Dock="Bottom"
+                                    Margin="12,10,12,12"
+                                    Spacing="6">
+                                    <TextBlock
+                                        FontSize="15"
+                                        FontWeight="Bold"
+                                        MaxLines="1"
+                                        Text="{Binding Title}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        LineHeight="20"
+                                        MaxLines="3"
+                                        Text="{Binding ShortText}"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="Wrap" />
+                                    <StackPanel
+                                        Margin="0,4,0,0"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+                                        <TextBlock
+                                            FontSize="12"
+                                            Foreground="{DynamicResource InnerForegroundColor}"
+                                            Text="{Binding RelativeDate}" />
+                                        <Border
+                                            Background="{DynamicResource TranslucentBackgroundColor}"
+                                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            IsVisible="{Binding Type, Converter={StaticResource StringNotEmptyConv}}"
+                                            Padding="4,1">
+                                            <TextBlock
+                                                FontSize="11"
+                                                Foreground="{DynamicResource InnerForegroundColor}"
+                                                Text="{Binding Type}" />
+                                        </Border>
+                                    </StackPanel>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </controls:ScrollView>
+    </DockPanel>
+</UserControl>

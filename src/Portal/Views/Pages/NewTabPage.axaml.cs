@@ -1,5 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
@@ -7,6 +10,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MinecraftLaunch.Base.Enums;
@@ -17,6 +21,7 @@ using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Instance;
 using Portal.Core.Operations;
 using Portal.Module.AggregatedSearch;
+using Portal.Services;
 using Portal.ViewModels;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Entries;
@@ -39,8 +44,12 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
         InitializeComponent();
         NewTabViewModel = new NewTabViewModel();
         DataContext = NewTabViewModel;
-        Loaded += (_, _) => NewTabViewModel.ApplyFilterAndSort();
-        
+        Loaded += (_, _) =>
+        {
+            NewTabViewModel.ApplyFilterAndSort();
+            _ = NewTabViewModel.InitializeNewsAsync();
+        };
+
         InstanceManager.Instance.StatisticsChanged += OnStatisticsChanged;
     }
 
@@ -138,11 +147,90 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
 
 public partial class NewTabViewModel : InstanceListViewModelBase
 {
+    private List<NewsEntry> _javaNews = [];
+    private List<NewsEntry> _bedrockNews = [];
+
+    public ObservableCollection<NewsEntry> FilteredNews { get; } = [];
+
+    public List<NewsFilterOption> NewsFilterOptions { get; } =
+    [
+        new() { DisplayText = "全部", Type = NewsFilterType.All },
+        new() { DisplayText = "Java 版", Type = NewsFilterType.Java },
+        new() { DisplayText = "基岩版", Type = NewsFilterType.Bedrock }
+    ];
+
+    [ObservableProperty] public partial bool IsNewsVisible { get; set; }
+    [ObservableProperty] public partial NewsFilterOption? SelectedNewsFilter { get; set; }
+
     public NewTabViewModel()
     {
         SelectedSortOption = SortOptions.FirstOrDefault(o => o.SortType == Data.ConfigEntry.DefaultInstanceSortType);
+        SelectedNewsFilter = NewsFilterOptions[0];
     }
 
+    partial void OnSelectedNewsFilterChanged(NewsFilterOption? value) => ApplyNewsFilter();
+
+    public async Task InitializeNewsAsync()
+    {
+        var javaCache = NewsService.LoadJavaCache();
+        var bedrockCache = NewsService.LoadBedrockCache();
+
+        _javaNews = javaCache;
+        _bedrockNews = bedrockCache;
+
+        if (_javaNews.Count > 0 || _bedrockNews.Count > 0)
+        {
+            ApplyNewsFilter();
+            IsNewsVisible = true;
+            _ = RefreshNewsAsync();
+        }
+        else
+        {
+            await RefreshNewsAsync();
+        }
+    }
+
+    private async Task RefreshNewsAsync()
+    {
+        var java = await NewsService.FetchJavaAsync();
+        var bedrock = await NewsService.FetchBedrockAsync();
+
+        bool hasAny = (java != null && java.Count > 0) || (bedrock != null && bedrock.Count > 0)
+                   || _javaNews.Count > 0 || _bedrockNews.Count > 0;
+
+        if (!hasAny)
+        {
+            IsNewsVisible = false;
+            return;
+        }
+
+        if (java != null) _javaNews = java;
+        if (bedrock != null) _bedrockNews = bedrock;
+
+        ApplyNewsFilter();
+    }
+
+    private void ApplyNewsFilter()
+    {
+        FilteredNews.Clear();
+        var filter = SelectedNewsFilter?.Type ?? NewsFilterType.All;
+    
+        var threeMonthsAgo = DateTime.Now.AddMonths(-3);
+
+        IEnumerable<NewsEntry> list = filter switch
+        {
+            NewsFilterType.Java => _javaNews,
+            NewsFilterType.Bedrock => _bedrockNews,
+            _ => _javaNews.Concat(_bedrockNews)
+        };
+
+        var filteredList = list
+            .Where(x => x.Date >= threeMonthsAgo) 
+            .OrderByDescending(x => x.Date);
+
+        FilteredNews.AddRange(filteredList);
+    }
+    
     [RelayCommand]
     public void ToggleFavorite(MinecraftInstance instance)
     {
