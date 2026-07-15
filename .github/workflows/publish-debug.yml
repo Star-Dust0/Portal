@@ -1,0 +1,28 @@
+name: publish/debug
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Update Submodules
+        run: |
+          git submodule update --init --recursive
+          git submodule foreach --recursive "git fetch origin main && git checkout -B main origin/main"
+        shell: bash
+
+      - name: Build
+        run: dotnet build ./src/Portal.Desktop/Portal.Desktop.csproj -c Debug -r win-x64
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-debug-win-x64
+          path: ./src/Portal.Desktop/bin/Debug/net10.0-windows10.0.19041.0/win-x64/
