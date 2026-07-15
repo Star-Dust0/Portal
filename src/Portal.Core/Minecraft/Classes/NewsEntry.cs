@@ -1,8 +1,6 @@
-using System;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Portal.Classes.Entries;
+namespace Portal.Core.Minecraft.Classes;
 
 public partial class NewsEntry : ObservableObject
 {
