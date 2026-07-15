@@ -82,28 +82,6 @@
                         HorizontalAlignment="Right"
                         IsChecked="{Binding Data.ConfigEntry.ShowMinecraftNews}" />
                 </DockPanel>
-                <DockPanel>
-                    <TextBlock
-                        DockPanel.Dock="Left"
-                        FontSize="14"
-                        HorizontalAlignment="Left"
-                        Text="文件拖入提示" />
-                    <ToggleSwitch
-                        DockPanel.Dock="Right"
-                        HorizontalAlignment="Right"
-                        IsChecked="{Binding Data.ConfigEntry.ShowDragDropTip}" />
-                </DockPanel>
-                <DockPanel>
-                    <TextBlock
-                        DockPanel.Dock="Left"
-                        FontSize="14"
-                        HorizontalAlignment="Left"
-                        Text="更新提示" />
-                    <ToggleSwitch
-                        DockPanel.Dock="Right"
-                        HorizontalAlignment="Right"
-                        IsChecked="{Binding Data.ConfigEntry.ShowUpdateTip}" />
-                </DockPanel>
             </StackPanel>
         </StackPanel>
     </StackPanel>
