@@ -1,6 +1,6 @@
 using MinecraftLaunch.Base.Models.Authentication;
 using MinecraftLaunch.Components.Authenticator;
-using MinecraftLaunch.Skin.Class.Fetchers;
+using MinecraftLaunch.Components.Provider;
 using Portal.Core.Minecraft.Classes;
 using Tio.Avalonia.Standard.Modules.Extensions;
 
@@ -19,9 +19,19 @@ public static class AccountRefresher
             var authResult = await authenticator.RefreshAsync(new MicrosoftAccount(account.Name, (Guid)account.Uuid!,
                 account.AccessToken, account.RefreshToken, account.LastLoginTime));
 
-            var skinFetcher = new MicrosoftSkinFetcher(authResult.Uuid.ToString());
-            var skinBytes = await skinFetcher.GetSkinAsync();
-            var skinBase64 = skinBytes.ToBase64();
+            string skinBase64 = MinecraftAccount.SteveSkin;
+            try
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                await using var skinStream = await SkinProvider.GetMicrosoftSkinDataAsync(authResult, cts.Token);
+                using var ms = new MemoryStream();
+                await skinStream.CopyToAsync(ms, cts.Token);
+                skinBase64 = ms.ToArray().ToBase64();
+            }
+            catch
+            {
+                // 使用默认皮肤
+            }
 
             var newAccount = new MinecraftAccount(AccountType.Microsoft)
             {
@@ -62,8 +72,19 @@ public static class AccountRefresher
                 account.AccessToken, account.YggdrasilServerUrl, account.ClientToken));
             if (result == null) return null;
 
-            var skinFetcher = new YggdrasilSkinFetcher(account.YggdrasilServerUrl, result.Uuid.ToString());
-            var skinBase64 = (await skinFetcher.GetSkinAsync()).ToBase64();
+            string skinBase64 = MinecraftAccount.SteveSkin;
+            try
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                await using var skinStream = await SkinProvider.GetYggdrasilSkinDataAsync(result, cts.Token);
+                using var ms = new MemoryStream();
+                await skinStream.CopyToAsync(ms, cts.Token);
+                skinBase64 = ms.ToArray().ToBase64();
+            }
+            catch
+            {
+                // 使用默认皮肤
+            }
 
             var newAccount = new MinecraftAccount(AccountType.Yggdrasil)
             {

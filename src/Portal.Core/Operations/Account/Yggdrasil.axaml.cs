@@ -9,7 +9,7 @@ using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MinecraftLaunch.Components.Authenticator;
-using MinecraftLaunch.Skin.Class.Fetchers;
+using MinecraftLaunch.Components.Provider;
 using Portal.Core.Helpers;
 using Portal.Core.Minecraft.Classes;
 using Tio.Avalonia.Standard.Modules.DiskIO;
@@ -255,8 +255,11 @@ public partial class YggdrasilAccountViewModel : ObservableObject, IDialogContex
                     var base64 = MinecraftAccount.SteveSkin;
                     try
                     {
-                        YggdrasilSkinFetcher skinFetcher = new(ServerUrl!, account.Uuid.ToString());
-                        base64 = (await skinFetcher.GetSkinAsync()).ToBase64();
+                        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                        await using var skinStream = await SkinProvider.GetYggdrasilSkinDataAsync(account, cts.Token);
+                        using var ms = new MemoryStream();
+                        await skinStream.CopyToAsync(ms, cts.Token);
+                        base64 = ms.ToArray().ToBase64();
                     }
                     catch (Exception e)
                     {
