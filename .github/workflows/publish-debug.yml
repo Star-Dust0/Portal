@@ -66,11 +66,16 @@ jobs:
       - name: Build
         run: dotnet build ./src/Portal.Desktop/Portal.Desktop.csproj -c Debug -r win-x64 /p:Version=${{ needs.prepare.outputs.app_version }}
 
+      - name: Package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "./src/Portal.Desktop/bin/Debug/net10.0/win-x64/*" -DestinationPath "./Portal.debug.win.x64.zip" -Force
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: portal-debug-win-x64
-          path: ./src/Portal.Desktop/bin/Debug/net10.0/win-x64/
+          path: ./Portal.debug.win.x64.zip
 
   publish:
     needs: [prepare, build]
