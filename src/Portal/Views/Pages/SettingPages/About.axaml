@@ -53,17 +53,20 @@
                             <TextBlock
                                 FontSize="13"
                                 Foreground="{DynamicResource InnerForegroundColor}"
-                                Margin="5,0,0,0">
+                                Margin="5,0,0,0"
+                                MaxLines="1">
                                 <Run Text="{Binding Info}" />
                             </TextBlock>
                             <TextBlock
                                 FontSize="13"
                                 Foreground="{DynamicResource InnerForegroundColor}"
+                                MaxLines="1"
                                 Text="|" />
                             <TextBlock
                                 FontSize="13"
                                 Foreground="{DynamicResource InnerForegroundColor}"
                                 Margin="0,1,0,0"
+                                MaxLines="1"
                                 Text="{Binding Data.Version.BuildTime, StringFormat='{}{0:yyyy-MM-dd HH:MM:ss}'}" />
                         </StackPanel>
                     </StackPanel>

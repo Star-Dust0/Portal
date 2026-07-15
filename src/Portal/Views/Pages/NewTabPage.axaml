@@ -29,7 +29,7 @@
                     BorderBrush="{DynamicResource TranslucentBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="16"
-                    Height="100"
+                    Height="110"
                     Width="220">
                     <Grid>
                         <StackPanel
@@ -40,15 +40,13 @@
                             <PathIcon
                                 Data="F1 M640,640z M0,0z M448,128C554,128 640,214 640,320 640,426 554,512 448,512L192,512C86,512 0,426 0,320 0,214 86,128 192,128L448,128z M192,240C178.7,240,168,250.7,168,264L168,296 136,296C122.7,296 112,306.7 112,320 112,333.3 122.7,344 136,344L168,344 168,376C168,389.3 178.7,400 192,400 205.3,400 216,389.3 216,376L216,344 248,344C261.3,344 272,333.3 272,320 272,306.7 261.3,296 248,296L216,296 216,264C216,250.7,205.3,240,192,240z M432,336C414.3,336 400,350.3 400,368 400,385.7 414.3,400 432,400 449.7,400 464,385.7 464,368 464,350.3 449.7,336 432,336z M496,240C478.3,240 464,254.3 464,272 464,289.7 478.3,304 496,304 513.7,304 528,289.7 528,272 528,254.3 513.7,240 496,240z"
                                 Foreground="{DynamicResource InnerForegroundColor}"
-                                Width="35" />
+                                Width="30" />
                             <TextBlock
                                 Foreground="{DynamicResource InnerForegroundColor}"
                                 HorizontalAlignment="Center"
                                 Text="暂无最近游戏" />
                         </StackPanel>
-                        <DockPanel
-                            IsVisible="{Binding HasRecentInstance}"
-                            Margin="12,10">
+                        <DockPanel IsVisible="{Binding HasRecentInstance}" Margin="12,10">
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
                                 <Border
                                     ClipToBounds="True"
@@ -98,32 +96,92 @@
                     BorderBrush="{DynamicResource TranslucentBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="16"
-                    Height="86">
+                    Height="76">
                     <Panel>
-                        <StackPanel
-                            HorizontalAlignment="Left"
-                            Margin="15,12,0,0"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Top">
-                            <PathIcon
-                                Data="F1 M640,640z M0,0z M434.8,54.1C446.7,62.7,451.1,78.3,445.7,91.9L367.3,288 512,288C525.5,288 537.5,296.4 542.1,309.1 546.7,321.8 542.8,336 532.5,344.6L244.5,584.6C233.2,594 217.1,594.5 205.2,585.9 193.3,577.3 188.9,561.7 194.3,548.1L272.7,352 128,352C114.5,352 102.5,343.6 97.9,330.9 93.3,318.2 97.2,304 107.5,295.4L395.5,55.4C406.8,46,422.9,45.5,434.8,54.1z"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                Height="22"
-                                Width="22" />
-                            <TextBlock
-                                FontSize="17"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                Margin="4,1,0,0"
-                                Text="今天玩谁？" />
-                        </StackPanel>
+                        <Panel IsVisible="False">
+                            <StackPanel
+                                HorizontalAlignment="Left"
+                                IsVisible="False"
+                                Margin="15,12,0,0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Top">
+                                <PathIcon
+                                    Data="F1 M640,640z M0,0z M434.8,54.1C446.7,62.7,451.1,78.3,445.7,91.9L367.3,288 512,288C525.5,288 537.5,296.4 542.1,309.1 546.7,321.8 542.8,336 532.5,344.6L244.5,584.6C233.2,594 217.1,594.5 205.2,585.9 193.3,577.3 188.9,561.7 194.3,548.1L272.7,352 128,352C114.5,352 102.5,343.6 97.9,330.9 93.3,318.2 97.2,304 107.5,295.4L395.5,55.4C406.8,46,422.9,45.5,434.8,54.1z"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Height="20"
+                                    Width="20" />
+                                <TextBlock
+                                    FontSize="15"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Margin="4,1,0,0"
+                                    Text="今天玩谁？" />
+                            </StackPanel>
+                            <StackPanel
+                                HorizontalAlignment="Left"
+                                IsVisible="False"
+                                Margin="15,12,0,0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Top">
+                                <PathIcon
+                                    Data="F1 M640,640z M0,0z M434.8,54.1C446.7,62.7,451.1,78.3,445.7,91.9L367.3,288 512,288C525.5,288 537.5,296.4 542.1,309.1 546.7,321.8 542.8,336 532.5,344.6L244.5,584.6C233.2,594 217.1,594.5 205.2,585.9 193.3,577.3 188.9,561.7 194.3,548.1L272.7,352 128,352C114.5,352 102.5,343.6 97.9,330.9 93.3,318.2 97.2,304 107.5,295.4L395.5,55.4C406.8,46,422.9,45.5,434.8,54.1z"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Height="20"
+                                    Width="20" />
+                                <TextBlock
+                                    FontSize="15"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Margin="4,1,0,0"
+                                    Text="今天玩谁？" />
+                            </StackPanel>
 
-                        <Button
-                            Click="Button_OnClick"
-                            Content="抽签"
-                            HorizontalAlignment="Stretch"
-                            Margin="10,0,10,10"
-                            VerticalAlignment="Bottom" />
+                            <Button
+                                Click="Button_OnClick"
+                                Content="抽签"
+                                HorizontalAlignment="Stretch"
+                                Margin="10,0,10,10"
+                                VerticalAlignment="Bottom" />
+                        </Panel>
+                        <StackPanel Margin="13,13,0,10">
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="5"
+                                VerticalAlignment="Top">
+                                <PathIcon
+                                    Data="F1 M640,640z M0,0z M320,64C461.4,64 576,178.6 576,320 576,461.4 461.4,576 320,576 178.6,576 64,461.4 64,320 64,178.6 178.6,64 320,64z M296,184L296,320C296,328,300,335.5,306.7,340L402.7,404C413.7,411.4 428.6,408.4 436,397.3 443.4,386.2 440.4,371.4 429.3,364L344,307.2 344,184C344,170.7 333.3,160 320,160 306.7,160 296,170.7 296,184z"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Height="20"
+                                    Width="20" />
+                                <TextBlock
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Text="游戏时长"
+                                    VerticalAlignment="Center" />
+                            </StackPanel>
+                            <StackPanel
+                                Margin="3,5,0,0"
+                                Orientation="Horizontal"
+                                Spacing="7">
+                                <TextBlock VerticalAlignment="Center">
+                                    <Run FontSize="22" Text="0" />
+                                    <Run
+                                        FontSize="16"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Text="min" />
+                                </TextBlock>
+                                <Rectangle
+                                    Fill="{DynamicResource TranslucentBorderBrush}"
+                                    Margin="0,3"
+                                    Width="1" />
+                                <TextBlock VerticalAlignment="Center">
+                                    <Run FontSize="22" Text="0" />
+                                    <Run
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Text="次会话" />
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
                     </Panel>
+
                 </Border>
                 <StackPanel.Transitions>
                     <Transitions>
