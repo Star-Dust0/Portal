@@ -168,6 +168,16 @@ public partial class TitleBarComponent : Grid
         tioTabWindowBase.SelectTab(tabEntry);
     }
 
+    private async void ChangeSkin_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || btn.Tag is not MinecraftAccount account) return;
+
+        AccountFlyout.Flyout.Hide();
+        var hostId = ((Control)Root!).TryGetHostId();
+        var result = await ChangeSkinDialog.Show(hostId, null);
+        // TODO: handle result (skin path)
+    }
+    
     private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         AccountFlyout.Flyout.Hide();
