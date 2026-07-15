@@ -236,10 +236,13 @@
                     <StackPanel>
                         <DockPanel Margin="10,0">
                             <TextBlock
+                                Background="Transparent"
+                                Cursor="Hand"
                                 DockPanel.Dock="Left"
                                 FontSize="14"
                                 HorizontalAlignment="Left"
-                                Margin="0,5,0,7">
+                                Margin="0,5,0,7"
+                                PointerPressed="InputElement_OnPointerPressed">
                                 切换账户
                             </TextBlock>
                             <Button
