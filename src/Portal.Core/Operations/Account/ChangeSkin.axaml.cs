@@ -10,6 +10,7 @@ using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LiteSkinViewer3D.Avalonia.Controls;
+using LiteSkinViewer3D.Shared.Enums;
 using Pointer = LiteSkinViewer3D.Shared.Enums.PointerType;
 using Portal.Core.Minecraft.Classes;
 using TioUi.Common;
@@ -34,6 +35,8 @@ public partial class ChangeSkin : UserControl
         SkinViewer.PointerPressed += OnPointerPressed;
         SkinViewer.PointerReleased += OnPointerReleased;
         SkinViewer.PointerWheelChanged += OnPointerWheelChanged;
+        SkinViewer.RenderMode = SkinRenderMode.MSAA;
+        SkinViewer.IsTopLayer3D = true;
     }
 
     private void OnPointerMoved(object? s, PointerEventArgs e)
@@ -42,8 +45,8 @@ public partial class ChangeSkin : UserControl
         var type = Pointer.None;
         var prop = e.GetCurrentPoint(this).Properties;
         if (prop.IsLeftButtonPressed) type = Pointer.PointerLeft;
-        else if (prop.IsRightButtonPressed) type = Pointer.PointerRight;
-        SkinViewer.UpdatePointerMoved(type, new Vector2((float)pos.X * 2f, _initialY));
+        else if (prop.IsRightButtonPressed) return; //type = Pointer.PointerRight;
+        SkinViewer.UpdatePointerMoved(type, new Vector2((float)pos.X * 8f, _initialY));
     }
 
     private void OnPointerPressed(object? s, PointerPressedEventArgs e)
@@ -53,7 +56,7 @@ public partial class ChangeSkin : UserControl
         var prop = e.GetCurrentPoint(this).Properties;
         var type = Pointer.None;
         if (prop.IsLeftButtonPressed) type = Pointer.PointerLeft;
-        else if (prop.IsRightButtonPressed) type = Pointer.PointerRight;
+        else if (prop.IsRightButtonPressed) return; //type = Pointer.PointerRight;
         SkinViewer.UpdatePointerPressed(type, new Vector2((float)pos.X, _initialY));
     }
 
@@ -120,8 +123,9 @@ public partial class ChangeSkinViewModel : ObservableObject, IDialogContext
     [ObservableProperty]
     public partial string? SkinPath { get; set; }
 
-    [ObservableProperty]
-    public partial bool IsPreview { get; set; }
+    [ObservableProperty] public partial bool IsPreview { get; set; }
+
+    public string Title => IsPreview ? "预览皮肤" : "更换皮肤";
 
     public ICommand ConfirmCommand { get; }
     public ICommand CancelCommand { get; }

@@ -19,7 +19,8 @@
             FontSize="16"
             FontWeight="600"
             Grid.Row="0"
-            Text="更换皮肤" />
+            Margin="0,0,0,10"
+            Text="{Binding Title}" />
         <StackPanel
             Grid.Row="1"
             IsVisible="{Binding IsPreview, Converter={x:Static BoolConverters.Not}}"
@@ -36,6 +37,7 @@
                 UsePickerType="OpenFile" />
         </StackPanel>
         <Border
+            Background="{DynamicResource LineColor}"
             BorderBrush="{DynamicResource PanelBorderBrush}"
             BorderThickness="1"
             CornerRadius="8"
