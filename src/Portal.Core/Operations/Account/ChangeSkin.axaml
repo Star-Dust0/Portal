@@ -60,6 +60,7 @@
                 IsCheckedChanged="OnIsViewLockedChanged"
                 VerticalAlignment="Center" />
             <StackPanel
+                DockPanel.Dock="Right"
                 HorizontalAlignment="Right"
                 IsVisible="{Binding IsPreview, Converter={x:Static BoolConverters.Not}}"
                 Orientation="Horizontal"

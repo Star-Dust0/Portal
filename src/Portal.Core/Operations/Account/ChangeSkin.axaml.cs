@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
@@ -16,6 +17,7 @@ using Portal.Core.Minecraft.Classes;
 using TioUi.Common;
 using TioUi.Common.Interfaces;
 using TioUi.Controls;
+using Tio.Avalonia.Standard.Tab.Gateway;
 
 namespace Portal.Core.Operations.Account;
 
@@ -36,6 +38,7 @@ public partial class ChangeSkin : UserControl
         SkinViewer.PointerPressed += OnPointerPressed;
         SkinViewer.PointerReleased += OnPointerReleased;
         SkinViewer.PointerWheelChanged += OnPointerWheelChanged;
+        SkinViewer.RenderingFailed += OnSkinViewerRenderingFailed;
         SkinViewer.RenderMode = SkinRenderMode.MSAA;
         SkinViewer.IsTopLayer3D = true;
     }
@@ -91,6 +94,11 @@ public partial class ChangeSkin : UserControl
     private void OnPointerWheelChanged(object? s, PointerWheelEventArgs e)
     {
         SkinViewer.UpdatePointerWheelChanged(e.Delta.Y > 0);
+    }
+
+    private void OnSkinViewerRenderingFailed(object? sender, Exception e)
+    {
+        TopLevel.GetTopLevel(this)?.Notice("皮肤渲染失败", NotificationType.Error);
     }
 }
 

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -175,7 +176,8 @@ public partial class TitleBarComponent : Grid
         AccountFlyout.Flyout.Hide();
         var hostId = ((Control)Root!).TryGetHostId();
         var result = await ChangeSkinDialog.Show(hostId, null);
-        // TODO: handle result (skin path)
+        if (!string.IsNullOrEmpty(result) && File.Exists(result))
+            account.Skin = Convert.ToBase64String(await File.ReadAllBytesAsync(result));
     }
     
     private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
