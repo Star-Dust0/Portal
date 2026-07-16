@@ -22,6 +22,7 @@ namespace Portal.Core.Operations.Account;
 public partial class ChangeSkin : UserControl
 {
     private float _initialY;
+    private Pointer _pressedPointer;
 
     public ChangeSkin()
     {
@@ -45,8 +46,18 @@ public partial class ChangeSkin : UserControl
         var type = Pointer.None;
         var prop = e.GetCurrentPoint(this).Properties;
         if (prop.IsLeftButtonPressed) type = Pointer.PointerLeft;
-        else if (prop.IsRightButtonPressed) return; //type = Pointer.PointerRight;
-        SkinViewer.UpdatePointerMoved(type, new Vector2((float)pos.X * 8f, _initialY));
+        else if (prop.IsRightButtonPressed) type = Pointer.PointerRight;
+        if (type == Pointer.PointerRight)
+        {
+            SkinViewer.UpdatePointerMoved(type, new Vector2((float)pos.X, (float)pos.Y));
+            return;
+        }
+
+        var isViewLocked = (DataContext as ChangeSkinViewModel)?.IsViewLocked == true;
+        var point = isViewLocked
+            ? new Vector2((float)pos.X * 8f, _initialY)
+            : new Vector2((float)pos.X * 8f, (float)pos.Y * 8f);
+        SkinViewer.UpdatePointerMoved(type, point);
     }
 
     private void OnPointerPressed(object? s, PointerPressedEventArgs e)
@@ -56,15 +67,25 @@ public partial class ChangeSkin : UserControl
         var prop = e.GetCurrentPoint(this).Properties;
         var type = Pointer.None;
         if (prop.IsLeftButtonPressed) type = Pointer.PointerLeft;
-        else if (prop.IsRightButtonPressed) return; //type = Pointer.PointerRight;
-        SkinViewer.UpdatePointerPressed(type, new Vector2((float)pos.X, _initialY));
+        else if (prop.IsRightButtonPressed) type = Pointer.PointerRight;
+        _pressedPointer = type;
+        var isViewLocked = (DataContext as ChangeSkinViewModel)?.IsViewLocked == true;
+        var point = isViewLocked
+            ? new Vector2((float)pos.X, _initialY)
+            : new Vector2((float)pos.X * 8f, _initialY * 8f);
+        SkinViewer.UpdatePointerPressed(type, point);
+    }
+
+    private void OnIsViewLockedChanged(object? sender, RoutedEventArgs e)
+    {
+        SkinViewer.Reset();
     }
 
     private void OnPointerReleased(object? s, PointerReleasedEventArgs e)
     {
         var pos = e.GetPosition(this);
-        var prop = e.GetCurrentPoint(this).Properties;
-        SkinViewer.UpdatePointerReleased(Pointer.None, new Vector2((float)pos.X, (float)pos.Y));
+        SkinViewer.UpdatePointerReleased(_pressedPointer, new Vector2((float)pos.X, (float)pos.Y));
+        _pressedPointer = Pointer.None;
     }
 
     private void OnPointerWheelChanged(object? s, PointerWheelEventArgs e)
@@ -124,6 +145,8 @@ public partial class ChangeSkinViewModel : ObservableObject, IDialogContext
     public partial string? SkinPath { get; set; }
 
     [ObservableProperty] public partial bool IsPreview { get; set; }
+
+    [ObservableProperty] public partial bool IsViewLocked { get; set; } = true;
 
     public string Title => IsPreview ? "预览皮肤" : "更换皮肤";
 

@@ -46,12 +46,19 @@
             <lsv:SkinViewer3D
                 Height="420"
                 IsEnableAnimation="True"
+                IsLightingEnabled="False"
                 IsUpperLayerVisible="True"
                 Name="SkinViewer"
                 Skin="{Binding SkinPath}"
                 Width="450" />
         </Border>
         <DockPanel Grid.Row="3">
+            <CheckBox
+                Content="锁定视角"
+                DockPanel.Dock="Left"
+                IsChecked="{Binding IsViewLocked}"
+                IsCheckedChanged="OnIsViewLockedChanged"
+                VerticalAlignment="Center" />
             <StackPanel
                 HorizontalAlignment="Right"
                 IsVisible="{Binding IsPreview, Converter={x:Static BoolConverters.Not}}"
