@@ -132,7 +132,7 @@ public partial class TabWindow : TioTabWindowBase
             TitleBarThings.SizeChanged += (_, _) =>
             {
                 NavScrollViewer.Margin =
-                    new Thickness(TitleBarLogo.Bounds.Width + 72, -44, TitleBarThings.Bounds.Width + 15, 0);
+                    new Thickness(TitleBarLogo.Bounds.Width + 72, -44, TitleBarThings.Bounds.Width + 15 + 30, 0);
             };
         }
         else
@@ -140,7 +140,7 @@ public partial class TabWindow : TioTabWindowBase
             TitleBarThings.SizeChanged += (_, _) =>
             {
                 NavScrollViewer.Margin = new Thickness(TitleBarLogo.Bounds.Width + 3, -44,
-                    90 + TitleBarThings.Bounds.Width, 0);
+                    90 + 30 + TitleBarThings.Bounds.Width, 0);
             };
         }
 
@@ -205,7 +205,7 @@ public partial class TabWindow : TioTabWindowBase
             DialogWindowMinWidth = 770,
             DialogWindowMinHeight = 471,
             DialogWindowWidth = 770,
-            DialogWindowHeight= 471,
+            DialogWindowHeight = 471,
             VerticalScrollBarVisibility = ScrollBarVisibility.Disabled
         };
 
@@ -391,6 +391,7 @@ public partial class TabWindow : TioTabWindowBase
                         RootBorder.ClearValue(Border.BackgroundProperty);
                     }
                 }
+
                 ClearValue(TransparencyBackgroundFallbackProperty);
                 TransparencyLevelHint = new[] { WindowTransparencyLevel.None };
                 break;
@@ -420,7 +421,8 @@ public partial class TabWindow : TioTabWindowBase
                 Background = Brushes.Transparent;
                 if (RootBorder != null)
                     RootBorder.Background = blurBrush;
-                TransparencyBackgroundFallback = new SolidColorBrush(Color.FromArgb(255, blurColor.R, blurColor.G, blurColor.B));
+                TransparencyBackgroundFallback =
+                    new SolidColorBrush(Color.FromArgb(255, blurColor.R, blurColor.G, blurColor.B));
                 TransparencyLevelHint = new[] { WindowTransparencyLevel.Blur };
                 break;
 
@@ -431,7 +433,8 @@ public partial class TabWindow : TioTabWindowBase
                 Background = Brushes.Transparent;
                 if (RootBorder != null)
                     RootBorder.Background = micaBrush;
-                TransparencyBackgroundFallback = new SolidColorBrush(Color.FromArgb(255, micaColor.R, micaColor.G, micaColor.B));
+                TransparencyBackgroundFallback =
+                    new SolidColorBrush(Color.FromArgb(255, micaColor.R, micaColor.G, micaColor.B));
                 TransparencyLevelHint = new[] { WindowTransparencyLevel.Mica };
                 break;
         }

@@ -37,6 +37,11 @@ public partial class InstanceDetailPage : UserControl, ITioTabPage
         };
     }
 
+    public InstanceDetailPage()
+    {
+    }
+
+
     public PageInfo PageInfo { get; init; }
 
     public TabEntry HostTab { get; set; }
@@ -74,7 +79,7 @@ public partial class InstanceDetailPageViewModel : ObservableObject
     public InstanceDetailPageViewModel(MinecraftInstance instance)
     {
         Instance = instance;
-        NavigateType(typeof(Overview));
+        NavigateType(typeof(Dashboard));
     }
 
     [RelayCommand]

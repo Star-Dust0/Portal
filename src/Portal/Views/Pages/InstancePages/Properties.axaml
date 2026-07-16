@@ -9,27 +9,21 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <StackPanel Spacing="15">
-        <TextBlock FontSize="26" Text="属性" />
+    <StackPanel MaxWidth="1100" Spacing="16">
+        <TextBlock FontSize="24" Text="实例设置" />
         <StackPanel Spacing="5">
-            <Label Content="实例名称" FontSize="13" Foreground="{DynamicResource InnerForegroundColor}" />
-            <TextBlock Text="{Binding Instance.InstanceName}" />
+            <Label Content="显示名称" FontSize="13" Foreground="{DynamicResource InnerForegroundColor}" />
+            <TextBox PlaceholderText="留空时使用原始实例名称" Text="{Binding Instance.Config.Note, Mode=TwoWay}" />
         </StackPanel>
         <StackPanel Spacing="5">
             <Label Content="文件夹" FontSize="13" Foreground="{DynamicResource InnerForegroundColor}" />
             <TextBlock Text="{Binding Instance.FolderName}" />
         </StackPanel>
-        <StackPanel Spacing="5">
-            <Label Content="路径" FontSize="13" Foreground="{DynamicResource InnerForegroundColor}" />
-            <SelectableTextBlock Text="{Binding Instance.InstanceFolderPath}" TextWrapping="Wrap" />
-        </StackPanel>
-        <StackPanel Spacing="5">
-            <Label Content="版本" FontSize="13" Foreground="{DynamicResource InnerForegroundColor}" />
-            <TextBlock Text="{Binding Instance.VersionId}" />
-        </StackPanel>
-        <StackPanel Spacing="5">
-            <Label Content="加载器" FontSize="13" Foreground="{DynamicResource InnerForegroundColor}" />
-            <TextBlock Text="{Binding Instance.LoaderDescription}" />
+        <ToggleSwitch IsChecked="{Binding Instance.Config.IsFavorite, Mode=TwoWay}" OffContent="普通实例" OnContent="已收藏" />
+        <ToggleSwitch IsChecked="{Binding Instance.Config.EnableIndependentInstance, Mode=TwoWay}" OffContent="使用共享游戏目录" OnContent="使用独立游戏目录" />
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <Button Click="Save_Click">保存设置</Button>
+            <Button Click="OpenFolder_Click" Theme="{StaticResource TransparentButton}">打开实例目录</Button>
         </StackPanel>
     </StackPanel>
 </UserControl>

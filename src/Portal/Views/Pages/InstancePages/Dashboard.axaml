@@ -1,0 +1,202 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="Portal.Views.Pages.InstancePages.Dashboard"
+    x:DataType="instancePages:Dashboard"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:instancePages="clr-namespace:Portal.Views.Pages.InstancePages"
+    xmlns:java="clr-namespace:Portal.Core.Minecraft.Instance.Java;assembly=Portal.Core"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Margin="0,8,0,0" Spacing="16">
+        <Border
+            Background="Transparent"
+            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+            BorderThickness="0"
+            CornerRadius="12">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Border
+                    ClipToBounds="True"
+                    CornerRadius="18"
+                    Height="72"
+                    Margin="10,5,16,0"
+                    Width="72">
+                    <Image Source="{Binding Instance.Icons[72]}" />
+                    <Border.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="将图标另存为">
+                                <MenuItem.Icon>
+                                    <PathIcon
+                                        Data="F1 M640,640z M0,0z M128,128C128,92.7,156.7,64,192,64L341.5,64C358.5,64,374.8,70.7,386.8,82.7L493.3,189.3C505.3,201.3,512,217.6,512,234.6L512,512C512,547.3,483.3,576,448,576L192,576C156.7,576,128,547.3,128,512L128,128z M336,122.5L336,216C336,229.3,346.7,240,360,240L453.5,240 336,122.5z M256,320C256,302.3 241.7,288 224,288 206.3,288 192,302.3 192,320 192,337.7 206.3,352 224,352 241.7,352 256,337.7 256,320z M220.6,512L419.4,512C435.2,512 448,499.2 448,483.4 448,476.1 445.2,469 440.1,463.7L343.3,361.9C337.3,355.6,328.9,352,320.1,352L319.8,352C311,352,302.7,355.6,296.6,361.9L199.9,463.7C194.8,469 192,476.1 192,483.4 192,499.2 204.8,512 220.6,512z"
+                                        Height="16"
+                                        Width="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="更换图标">
+                                <MenuItem.Icon>
+                                    <PathIcon
+                                        Data="F1 M640,640z M0,0z M500.7,138.7L512,149.4 512,96C512,78.3 526.3,64 544,64 561.7,64 576,78.3 576,96L576,224C576,241.7,561.7,256,544,256L416,256C398.3,256 384,241.7 384,224 384,206.3 398.3,192 416,192L463.9,192 456.3,184.8C456.1,184.6 455.9,184.4 455.7,184.2 380.7,109.2 259.2,109.2 184.2,184.2 109.2,259.2 109.2,380.7 184.2,455.7 259.2,530.7 380.7,530.7 455.7,455.7 463.9,447.5 471.2,438.8 477.6,429.6 487.7,415.1 507.7,411.6 522.2,421.7 536.7,431.8 540.2,451.8 530.1,466.3 521.6,478.5 511.9,490.1 501,501 401,601 238.9,601 139,501 39.1,401 39,239 139,139 238.9,39.1 400.7,39 500.7,138.7z"
+                                        Height="16"
+                                        Width="16" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </ContextMenu>
+                    </Border.ContextMenu>
+                </Border>
+                <DockPanel Grid.Column="1" VerticalAlignment="Center">
+                    <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+                        <TextBlock
+                            DockPanel.Dock="Left"
+                            FontSize="22"
+                            HorizontalAlignment="Left"
+                            Margin="0,5,0,0"
+                            MaxLines="2"
+                            Text="{Binding Instance.InstanceName}"
+                            TextTrimming="CharacterEllipsis"
+                            TextWrapping="NoWrap" />
+                        <Button
+                            Content="启动此实例"
+                            DockPanel.Dock="Right"
+                            HorizontalAlignment="Right"
+                            Margin="0,0,10,0"
+                            Width="97" />
+                    </DockPanel>
+                    <TextBlock
+                        DockPanel.Dock="Top"
+                        Foreground="{DynamicResource InnerForegroundColor}"
+                        Margin="0,1"
+                        Text="{Binding Instance.ShortDisplay}"
+                        TextWrapping="NoWrap" />
+                    <TextBlock
+                        DockPanel.Dock="Top"
+                        FontSize="12"
+                        Foreground="{DynamicResource InnerForegroundColor}"
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="NoWrap">
+                        <Run Text="[" />
+                        <Run Text="{Binding Instance.FolderName}" />
+                        <Run Text="]" />
+                        <Run Text="{Binding Instance.InstanceFolderPath}" />
+                    </TextBlock>
+                </DockPanel>
+            </Grid>
+        </Border>
+        <Separator Background="{DynamicResource TranslucentBorderBrush}" />
+        <Grid
+            ColumnDefinitions="*,*,*"
+            ColumnSpacing="12"
+            Margin="12,0,12,0">
+            <tio:Descriptions LabelPosition="Top">
+                <tio:DescriptionsItem Label="游玩时长">
+                    <TextBlock>
+                        <Run FontSize="24" Text="{Binding TotalPlayTime}" />
+                    </TextBlock>
+                </tio:DescriptionsItem>
+            </tio:Descriptions>
+            <tio:Descriptions Grid.Column="1" LabelPosition="Top">
+                <tio:DescriptionsItem Label="会话次数">
+                    <TextBlock>
+                        <Run FontSize="24" Text="{Binding Instance.Config.PlaySessions}" />
+                        <Run FontSize="24" Text="次" />
+                    </TextBlock>
+                </tio:DescriptionsItem>
+            </tio:Descriptions>
+            <tio:Descriptions Grid.Column="2" LabelPosition="Top">
+                <tio:DescriptionsItem Label="上次启动">
+                    <TextBlock FontSize="24" Text="{Binding Instance.DisplayLastPlayTime}" />
+                </tio:DescriptionsItem>
+            </tio:Descriptions>
+        </Grid>
+        <Border
+            Background="Transparent"
+            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+            BorderThickness="0"
+            CornerRadius="12"
+            Padding="12">
+            <StackPanel Spacing="12">
+                <TextBlock FontSize="18" Text="实例设置" />
+                <StackPanel Spacing="15">
+                    <StackPanel Spacing="5">
+                        <Label
+                            Content="备注"
+                            FontSize="13"
+                            Foreground="{DynamicResource InnerForegroundColor}" />
+                        <TextBox PlaceholderText="请输入备注" Text="{Binding Instance.Config.Note}" />
+                    </StackPanel>
+                    <StackPanel Spacing="5">
+                        <Label
+                            Content="独立实例"
+                            FontSize="13"
+                            Foreground="{DynamicResource InnerForegroundColor}" />
+                        <ToggleSwitch IsChecked="{Binding Instance.Config.EnableIndependentInstance}" />
+                    </StackPanel>
+                    <StackPanel Spacing="5">
+                        <Label
+                            Content="使用特定Java"
+                            FontSize="13"
+                            Foreground="{DynamicResource InnerForegroundColor}" />
+                        <ToggleSwitch IsChecked="{Binding Instance.Config.EnableSpecificJava}" />
+                    </StackPanel>
+                    <StackPanel IsVisible="{Binding Instance.Config.EnableSpecificJava}" Spacing="5">
+                        <Label
+                            Content="选择Java"
+                            FontSize="13"
+                            Foreground="{DynamicResource InnerForegroundColor}" />
+                        <ComboBox
+                            Height="46"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding Data.ConfigEntry.JavaRuntimes}"
+                            SelectedItem="{Binding Instance.Config.SpecificJavaEntry}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="java:JavaRuntimeEntry">
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                        <TextBlock
+                                            FontSize="12"
+                                            Foreground="{DynamicResource InnerForegroundColor}"
+                                            Text="{Binding JavaPath}"
+                                            TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Spacing="5">
+                        <Label
+                            Content="覆盖全局最大内存"
+                            FontSize="13"
+                            Foreground="{DynamicResource InnerForegroundColor}" />
+                        <ToggleSwitch IsChecked="{Binding Instance.Config.EnableOverrideMaxMemory}" />
+                    </StackPanel>
+                    <StackPanel IsVisible="{Binding Instance.Config.EnableOverrideMaxMemory}" Spacing="5">
+                        <Label
+                            Content="最大内存"
+                            FontSize="13"
+                            Foreground="{DynamicResource InnerForegroundColor}" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Slider
+                                Grid.Column="0"
+                                IsSnapToTickEnabled="True"
+                                Maximum="65536"
+                                Minimum="512"
+                                TickFrequency="256"
+                                Value="{Binding Instance.Config.MinecraftMaxMemory}" />
+                            <Border
+                                Grid.Column="1"
+                                Margin="15,0,0,0"
+                                Width="75">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    Text="{Binding Instance.Config.MinecraftMaxMemory, StringFormat={}{0:0} MB}"
+                                    VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>
