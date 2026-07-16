@@ -11,7 +11,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Margin="0,8,0,0" Spacing="16">
+    <StackPanel Spacing="16">
         <Border
             Background="Transparent"
             BorderBrush="{DynamicResource TranslucentBorderBrush}"
@@ -128,7 +128,7 @@
         <Grid
             ColumnDefinitions="*,*,*,*"
             ColumnSpacing="12"
-            Margin="0,6,0,0">
+            Margin="5,0">
             <Border
                 Background="{DynamicResource TranslucentBackgroundColor}"
                 BorderBrush="{DynamicResource TranslucentBorderBrush}"
@@ -156,10 +156,17 @@
                         <Run FontSize="24" Text="{Binding Instance.Config.PlaySessions}" />
                         <Run FontSize="24" Text="个" />
                     </TextBlock>
-                    <TextBlock
-                        Foreground="{DynamicResource InnerForegroundColor}"
-                        Margin="4,0,0,0"
-                        Text="/version/mods" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Foreground="{DynamicResource InnerForegroundColor}"
+                            Margin="4,0,0,0"
+                            Text="mc" />
+                        <TextBlock
+                            Foreground="{DynamicResource InnerForegroundColor}"
+                            IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                            Text="/versions" />
+                        <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/mods" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
             <Border
@@ -190,10 +197,17 @@
                         <Run FontSize="24" Text="{Binding Instance.Config.PlaySessions}" />
                         <Run FontSize="24" Text="个" />
                     </TextBlock>
-                    <TextBlock
-                        Foreground="{DynamicResource InnerForegroundColor}"
-                        Margin="4,0,0,0"
-                        Text="/version/mods" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Foreground="{DynamicResource InnerForegroundColor}"
+                            Margin="4,0,0,0"
+                            Text="mc" />
+                        <TextBlock
+                            Foreground="{DynamicResource InnerForegroundColor}"
+                            IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                            Text="/versions" />
+                        <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/resourcepacks" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
             <Border
@@ -224,10 +238,17 @@
                         <Run FontSize="24" Text="{Binding Instance.Config.PlaySessions}" />
                         <Run FontSize="24" Text="个" />
                     </TextBlock>
-                    <TextBlock
-                        Foreground="{DynamicResource InnerForegroundColor}"
-                        Margin="4,0,0,0"
-                        Text="/version/mods" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Foreground="{DynamicResource InnerForegroundColor}"
+                            Margin="4,0,0,0"
+                            Text="mc" />
+                        <TextBlock
+                            Foreground="{DynamicResource InnerForegroundColor}"
+                            IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                            Text="/versions" />
+                        <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/shaderpacks" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
             <Border
@@ -258,12 +279,61 @@
                         <Run FontSize="24" Text="{Binding Instance.Config.PlaySessions}" />
                         <Run FontSize="24" Text="个" />
                     </TextBlock>
-                    <TextBlock
-                        Foreground="{DynamicResource InnerForegroundColor}"
-                        Margin="4,0,0,0"
-                        Text="/version/mods" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Foreground="{DynamicResource InnerForegroundColor}"
+                            Margin="4,0,0,0"
+                            Text="mc" />
+                        <TextBlock
+                            Foreground="{DynamicResource InnerForegroundColor}"
+                            IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                            Text="/versions" />
+                        <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/saves" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </Grid>
+        <Border
+            Background="{DynamicResource TranslucentBackgroundColor}"
+            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="16"
+            Margin="5,0"
+            Padding="16,12,16,8">
+            <Grid RowDefinitions="Auto,*">
+                <DockPanel>
+                    <TextBlock
+                        DockPanel.Dock="Left"
+                        FontSize="15"
+                        Text="最近游戏时间" />
+                    <Button
+                        Click="ToggleChartDays_Click"
+                        DockPanel.Dock="Right"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,-20,0"
+                        MinWidth="64"
+                        Padding="8,2"
+                        Theme="{StaticResource TransparentButton}">
+                        <TextBlock
+                            Foreground="{DynamicResource SystemAccentColor}"
+                            Name="Block"
+                            Text="7 天" />
+                    </Button>
+                </DockPanel>
+                <instancePages:RecentPlayTimeChart
+                    AxisForeground="{DynamicResource ForegroundColor}"
+                    Days="7"
+                    FontFamily="{DynamicResource TioFontFamily}"
+                    Grid.Row="1"
+                    Height="210"
+                    Instance="{Binding Instance}"
+                    LineBrush="{DynamicResource SystemAccentColor}"
+                    Margin="0,8,0,0"
+                    TooltipBackground="{DynamicResource TranslucentBackgroundColor}"
+                    TooltipBorderBrush="{DynamicResource TranslucentBorderBrush}"
+                    TooltipForeground="{DynamicResource InnerForegroundColor}"
+                    x:Name="RecentPlayTimeChart" />
+            </Grid>
+        </Border>
     </StackPanel>
 </UserControl>

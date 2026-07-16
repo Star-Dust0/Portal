@@ -16,7 +16,7 @@
         <controls:ScrollView
             Classes="Flat"
             DockPanel.Dock="Left"
-            Margin="7,0,10,10"
+            Margin="7,0,00,10"
             Width="140">
             <tio:NavMenu
                 Margin="0,0,10,0"
@@ -37,7 +37,12 @@
                     Header="实例设置" />
             </tio:NavMenu>
         </controls:ScrollView>
-        <controls:ScrollView Margin="0,3,5,0">
+        <Rectangle
+            DockPanel.Dock="Left"
+            Fill="{DynamicResource TranslucentBorderBrush}"
+            Margin="0,0,0,10"
+            Width="1" />
+        <controls:ScrollView Margin="10,3,5,0">
             <TransitioningContentControl Content="{Binding CurrentPage}" Margin="0,0,6,0">
                 <TransitioningContentControl.PageTransition>
                     <CrossFade Duration="0:0:0.2" />

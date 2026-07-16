@@ -373,6 +373,27 @@ public class MinecraftInstance : ObservableObject
         }
     }
 
+    /// <summary>
+    /// 获取包含今天在内的最近每日游玩时长；没有记录的日期以零补齐。
+    /// </summary>
+    public IReadOnlyList<(DateTime Date, long Seconds)> GetRecentDailyPlayTime(int days)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(days, 1);
+
+        lock (_timerLock)
+        {
+            var playTimeByDate = GetDailyPlayTimeByDate();
+            return Enumerable.Range(0, days)
+                .Select(offset => DateTime.Today.AddDays(offset - days + 1))
+                .Select(date =>
+                {
+                    var key = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    return (date, playTimeByDate.GetValueOrDefault(key) + _unsavedPlayTimeByDate.GetValueOrDefault(key));
+                })
+                .ToArray();
+        }
+    }
+
     private void AddPlayTimeForDate(DateTime date, long seconds)
     {
         if (seconds <= 0)

@@ -1,10 +1,12 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using MinecraftLaunch.Base.Models.Game;
 using Portal.Core.Minecraft.Classes;
+using Portal.Core.Minecraft.Instance;
 using Portal.Core.Minecraft.Instance.Java;
 using Portal.ViewModels;
 using Tio.Avalonia.Standard.Modules.DiskIO;
@@ -32,6 +34,7 @@ public partial class Dashboard : DataUserControl
         Instance = instance;
         InitializeComponent();
         DataContext = this;
+        InstanceManager.Instance.StatisticsChanged += OnStatisticsChanged;
     }
 
     public Dashboard()
@@ -44,5 +47,16 @@ public partial class Dashboard : DataUserControl
         if (sender is Control control)
             _ = (sender as Control)!.GetTopLevel().Launcher
                 .LaunchDirectoryInfoAsync(new DirectoryInfo(Instance.InstanceFolderPath));
+    }
+
+    private void OnStatisticsChanged(object? sender, EventArgs e)
+    {
+        Dispatcher.UIThread.Post(RecentPlayTimeChart.InvalidateVisual);
+    }
+
+    private void ToggleChartDays_Click(object? sender, RoutedEventArgs e)
+    {
+        RecentPlayTimeChart.Days = RecentPlayTimeChart.Days == 7 ? 30 : 7;
+        Block.Text = RecentPlayTimeChart.Days != 7 ? "30 天" : "7 天";
     }
 }
