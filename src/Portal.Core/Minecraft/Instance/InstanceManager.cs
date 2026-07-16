@@ -23,6 +23,11 @@ public class InstanceManager
     /// </summary>
     public event EventHandler? StatisticsChanged;
 
+    /// <summary>
+    /// 当实例图标写入完成，需要刷新界面时触发。
+    /// </summary>
+    public event EventHandler<MinecraftInstance>? InstanceIconChanged;
+
     private InstanceManager() { }
 
     /// <summary>
@@ -31,6 +36,11 @@ public class InstanceManager
     public void NotifyStatisticsChanged()
     {
         StatisticsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void NotifyInstanceIconChanged(MinecraftInstance instance)
+    {
+        InstanceIconChanged?.Invoke(this, instance);
     }
 
     public void RefreshAll(IEnumerable<(string FolderPath, string FolderName)> folders)

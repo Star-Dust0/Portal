@@ -107,7 +107,12 @@ public class MinecraftInstance : ObservableObject
     [JsonIgnore]
     public InstanceStorageUsage StorageUsage => field ??= new InstanceStorageUsage(this);
 
-    public Bitmap Icon => field ??= GetInstanceIcon(48);
+    public Bitmap Icon => _icon ??= GetInstanceIcon(48);
+    private Bitmap? _icon;
+
+    // This is deliberately not resized so it can be exported without losing detail.
+    public Bitmap sourceIcon => _sourceIcon ??= GetSourceIcon();
+    private Bitmap? _sourceIcon;
 
     public string LoaderDescription
     {
@@ -497,27 +502,59 @@ public class MinecraftInstance : ObservableObject
         return InstanceFolderPath;
     }
 
-    private Bitmap GetInstanceIcon()
+    public void SetIcon(Bitmap icon)
     {
         var instanceFolder = GetSpecialFolder(MinecraftSpecialFolder.InstanceFolder);
-        var customIcon = Path.Combine(instanceFolder, "icon.png");
-        if (File.Exists(customIcon))
+        using (var stream = File.Create(Path.Combine(instanceFolder, "Icon.png")))
         {
-            using var s = File.OpenRead(customIcon);
-            return Bitmap.DecodeToWidth(s, 48);
+            icon.Save(stream, PngBitmapEncoderOptions.Default);
         }
 
-        if (Type == MinecraftInstanceType.Bedrock)
+        RefreshIcon();
+    }
+
+    public void ResetIcon()
+    {
+        var instanceFolder = GetSpecialFolder(MinecraftSpecialFolder.InstanceFolder);
+        foreach (var iconPath in new[]
+                 {
+                     Path.Combine(instanceFolder, "Icon.png"),
+                     Path.Combine(instanceFolder, "icon.png"),
+                     Path.Combine(instanceFolder, "PCL", "Logo.png")
+                 }.Distinct(StringComparer.Ordinal))
         {
-            return LoadBitmapFromAssembly("grass_block_side.png");
+            if (File.Exists(iconPath))
+                File.Delete(iconPath);
         }
+
+        RefreshIcon();
+    }
+
+    private void RefreshIcon()
+    {
+        _icon?.Dispose();
+        _icon = null;
+        _sourceIcon?.Dispose();
+        _sourceIcon = null;
+        OnPropertyChanged(nameof(sourceIcon));
+        OnPropertyChanged(nameof(Icon));
+        OnPropertyChanged(nameof(Icons));
+        InstanceManager.Instance.NotifyInstanceIconChanged(this);
+    }
+
+    private Bitmap GetSourceIcon()
+    {
+        var instanceFolder = GetSpecialFolder(MinecraftSpecialFolder.InstanceFolder);
+        var customIcon = GetCustomIconPath(instanceFolder);
+        if (customIcon != null)
+            return new Bitmap(customIcon);
+
+        if (Type == MinecraftInstanceType.Bedrock)
+            return LoadBitmapFromAssembly("grass_block_side.png");
 
         var pclIcon = Path.Combine(instanceFolder, "PCL", "Logo.png");
         if (File.Exists(pclIcon))
-        {
-            using var s = File.OpenRead(pclIcon);
-            return Bitmap.DecodeToWidth(s, 48);
-        }
+            return new Bitmap(pclIcon);
 
         var iconName = GetEmbeddedIconName();
         return LoadBitmapFromAssembly(iconName);
@@ -528,8 +565,8 @@ public class MinecraftInstance : ObservableObject
     private Bitmap GetInstanceIcon(int width)
     {
         var instanceFolder = GetSpecialFolder(MinecraftSpecialFolder.InstanceFolder);
-        var customIcon = Path.Combine(instanceFolder, "icon.png");
-        if (File.Exists(customIcon))
+        var customIcon = GetCustomIconPath(instanceFolder);
+        if (customIcon != null)
         {
             using var s = File.OpenRead(customIcon);
             return Bitmap.DecodeToWidth(s, width);
@@ -549,6 +586,16 @@ public class MinecraftInstance : ObservableObject
 
         var iconName = GetEmbeddedIconName();
         return LoadBitmapFromAssembly(iconName, width);
+    }
+
+    private static string? GetCustomIconPath(string instanceFolder)
+    {
+        var iconPath = Path.Combine(instanceFolder, "Icon.png");
+        if (File.Exists(iconPath))
+            return iconPath;
+
+        var legacyIconPath = Path.Combine(instanceFolder, "icon.png");
+        return File.Exists(legacyIconPath) ? legacyIconPath : null;
     }
 
     private static Bitmap LoadBitmapFromAssembly(string fileName, int width)
@@ -606,7 +653,7 @@ public class MinecraftInstance : ObservableObject
         using var stream = assembly.GetManifestResourceStream(resourcePath);
         if (stream == null)
         {
-            var defaultPath = "Portal.Core.Assts.McIcons.grass_block_side.png";
+            var defaultPath = "Portal.Core.Assets.McIcons.grass_block_side.png";
             using var defaultStream = assembly.GetManifestResourceStream(defaultPath);
             return defaultStream != null ? Bitmap.DecodeToWidth(defaultStream, 48) : null;
         }

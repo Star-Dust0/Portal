@@ -44,6 +44,21 @@ public partial class InstanceListViewModelBase : ObservableObject
 
     private readonly ConcurrentDictionary<MinecraftInstance, InstancePinyinCache> _pinyinCache = new();
 
+    protected InstanceListViewModelBase()
+    {
+        InstanceManager.Instance.InstanceIconChanged += OnInstanceIconChanged;
+    }
+
+    private void OnInstanceIconChanged(object? sender, MinecraftInstance instance)
+    {
+        OnPropertyChanged(nameof(RecentInstance));
+        foreach (var item in FilteredMinecraftInstances.Where(item => ReferenceEquals(item, instance)).ToArray())
+        {
+            var index = FilteredMinecraftInstances.IndexOf(item);
+            FilteredMinecraftInstances[index] = item;
+        }
+    }
+
     private long _totalPlayTimeSeconds;
     public long TotalPlayTimeSeconds
     {

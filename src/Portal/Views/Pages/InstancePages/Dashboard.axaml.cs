@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -11,6 +13,7 @@ using Portal.Core.Minecraft.Instance.Java;
 using Portal.ViewModels;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Modules.Extensions;
+using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common.Extensions;
 
 namespace Portal.Views.Pages.InstancePages;
@@ -35,7 +38,13 @@ public partial class Dashboard : DataUserControl
         InitializeComponent();
         DataContext = this;
         InstanceManager.Instance.StatisticsChanged += OnStatisticsChanged;
-        Loaded += (_, _) => _ = Instance.StorageUsage.EnsureLoadedAsync();
+        InstanceManager.Instance.InstanceIconChanged += OnInstanceIconChanged;
+        Loaded += (_, _) =>
+        {
+            _ = Instance.StorageUsage.EnsureLoadedAsync();
+            Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
+        };
+        Unloaded += (_, _) => InstanceManager.Instance.InstanceIconChanged -= OnInstanceIconChanged;
     }
 
     public Dashboard()
@@ -55,9 +64,100 @@ public partial class Dashboard : DataUserControl
         Dispatcher.UIThread.Post(RecentPlayTimeChart.InvalidateVisual);
     }
 
+    private void OnInstanceIconChanged(object? sender, MinecraftInstance instance)
+    {
+        if (!ReferenceEquals(instance, Instance)) return;
+
+        Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
+    }
+
     private void ToggleChartDays_Click(object? sender, RoutedEventArgs e)
     {
         RecentPlayTimeChart.Days = RecentPlayTimeChart.Days == 7 ? 30 : 7;
         Block.Text = RecentPlayTimeChart.Days != 7 ? "30 天" : "7 天";
+    }
+
+    private void SaveIcon_Click(object? sender, RoutedEventArgs e)
+    {
+        _ = SaveIconAsync();
+    }
+
+    private async Task SaveIconAsync()
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null) return;
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "将图标另存为",
+            SuggestedFileName = "Icon.png",
+            FileTypeChoices = [new FilePickerFileType("PNG 图片") { Patterns = ["*.png"] }]
+        });
+        if (file == null) return;
+
+        try
+        {
+            await using var stream = await file.OpenWriteAsync();
+            Instance.sourceIcon.Save(stream, PngBitmapEncoderOptions.Default);
+            NotificationGateway.Notice(topLevel, "图标已保存", NotificationType.Success);
+        }
+        catch (Exception ex)
+        {
+            NotificationGateway.Notice(topLevel, $"保存失败：{ex.Message}", NotificationType.Error);
+        }
+
+        Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
+    }
+
+    private void ChangeIcon_Click(object? sender, RoutedEventArgs e)
+    {
+        _ = ChangeIconAsync();
+    }
+
+    private async Task ChangeIconAsync()
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null) return;
+
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "更换图标",
+            AllowMultiple = false,
+            FileTypeFilter =
+                [new FilePickerFileType("图片") { Patterns = ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.webp"] }]
+        });
+        if (files.Count == 0) return;
+
+        try
+        {
+            await using var stream = await files[0].OpenReadAsync();
+            using var icon = new Avalonia.Media.Imaging.Bitmap(stream);
+            Instance.SetIcon(icon);
+            NotificationGateway.Notice(topLevel, "图标已更换", NotificationType.Success);
+        }
+        catch (Exception ex)
+        {
+            NotificationGateway.Notice(topLevel, $"更换失败：{ex.Message}", NotificationType.Error);
+        }
+
+        Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
+    }
+
+    private void ResetIcon_Click(object? sender, RoutedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null) return;
+
+        try
+        {
+            Instance.ResetIcon();
+            NotificationGateway.Notice(topLevel, "图标已重置", NotificationType.Success);
+        }
+        catch (Exception ex)
+        {
+            NotificationGateway.Notice(topLevel, $"重置失败：{ex.Message}", NotificationType.Error);
+        }
+
+        Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
     }
 }
