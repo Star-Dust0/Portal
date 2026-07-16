@@ -5,6 +5,7 @@
     x:Class="Portal.Views.Pages.InstancePages.Files"
     x:DataType="instancePages:Files"
     xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:SmoothScroll.Avalonia.Controls;assembly=SmoothScroll.Avalonia.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:instancePages="clr-namespace:Portal.Views.Pages.InstancePages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -65,343 +66,356 @@
                 </MenuFlyout>
             </DropDownButton.Flyout>
         </DropDownButton>
-        <StackPanel
-            Margin="10"
-            MaxWidth="1100"
-            Spacing="5">
-            <TextBlock FontSize="24" Text="存储" />
-            <TextBlock FontSize="38" Text="{Binding Instance.StorageUsage.VersionFolderSizeText}" />
-            <Grid
-                ColumnDefinitions="*,*"
-                ColumnSpacing="12"
-                Margin="0,5,0,0">
-                <Border
-                    Background="{DynamicResource TranslucentBackgroundColor}"
-                    BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                    BorderThickness="1"
-                    ClipToBounds="True"
-                    CornerRadius="16">
-                    <StackPanel Margin="10">
-                        <DockPanel>
-                            <Label
-                                Content="模组"
-                                DockPanel.Dock="Left"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Left"
-                                Margin="4,0,0,0" />
-                            <TextBlock
-                                DockPanel.Dock="Right"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Right"
-                                Margin="4,0,0,0"
-                                TextTrimming="CharacterEllipsis"
-                                TextWrapping="NoWrap">
-                                <Run FontSize="13" Text="{Binding Instance.StorageUsage.ModsDisplayText}" /></TextBlock>
-                        </DockPanel>
-                        <TextBlock
-                            Margin="4,4,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="24" Text="{Binding Instance.StorageUsage.ModsSizeText}" />
-                        </TextBlock>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                Margin="4,0,0,0"
-                                Text="mc" />
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                                Text="/versions" />
-                            <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/mods" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-                <Border
-                    Background="{DynamicResource TranslucentBackgroundColor}"
-                    BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                    BorderThickness="1"
-                    ClipToBounds="True"
-                    CornerRadius="16"
-                    Grid.Column="1">
-                    <StackPanel Margin="10">
-                        <DockPanel>
-                            <Label
-                                Content="资源包"
-                                DockPanel.Dock="Left"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Left"
-                                Margin="4,0,0,0" />
-                            <TextBlock
-                                DockPanel.Dock="Right"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Right"
-                                Margin="4,0,0,0"
-                                TextTrimming="CharacterEllipsis"
-                                TextWrapping="NoWrap">
-                                <Run FontSize="13" Text="{Binding Instance.StorageUsage.ResourcePacksDisplayText}" /></TextBlock>
-                        </DockPanel>
-                        <TextBlock
-                            Margin="4,4,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="24" Text="{Binding Instance.StorageUsage.ResourcePacksSizeText}" />
-                        </TextBlock>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                Margin="4,0,0,0"
-                                Text="mc" />
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                                Text="/versions" />
-                            <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/resourcepacks" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Grid>
-            <Grid
-                ColumnDefinitions="*,*"
-                ColumnSpacing="12"
-                Margin="0,5,0,0">
-                <Border
-                    Background="{DynamicResource TranslucentBackgroundColor}"
-                    BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                    BorderThickness="1"
-                    ClipToBounds="True"
-                    CornerRadius="16">
-                    <StackPanel Margin="10">
-                        <DockPanel>
-                            <Label
-                                Content="光影包"
-                                DockPanel.Dock="Left"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Left"
-                                Margin="4,0,0,0" />
-                            <TextBlock
-                                DockPanel.Dock="Right"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Right"
-                                Margin="4,0,0,0"
-                                TextTrimming="CharacterEllipsis"
-                                TextWrapping="NoWrap">
-                                <Run FontSize="13" Text="{Binding Instance.StorageUsage.ShaderPacksDisplayText}" /></TextBlock>
-                        </DockPanel>
-                        <TextBlock
-                            Margin="4,4,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="24" Text="{Binding Instance.StorageUsage.ShaderPacksSizeText}" />
-                        </TextBlock>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                Margin="4,0,0,0"
-                                Text="mc" />
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                                Text="/versions" />
-                            <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/shaderpacks" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-                <Border
-                    Background="{DynamicResource TranslucentBackgroundColor}"
-                    BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                    BorderThickness="1"
-                    ClipToBounds="True"
-                    CornerRadius="16"
-                    Grid.Column="3">
-                    <StackPanel Margin="10">
-                        <DockPanel>
-                            <Label
-                                Content="存档"
-                                DockPanel.Dock="Left"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Left"
-                                Margin="4,0,0,0" />
-                            <TextBlock
-                                DockPanel.Dock="Right"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Right"
-                                Margin="4,0,0,0"
-                                TextTrimming="CharacterEllipsis"
-                                TextWrapping="NoWrap">
-                                <Run FontSize="13" Text="{Binding Instance.StorageUsage.SavesDisplayText}" /></TextBlock>
-                        </DockPanel>
-                        <TextBlock
-                            Margin="4,4,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="24" Text="{Binding Instance.StorageUsage.SavesSizeText}" />
-                        </TextBlock>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                Margin="4,0,0,0"
-                                Text="mc" />
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                                Text="/versions" />
-                            <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/saves" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Grid>
-            <Grid
-                ColumnDefinitions="*,*,*"
-                ColumnSpacing="12"
-                Margin="0,6,0,0">
-                <Border
-                    Background="{DynamicResource TranslucentBackgroundColor}"
-                    BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                    BorderThickness="1"
-                    ClipToBounds="True"
-                    CornerRadius="16"
-                    Cursor="Hand"
-                    Grid.Column="0"
-                    Tag="resource">
-                    <StackPanel Margin="10">
-                        <DockPanel>
-                            <Label
-                                Content="截图"
-                                DockPanel.Dock="Left"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Left"
-                                Margin="4,0,0,0" />
-                            <TextBlock
-                                DockPanel.Dock="Right"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Right"
-                                Margin="4,0,0,0"
-                                TextTrimming="CharacterEllipsis"
-                                TextWrapping="NoWrap">
-                                <Run FontSize="13" Text="{Binding Instance.StorageUsage.ScreenshotsDisplayText}" /></TextBlock>
-                        </DockPanel>
-                        <TextBlock
-                            Margin="4,4,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="24" Text="{Binding Instance.StorageUsage.ScreenshotsSizeText}" />
-                        </TextBlock>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                Margin="4,0,0,0"
-                                Text="mc" />
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                                Text="/versions" />
-                            <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/screenshots" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-                <Border
-                    Background="{DynamicResource TranslucentBackgroundColor}"
-                    BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                    BorderThickness="1"
-                    ClipToBounds="True"
-                    CornerRadius="16"
-                    Cursor="Hand"
-                    Grid.Column="1"
-                    Tag="shader">
-                    <StackPanel Margin="10">
-                        <DockPanel>
-                            <Label
-                                Content="日志"
-                                DockPanel.Dock="Left"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Left"
-                                Margin="4,0,0,0" />
-                            <TextBlock
-                                DockPanel.Dock="Right"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Right"
-                                Margin="4,0,0,0"
-                                TextTrimming="CharacterEllipsis"
-                                TextWrapping="NoWrap">
-                                <Run FontSize="13" Text="{Binding Instance.StorageUsage.LogsDisplayText}" /></TextBlock>
-                        </DockPanel>
-                        <TextBlock
-                            Margin="4,4,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="24" Text="{Binding Instance.StorageUsage.LogsSizeText}" />
-                        </TextBlock>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                Margin="4,0,0,0"
-                                Text="mc" />
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                                Text="/versions" />
-                            <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/logs" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-                <Border
-                    Background="{DynamicResource TranslucentBackgroundColor}"
-                    BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                    BorderThickness="1"
-                    ClipToBounds="True"
-                    CornerRadius="16"
-                    Cursor="Hand"
-                    Grid.Column="2"
-                    Tag="saves">
-                    <StackPanel Margin="10">
-                        <DockPanel>
-                            <Label
-                                Content="配置"
-                                DockPanel.Dock="Left"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Left"
-                                Margin="4,0,0,0" />
-                            <TextBlock
-                                DockPanel.Dock="Right"
-                                FontSize="13"
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                HorizontalAlignment="Right"
-                                Margin="4,0,0,0"
-                                TextTrimming="CharacterEllipsis"
-                                TextWrapping="NoWrap">
-                                <Run FontSize="13" Text="{Binding Instance.StorageUsage.ConfigDisplayText}" /></TextBlock>
-                        </DockPanel>
-                        <TextBlock
-                            Margin="4,4,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="24" Text="{Binding Instance.StorageUsage.ConfigSizeText}" />
-                        </TextBlock>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock
-                                Foreground="{DynamicResource InnerForegroundColor}"
-                                Margin="4,0,0,0"
-                                Text="mc" />
-                            <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/versions" />
-                            <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/config" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </StackPanel>
+        <DockPanel Margin="0,10">
+            <TextBlock
+                DockPanel.Dock="Top"
+                FontSize="24"
+                Margin="10,0"
+                Text="存储" />
+            <TextBlock
+                DockPanel.Dock="Top"
+                FontSize="38"
+                Margin="10,5"
+                Text="{Binding Instance.StorageUsage.VersionFolderSizeText}" />
+            <controls:ScrollView Classes="Flat">
+                <StackPanel Margin="8,0" Spacing="5">
+                    <Grid
+                        ColumnDefinitions="*,*"
+                        ColumnSpacing="12"
+                        Margin="0,5,0,0">
+                        <Border
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            BorderThickness="1"
+                            ClipToBounds="True"
+                            CornerRadius="16"
+                            Cursor="Hand">
+                            <StackPanel Margin="10">
+                                <DockPanel>
+                                    <Label
+                                        Content="模组"
+                                        DockPanel.Dock="Left"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Left"
+                                        Margin="4,0,0,0" />
+                                    <TextBlock
+                                        DockPanel.Dock="Right"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Right"
+                                        Margin="4,0,0,0"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap">
+                                        <Run FontSize="13" Text="{Binding Instance.StorageUsage.ModsDisplayText}" /></TextBlock>
+                                </DockPanel>
+                                <TextBlock
+                                    Margin="4,4,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="24" Text="{Binding Instance.StorageUsage.ModsSizeText}" />
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Margin="4,0,0,0"
+                                        Text="mc" />
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        Text="/versions" />
+                                    <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/mods" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            BorderThickness="1"
+                            ClipToBounds="True"
+                            CornerRadius="16"
+                            Cursor="Hand"
+                            Grid.Column="1">
+                            <StackPanel Margin="10">
+                                <DockPanel>
+                                    <Label
+                                        Content="资源包"
+                                        DockPanel.Dock="Left"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Left"
+                                        Margin="4,0,0,0" />
+                                    <TextBlock
+                                        DockPanel.Dock="Right"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Right"
+                                        Margin="4,0,0,0"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap">
+                                        <Run FontSize="13" Text="{Binding Instance.StorageUsage.ResourcePacksDisplayText}" /></TextBlock>
+                                </DockPanel>
+                                <TextBlock
+                                    Margin="4,4,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="24" Text="{Binding Instance.StorageUsage.ResourcePacksSizeText}" />
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Margin="4,0,0,0"
+                                        Text="mc" />
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        Text="/versions" />
+                                    <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/resourcepacks" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <Grid
+                        ColumnDefinitions="*,*"
+                        ColumnSpacing="12"
+                        Margin="0,5,0,0">
+                        <Border
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            BorderThickness="1"
+                            ClipToBounds="True"
+                            CornerRadius="16"
+                            Cursor="Hand">
+                            <StackPanel Margin="10">
+                                <DockPanel>
+                                    <Label
+                                        Content="光影包"
+                                        DockPanel.Dock="Left"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Left"
+                                        Margin="4,0,0,0" />
+                                    <TextBlock
+                                        DockPanel.Dock="Right"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Right"
+                                        Margin="4,0,0,0"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap">
+                                        <Run FontSize="13" Text="{Binding Instance.StorageUsage.ShaderPacksDisplayText}" /></TextBlock>
+                                </DockPanel>
+                                <TextBlock
+                                    Margin="4,4,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="24" Text="{Binding Instance.StorageUsage.ShaderPacksSizeText}" />
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Margin="4,0,0,0"
+                                        Text="mc" />
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        Text="/versions" />
+                                    <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/shaderpacks" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            BorderThickness="1"
+                            ClipToBounds="True"
+                            CornerRadius="16"
+                            Cursor="Hand"
+                            Grid.Column="3">
+                            <StackPanel Margin="10">
+                                <DockPanel>
+                                    <Label
+                                        Content="存档"
+                                        DockPanel.Dock="Left"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Left"
+                                        Margin="4,0,0,0" />
+                                    <TextBlock
+                                        DockPanel.Dock="Right"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Right"
+                                        Margin="4,0,0,0"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap">
+                                        <Run FontSize="13" Text="{Binding Instance.StorageUsage.SavesDisplayText}" /></TextBlock>
+                                </DockPanel>
+                                <TextBlock
+                                    Margin="4,4,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="24" Text="{Binding Instance.StorageUsage.SavesSizeText}" />
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Margin="4,0,0,0"
+                                        Text="mc" />
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        Text="/versions" />
+                                    <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/saves" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <Grid
+                        ColumnDefinitions="*,*,*"
+                        ColumnSpacing="12"
+                        Margin="0,6,0,0">
+                        <Border
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            BorderThickness="1"
+                            ClipToBounds="True"
+                            CornerRadius="16"
+                            Cursor="Hand"
+                            Grid.Column="0"
+                            Tag="resource">
+                            <StackPanel Margin="10">
+                                <DockPanel>
+                                    <Label
+                                        Content="截图"
+                                        DockPanel.Dock="Left"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Left"
+                                        Margin="4,0,0,0" />
+                                    <TextBlock
+                                        DockPanel.Dock="Right"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Right"
+                                        Margin="4,0,0,0"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap">
+                                        <Run FontSize="13" Text="{Binding Instance.StorageUsage.ScreenshotsDisplayText}" /></TextBlock>
+                                </DockPanel>
+                                <TextBlock
+                                    Margin="4,4,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="24" Text="{Binding Instance.StorageUsage.ScreenshotsSizeText}" />
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Margin="4,0,0,0"
+                                        Text="mc" />
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        Text="/versions" />
+                                    <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/screenshots" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            BorderThickness="1"
+                            ClipToBounds="True"
+                            CornerRadius="16"
+                            Cursor="Hand"
+                            Grid.Column="1"
+                            Tag="shader">
+                            <StackPanel Margin="10">
+                                <DockPanel>
+                                    <Label
+                                        Content="日志"
+                                        DockPanel.Dock="Left"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Left"
+                                        Margin="4,0,0,0" />
+                                    <TextBlock
+                                        DockPanel.Dock="Right"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Right"
+                                        Margin="4,0,0,0"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap">
+                                        <Run FontSize="13" Text="{Binding Instance.StorageUsage.LogsDisplayText}" /></TextBlock>
+                                </DockPanel>
+                                <TextBlock
+                                    Margin="4,4,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="24" Text="{Binding Instance.StorageUsage.LogsSizeText}" />
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Margin="4,0,0,0"
+                                        Text="mc" />
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        Text="/versions" />
+                                    <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/logs" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            BorderThickness="1"
+                            ClipToBounds="True"
+                            CornerRadius="16"
+                            Cursor="Hand"
+                            Grid.Column="2"
+                            Tag="saves">
+                            <StackPanel Margin="10">
+                                <DockPanel>
+                                    <Label
+                                        Content="配置"
+                                        DockPanel.Dock="Left"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Left"
+                                        Margin="4,0,0,0" />
+                                    <TextBlock
+                                        DockPanel.Dock="Right"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        HorizontalAlignment="Right"
+                                        Margin="4,0,0,0"
+                                        TextTrimming="CharacterEllipsis"
+                                        TextWrapping="NoWrap">
+                                        <Run FontSize="13" Text="{Binding Instance.StorageUsage.ConfigDisplayText}" /></TextBlock>
+                                </DockPanel>
+                                <TextBlock
+                                    Margin="4,4,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="24" Text="{Binding Instance.StorageUsage.ConfigSizeText}" />
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock
+                                        Foreground="{DynamicResource InnerForegroundColor}"
+                                        Margin="4,0,0,0"
+                                        Text="mc" />
+                                    <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/versions" />
+                                    <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/config" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </controls:ScrollView>
+        </DockPanel>
     </Panel>
 </UserControl>

@@ -31,6 +31,11 @@
                     Command="{Binding NavigateTypeCommand}"
                     CommandParameter="{x:Type instancePages:Files}"
                     Header="存储" />
+                <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="模组" />
+                <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="资源包" />
+                <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="光影包" />
+                <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="存档" />
+                <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="截图" />
                 <tio:NavMenuItem
                     Command="{Binding NavigateTypeCommand}"
                     CommandParameter="{x:Type instancePages:Properties}"
@@ -42,12 +47,10 @@
             Fill="{DynamicResource TranslucentBorderBrush}"
             Margin="0,0,0,10"
             Width="1" />
-        <controls:ScrollView Margin="10,3,5,0">
-            <TransitioningContentControl Content="{Binding CurrentPage}" Margin="0,0,6,0">
-                <TransitioningContentControl.PageTransition>
-                    <CrossFade Duration="0:0:0.2" />
-                </TransitioningContentControl.PageTransition>
-            </TransitioningContentControl>
-        </controls:ScrollView>
+        <TransitioningContentControl Content="{Binding CurrentPage}" Margin="12,3,12,0">
+            <TransitioningContentControl.PageTransition>
+                <CrossFade Duration="0:0:0.2" />
+            </TransitioningContentControl.PageTransition>
+        </TransitioningContentControl>
     </DockPanel>
 </UserControl>

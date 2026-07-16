@@ -5,18 +5,20 @@
     x:Class="Portal.Views.Pages.InstancePages.Dashboard"
     x:DataType="instancePages:Dashboard"
     xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:SmoothScroll.Avalonia.Controls;assembly=SmoothScroll.Avalonia.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:instancePages="clr-namespace:Portal.Views.Pages.InstancePages"
     xmlns:java="clr-namespace:Portal.Core.Minecraft.Instance.Java;assembly=Portal.Core"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Spacing="12">
+    <DockPanel>
         <Border
             Background="Transparent"
             BorderBrush="{DynamicResource TranslucentBorderBrush}"
             BorderThickness="0"
-            CornerRadius="12">
+            CornerRadius="12"
+            DockPanel.Dock="Top">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Border
                     Background="Transparent"
@@ -95,270 +97,277 @@
                 </DockPanel>
             </Grid>
         </Border>
-        <Separator Background="{DynamicResource TranslucentBorderBrush}" />
-        <Grid
-            ColumnDefinitions="*,*,*,*"
-            ColumnSpacing="36"
-            Margin="12,0,12,0">
-            <tio:Descriptions LabelPosition="Top">
-                <tio:DescriptionsItem Label="游玩时长">
-                    <TextBlock TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
-                        <Run FontSize="24" Text="{Binding TotalPlayTime}" />
-                    </TextBlock>
-                </tio:DescriptionsItem>
-            </tio:Descriptions>
-            <tio:Descriptions Grid.Column="1" LabelPosition="Top">
-                <tio:DescriptionsItem Label="会话次数">
-                    <TextBlock TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
-                        <Run FontSize="24" Text="{Binding Instance.Config.PlaySessions}" />
-                        <Run FontSize="24" Text="次" />
-                    </TextBlock>
-                </tio:DescriptionsItem>
-            </tio:Descriptions>
-            <tio:Descriptions Grid.Column="2" LabelPosition="Top">
-                <tio:DescriptionsItem Label="上次启动">
-                    <TextBlock
-                        FontSize="24"
-                        Text="{Binding Instance.DisplayLastPlayTime}"
-                        TextTrimming="CharacterEllipsis"
-                        TextWrapping="NoWrap" />
-                </tio:DescriptionsItem>
-            </tio:Descriptions>
-            <tio:Descriptions Grid.Column="3" LabelPosition="Top">
-                <tio:DescriptionsItem Label="版本">
-                    <TextBlock TextTrimming="LeadingCharacterEllipsis" TextWrapping="NoWrap">
-                        <Run FontSize="24" Text="{Binding Instance.Type}" />
-                        <Run FontSize="24" Text="/" />
-                        <Run FontSize="24" Text="{Binding Instance.VersionId}" />
-                    </TextBlock>
-                </tio:DescriptionsItem>
-            </tio:Descriptions>
-        </Grid>
-        <Grid
-            ColumnDefinitions="*,*,*,*"
-            ColumnSpacing="12"
-            Margin="5,0">
-            <Border
-                Background="{DynamicResource TranslucentBackgroundColor}"
-                BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                BorderThickness="1"
-                ClipToBounds="True"
-                CornerRadius="16">
-                <StackPanel Margin="10">
-                    <DockPanel>
-                        <Label
-                            Content="模组"
-                            DockPanel.Dock="Left"
-                            FontSize="13"
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            HorizontalAlignment="Left"
-                            Margin="4,0,0,0" />
-                        <TextBlock
-                            DockPanel.Dock="Right"
-                            FontSize="13"
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            HorizontalAlignment="Right"
-                            Margin="4,0,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="13" Text="{Binding Instance.StorageUsage.ModsDisplayText}" /></TextBlock>
-                    </DockPanel>
-                    <TextBlock
-                        Margin="4,4,0,0"
-                        TextTrimming="CharacterEllipsis"
-                        TextWrapping="NoWrap">
-                        <Run FontSize="24" Text="{Binding Instance.StorageUsage.ModsSizeText}" />
-                    </TextBlock>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            Margin="4,0,0,0"
-                            Text="mc" />
-                        <TextBlock
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                            Text="/versions" />
-                        <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/mods" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-            <Border
-                Background="{DynamicResource TranslucentBackgroundColor}"
-                BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                BorderThickness="1"
-                ClipToBounds="True"
-                CornerRadius="16"
-                Grid.Column="1">
-                <StackPanel Margin="10">
-                    <DockPanel>
-                        <Label
-                            Content="资源包"
-                            DockPanel.Dock="Left"
-                            FontSize="13"
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            HorizontalAlignment="Left"
-                            Margin="4,0,0,0" />
-                        <TextBlock
-                            DockPanel.Dock="Right"
-                            FontSize="13"
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            HorizontalAlignment="Right"
-                            Margin="4,0,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="13" Text="{Binding Instance.StorageUsage.ResourcePacksDisplayText}" /></TextBlock>
-                    </DockPanel>
-                    <TextBlock
-                        Margin="4,4,0,0"
-                        TextTrimming="CharacterEllipsis"
-                        TextWrapping="NoWrap">
-                        <Run FontSize="24" Text="{Binding Instance.StorageUsage.ResourcePacksSizeText}" />
-                    </TextBlock>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            Margin="4,0,0,0"
-                            Text="mc" />
-                        <TextBlock
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                            Text="/versions" />
-                        <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/resourcepacks" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-            <Border
-                Background="{DynamicResource TranslucentBackgroundColor}"
-                BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                BorderThickness="1"
-                ClipToBounds="True"
-                CornerRadius="16"
-                Grid.Column="2">
-                <StackPanel Margin="10">
-                    <DockPanel>
-                        <Label
-                            Content="光影包"
-                            DockPanel.Dock="Left"
-                            FontSize="13"
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            HorizontalAlignment="Left"
-                            Margin="4,0,0,0" />
-                        <TextBlock
-                            DockPanel.Dock="Right"
-                            FontSize="13"
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            HorizontalAlignment="Right"
-                            Margin="4,0,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="13" Text="{Binding Instance.StorageUsage.ShaderPacksDisplayText}" /></TextBlock>
-                    </DockPanel>
-                    <TextBlock
-                        Margin="4,4,0,0"
-                        TextTrimming="CharacterEllipsis"
-                        TextWrapping="NoWrap">
-                        <Run FontSize="24" Text="{Binding Instance.StorageUsage.ShaderPacksSizeText}" />
-                    </TextBlock>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            Margin="4,0,0,0"
-                            Text="mc" />
-                        <TextBlock
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                            Text="/versions" />
-                        <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/shaderpacks" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-            <Border
-                Background="{DynamicResource TranslucentBackgroundColor}"
-                BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                BorderThickness="1"
-                ClipToBounds="True"
-                CornerRadius="16"
-                Grid.Column="3">
-                <StackPanel Margin="10">
-                    <DockPanel>
-                        <Label
-                            Content="存档"
-                            DockPanel.Dock="Left"
-                            FontSize="13"
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            HorizontalAlignment="Left"
-                            Margin="4,0,0,0" />
-                        <TextBlock
-                            DockPanel.Dock="Right"
-                            FontSize="13"
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            HorizontalAlignment="Right"
-                            Margin="4,0,0,0"
-                            TextTrimming="CharacterEllipsis"
-                            TextWrapping="NoWrap">
-                            <Run FontSize="13" Text="{Binding Instance.StorageUsage.SavesDisplayText}" /></TextBlock>
-                    </DockPanel>
-                    <TextBlock
-                        Margin="4,4,0,0"
-                        TextTrimming="CharacterEllipsis"
-                        TextWrapping="NoWrap">
-                        <Run FontSize="24" Text="{Binding Instance.StorageUsage.SavesSizeText}" />
-                    </TextBlock>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            Margin="4,0,0,0"
-                            Text="mc" />
-                        <TextBlock
-                            Foreground="{DynamicResource InnerForegroundColor}"
-                            IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
-                            Text="/versions" />
-                        <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/saves" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-        </Grid>
-        <Border
-            Background="{DynamicResource TranslucentBackgroundColor}"
-            BorderBrush="{DynamicResource TranslucentBorderBrush}"
-            BorderThickness="1"
-            CornerRadius="16"
-            Margin="5,0"
-            Padding="16,12,16,8">
-            <Grid RowDefinitions="Auto,*">
-                <DockPanel>
-                    <TextBlock
-                        DockPanel.Dock="Left"
-                        FontSize="15"
-                        Text="最近游戏时间" />
-                    <Button
-                        Click="ToggleChartDays_Click"
-                        DockPanel.Dock="Right"
-                        HorizontalAlignment="Right"
-                        Margin="0,0,-20,0"
-                        MinWidth="64"
-                        Padding="8,2"
-                        Theme="{StaticResource TransparentButton}">
-                        <TextBlock
-                            Foreground="{DynamicResource SystemAccentColor}"
-                            Name="Block"
-                            Text="7 天" />
-                    </Button>
-                </DockPanel>
-                <instancePages:RecentPlayTimeChart
-                    AxisForeground="{DynamicResource ForegroundColor}"
-                    Days="7"
-                    FontFamily="{DynamicResource TioFontFamily}"
-                    Grid.Row="1"
-                    Height="210"
-                    Instance="{Binding Instance}"
-                    LineBrush="{DynamicResource SystemAccentColor}"
-                    Margin="0,8,0,0"
-                    TooltipBackground="{DynamicResource TranslucentBackgroundColor}"
-                    TooltipBorderBrush="{DynamicResource TranslucentBorderBrush}"
-                    TooltipForeground="{DynamicResource InnerForegroundColor}"
-                    x:Name="RecentPlayTimeChart" />
-            </Grid>
-        </Border>
-    </StackPanel>
+        <Separator
+            Background="{DynamicResource TranslucentBorderBrush}"
+            DockPanel.Dock="Top"
+            Margin="0,12" />
+        <controls:ScrollView Classes="Flat">
+            <StackPanel>
+                <Grid
+                    ColumnDefinitions="*,*,*,*"
+                    ColumnSpacing="36"
+                    Margin="12,0,12,0">
+                    <tio:Descriptions LabelPosition="Top">
+                        <tio:DescriptionsItem Label="游玩时长">
+                            <TextBlock TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
+                                <Run FontSize="24" Text="{Binding TotalPlayTime}" />
+                            </TextBlock>
+                        </tio:DescriptionsItem>
+                    </tio:Descriptions>
+                    <tio:Descriptions Grid.Column="1" LabelPosition="Top">
+                        <tio:DescriptionsItem Label="会话次数">
+                            <TextBlock TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
+                                <Run FontSize="24" Text="{Binding Instance.Config.PlaySessions}" />
+                                <Run FontSize="24" Text="次" />
+                            </TextBlock>
+                        </tio:DescriptionsItem>
+                    </tio:Descriptions>
+                    <tio:Descriptions Grid.Column="2" LabelPosition="Top">
+                        <tio:DescriptionsItem Label="上次启动">
+                            <TextBlock
+                                FontSize="24"
+                                Text="{Binding Instance.DisplayLastPlayTime}"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap" />
+                        </tio:DescriptionsItem>
+                    </tio:Descriptions>
+                    <tio:Descriptions Grid.Column="3" LabelPosition="Top">
+                        <tio:DescriptionsItem Label="版本">
+                            <TextBlock TextTrimming="LeadingCharacterEllipsis" TextWrapping="NoWrap">
+                                <Run FontSize="24" Text="{Binding Instance.Type}" />
+                                <Run FontSize="24" Text="/" />
+                                <Run FontSize="24" Text="{Binding Instance.VersionId}" />
+                            </TextBlock>
+                        </tio:DescriptionsItem>
+                    </tio:Descriptions>
+                </Grid>
+                <Grid
+                    ColumnDefinitions="*,*,*,*"
+                    ColumnSpacing="12"
+                    Margin="5,12">
+                    <Border
+                        Background="{DynamicResource TranslucentBackgroundColor}"
+                        BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                        BorderThickness="1"
+                        ClipToBounds="True"
+                        CornerRadius="16">
+                        <StackPanel Margin="10">
+                            <DockPanel>
+                                <Label
+                                    Content="模组"
+                                    DockPanel.Dock="Left"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    HorizontalAlignment="Left"
+                                    Margin="4,0,0,0" />
+                                <TextBlock
+                                    DockPanel.Dock="Right"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    HorizontalAlignment="Right"
+                                    Margin="4,0,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="13" Text="{Binding Instance.StorageUsage.ModsDisplayText}" /></TextBlock>
+                            </DockPanel>
+                            <TextBlock
+                                Margin="4,4,0,0"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap">
+                                <Run FontSize="24" Text="{Binding Instance.StorageUsage.ModsSizeText}" />
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Margin="4,0,0,0"
+                                    Text="mc" />
+                                <TextBlock
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                    Text="/versions" />
+                                <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/mods" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border
+                        Background="{DynamicResource TranslucentBackgroundColor}"
+                        BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                        BorderThickness="1"
+                        ClipToBounds="True"
+                        CornerRadius="16"
+                        Grid.Column="1">
+                        <StackPanel Margin="10">
+                            <DockPanel>
+                                <Label
+                                    Content="资源包"
+                                    DockPanel.Dock="Left"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    HorizontalAlignment="Left"
+                                    Margin="4,0,0,0" />
+                                <TextBlock
+                                    DockPanel.Dock="Right"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    HorizontalAlignment="Right"
+                                    Margin="4,0,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="13" Text="{Binding Instance.StorageUsage.ResourcePacksDisplayText}" /></TextBlock>
+                            </DockPanel>
+                            <TextBlock
+                                Margin="4,4,0,0"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap">
+                                <Run FontSize="24" Text="{Binding Instance.StorageUsage.ResourcePacksSizeText}" />
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Margin="4,0,0,0"
+                                    Text="mc" />
+                                <TextBlock
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                    Text="/versions" />
+                                <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/resourcepacks" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border
+                        Background="{DynamicResource TranslucentBackgroundColor}"
+                        BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                        BorderThickness="1"
+                        ClipToBounds="True"
+                        CornerRadius="16"
+                        Grid.Column="2">
+                        <StackPanel Margin="10">
+                            <DockPanel>
+                                <Label
+                                    Content="光影包"
+                                    DockPanel.Dock="Left"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    HorizontalAlignment="Left"
+                                    Margin="4,0,0,0" />
+                                <TextBlock
+                                    DockPanel.Dock="Right"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    HorizontalAlignment="Right"
+                                    Margin="4,0,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="13" Text="{Binding Instance.StorageUsage.ShaderPacksDisplayText}" /></TextBlock>
+                            </DockPanel>
+                            <TextBlock
+                                Margin="4,4,0,0"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap">
+                                <Run FontSize="24" Text="{Binding Instance.StorageUsage.ShaderPacksSizeText}" />
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Margin="4,0,0,0"
+                                    Text="mc" />
+                                <TextBlock
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                    Text="/versions" />
+                                <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/shaderpacks" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border
+                        Background="{DynamicResource TranslucentBackgroundColor}"
+                        BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                        BorderThickness="1"
+                        ClipToBounds="True"
+                        CornerRadius="16"
+                        Grid.Column="3">
+                        <StackPanel Margin="10">
+                            <DockPanel>
+                                <Label
+                                    Content="存档"
+                                    DockPanel.Dock="Left"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    HorizontalAlignment="Left"
+                                    Margin="4,0,0,0" />
+                                <TextBlock
+                                    DockPanel.Dock="Right"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    HorizontalAlignment="Right"
+                                    Margin="4,0,0,0"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap">
+                                    <Run FontSize="13" Text="{Binding Instance.StorageUsage.SavesDisplayText}" /></TextBlock>
+                            </DockPanel>
+                            <TextBlock
+                                Margin="4,4,0,0"
+                                TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap">
+                                <Run FontSize="24" Text="{Binding Instance.StorageUsage.SavesSizeText}" />
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Margin="4,0,0,0"
+                                    Text="mc" />
+                                <TextBlock
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                    Text="/versions" />
+                                <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/saves" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <Border
+                    Background="{DynamicResource TranslucentBackgroundColor}"
+                    BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="16"
+                    Margin="5,0,0,12"
+                    Padding="16,12,16,8">
+                    <Grid RowDefinitions="Auto,*">
+                        <DockPanel>
+                            <TextBlock
+                                DockPanel.Dock="Left"
+                                FontSize="15"
+                                Text="最近游戏时间" />
+                            <Button
+                                Click="ToggleChartDays_Click"
+                                DockPanel.Dock="Right"
+                                HorizontalAlignment="Right"
+                                Margin="0,0,-20,0"
+                                MinWidth="64"
+                                Padding="8,2"
+                                Theme="{StaticResource TransparentButton}">
+                                <TextBlock
+                                    Foreground="{DynamicResource SystemAccentColor}"
+                                    Name="Block"
+                                    Text="7 天" />
+                            </Button>
+                        </DockPanel>
+                        <instancePages:RecentPlayTimeChart
+                            AxisForeground="{DynamicResource ForegroundColor}"
+                            Days="7"
+                            FontFamily="{DynamicResource TioFontFamily}"
+                            Grid.Row="1"
+                            Height="210"
+                            Instance="{Binding Instance}"
+                            LineBrush="{DynamicResource SystemAccentColor}"
+                            Margin="0,8,0,0"
+                            TooltipBackground="{DynamicResource TranslucentBackgroundColor}"
+                            TooltipBorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            TooltipForeground="{DynamicResource InnerForegroundColor}"
+                            x:Name="RecentPlayTimeChart" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </controls:ScrollView>
+    </DockPanel>
 </UserControl>

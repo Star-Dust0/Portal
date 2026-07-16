@@ -6,6 +6,7 @@
     x:DataType="local:IconPickerViewModel"
     xmlns="https://github.com/avaloniaui"
     xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+    xmlns:controls="clr-namespace:SmoothScroll.Avalonia.Controls;assembly=SmoothScroll.Avalonia.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Portal.Views.Pages.InstancePages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -13,13 +14,16 @@
     <Grid
         Margin="24"
         RowDefinitions="Auto,*,Auto"
-        Width="510">
+        Width="600">
         <TextBlock
             FontSize="15"
             FontWeight="600"
             Text="更换图标"
             VerticalAlignment="Center" />
-        <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+        <controls:ScrollView
+            Grid.Row="1"
+            Height="295"
+            Margin="0,12,0,0">
             <ItemsControl ItemsSource="{Binding BuiltInIcons}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -32,8 +36,8 @@
                             Background="Transparent"
                             Click="BuiltInIcon_Click"
                             Margin="0,0,10,10"
-                            Padding="6"
-                            ToolTip.Tip="{Binding FileName}">
+                            Padding="6">
+                            <!--  ToolTip.Tip="{Binding FileName}"  -->
                             <Border
                                 ClipToBounds="True"
                                 CornerRadius="10"
@@ -48,7 +52,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </ScrollViewer>
+        </controls:ScrollView>
         <DockPanel Grid.Row="2" LastChildFill="False">
             <Button
                 Click="Cancel_Click"
