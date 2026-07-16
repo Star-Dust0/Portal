@@ -550,7 +550,7 @@ public class MinecraftInstance : ObservableObject
             return new Bitmap(customIcon);
 
         if (Type == MinecraftInstanceType.Bedrock)
-            return LoadBitmapFromAssembly("grass_block_side.png");
+            return LoadBitmapFromAssembly("01_grass_block_side.png");
 
         var pclIcon = Path.Combine(instanceFolder, "PCL", "Logo.png");
         if (File.Exists(pclIcon))
@@ -574,7 +574,7 @@ public class MinecraftInstance : ObservableObject
 
         if (Type == MinecraftInstanceType.Bedrock)
         {
-            return LoadBitmapFromAssembly("grass_block_side.png", width);
+            return LoadBitmapFromAssembly("01_grass_block_side.png", width);
         }
 
         var pclIcon = Path.Combine(instanceFolder, "PCL", "Logo.png");
@@ -607,7 +607,7 @@ public class MinecraftInstance : ObservableObject
         if (stream == null)
         {
             // 修正了你原代码里的一处拼写错误：Assts -> Assets
-            var defaultPath = "Portal.Core.Assets.McIcons.grass_block_side.png";
+            var defaultPath = "Portal.Core.Assets.McIcons.01_grass_block_side.png";
             using var defaultStream = assembly.GetManifestResourceStream(defaultPath);
             return defaultStream != null ? Bitmap.DecodeToWidth(defaultStream, width) : null;
         }
@@ -619,30 +619,30 @@ public class MinecraftInstance : ObservableObject
     {
         if (Type == MinecraftInstanceType.Bedrock)
         {
-            return "grass_block_side.png";
+            return "01_grass_block_side.png";
         }
 
-        if (MinecraftEntry == null) return "grass_block_side.png";
+        if (MinecraftEntry == null) return "01_grass_block_side.png";
 
         if (MinecraftEntry.IsVanilla)
         {
             return MinecraftEntry.Version.Type switch
             {
-                MinecraftVersionType.Snapshot => "crafting_table_front.png",
-                _ => "grass_block_side.png"
+                MinecraftVersionType.Snapshot => "02_crafting_table_front.png",
+                _ => "01_grass_block_side.png"
             };
         }
 
         if (MinecraftEntry is ModifiedMinecraftEntry e && e.ModLoaders != null)
         {
-            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.Forge)) return "ForgeIcon.png";
-            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.NeoForge)) return "NeoForgeIcon.png";
-            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.Fabric)) return "FabricIcon.png";
-            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.Quilt)) return "QuiltIcon.png";
-            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.OptiFine)) return "OptiFineIcon.png";
+            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.Forge)) return "06_ForgeIcon.png";
+            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.NeoForge)) return "07_NeoForgeIcon.png";
+            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.Fabric)) return "05_FabricIcon.png";
+            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.Quilt)) return "09_QuiltIcon.png";
+            if (e.ModLoaders.Any(a => a.Type == ModLoaderType.OptiFine)) return "08_OptiFineIcon.png";
         }
 
-        return "grass_block_side.png";
+        return "01_grass_block_side.png";
     }
 
     private static Bitmap LoadBitmapFromAssembly(string fileName)
@@ -653,7 +653,7 @@ public class MinecraftInstance : ObservableObject
         using var stream = assembly.GetManifestResourceStream(resourcePath);
         if (stream == null)
         {
-            var defaultPath = "Portal.Core.Assets.McIcons.grass_block_side.png";
+            var defaultPath = "Portal.Core.Assets.McIcons.01_grass_block_side.png";
             using var defaultStream = assembly.GetManifestResourceStream(defaultPath);
             return defaultStream != null ? Bitmap.DecodeToWidth(defaultStream, 48) : null;
         }

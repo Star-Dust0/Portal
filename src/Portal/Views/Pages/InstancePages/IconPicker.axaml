@@ -1,0 +1,64 @@
+<UserControl
+    d:DesignHeight="480"
+    d:DesignWidth="560"
+    mc:Ignorable="d"
+    x:Class="Portal.Views.Pages.InstancePages.IconPicker"
+    x:DataType="local:IconPickerViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Portal.Views.Pages.InstancePages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid
+        Margin="24"
+        RowDefinitions="Auto,*,Auto"
+        Width="510">
+        <TextBlock
+            FontSize="15"
+            FontWeight="600"
+            Text="更换图标"
+            VerticalAlignment="Center" />
+        <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+            <ItemsControl ItemsSource="{Binding BuiltInIcons}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="local:BuiltInIcon">
+                        <Button
+                            Background="Transparent"
+                            Click="BuiltInIcon_Click"
+                            Margin="0,0,10,10"
+                            Padding="6"
+                            ToolTip.Tip="{Binding FileName}">
+                            <Border
+                                ClipToBounds="True"
+                                CornerRadius="10"
+                                Height="52"
+                                Width="52">
+                                <asyncImageLoader:AdvancedImage
+                                    Height="52"
+                                    Source="{Binding ResourceUri}"
+                                    Width="52" />
+                            </Border>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        <DockPanel Grid.Row="2" LastChildFill="False">
+            <Button
+                Click="Cancel_Click"
+                Content="取消"
+                DockPanel.Dock="Left" />
+            <Button
+                Click="ChooseFile_Click"
+                Content="选择本地图片"
+                DockPanel.Dock="Right"
+                HorizontalAlignment="Right" />
+        </DockPanel>
+    </Grid>
+</UserControl>

@@ -14,7 +14,9 @@ using Portal.ViewModels;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Gateway;
+using TioUi.Common;
 using TioUi.Common.Extensions;
+using TioUi.Controls;
 
 namespace Portal.Views.Pages.InstancePages;
 
@@ -119,18 +121,29 @@ public partial class Dashboard : DataUserControl
         var topLevel = TopLevel.GetTopLevel(this);
         if (topLevel == null) return;
 
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        var options = new OverlayDialogOptions
         {
-            Title = "更换图标",
-            AllowMultiple = false,
-            FileTypeFilter =
-                [new FilePickerFileType("图片") { Patterns = ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.webp"] }]
-        });
-        if (files.Count == 0) return;
+            Mode = DialogMode.None,
+            Buttons = DialogButton.None,
+            CanLightDismiss = false,
+            CanDragMove = true,
+            IsCloseButtonVisible = false,
+            CanResize = false,
+            VerticalAnchor = VerticalPosition.Top,
+            VerticalOffset = 110
+        };
+        var result = await OverlayDialog.ShowCustomAsync<IconPicker, IconPickerViewModel, IconPickerResult>(
+            new IconPickerViewModel(), hostId: this.TryGetHostId(), options: options);
+        if (result == null) return;
 
         try
         {
-            await using var stream = await files[0].OpenReadAsync();
+            await using var stream = result.CustomImageFile != null
+                ? await result.CustomImageFile.OpenReadAsync()
+                : typeof(MinecraftInstance).Assembly.GetManifestResourceStream(result.BuiltInResourceName!);
+            if (stream == null)
+                throw new FileNotFoundException("未找到所选的内置图标。");
+
             using var icon = new Avalonia.Media.Imaging.Bitmap(stream);
             Instance.SetIcon(icon);
             NotificationGateway.Notice(topLevel, "图标已更换", NotificationType.Success);
