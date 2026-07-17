@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
@@ -23,9 +24,17 @@ using TioUi.Controls;
 
 namespace Portal.Views.Pages.InstancePages;
 
-public partial class Dashboard : DataUserControl
+public partial class Dashboard : DataUserControl, INotifyPropertyChanged
 {
     private InstanceDetailPage _parent;
+    private event PropertyChangedEventHandler? DashboardPropertyChanged;
+
+    event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
+    {
+        add => DashboardPropertyChanged += value;
+        remove => DashboardPropertyChanged -= value;
+    }
+
     public MinecraftInstance Instance { get; }
 
     public string TotalPlayTime
@@ -51,7 +60,11 @@ public partial class Dashboard : DataUserControl
             _ = Instance.StorageUsage.EnsureLoadedAsync();
             Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
         };
-        Unloaded += (_, _) => InstanceManager.Instance.InstanceIconChanged -= OnInstanceIconChanged;
+        Unloaded += (_, _) =>
+        {
+            InstanceManager.Instance.StatisticsChanged -= OnStatisticsChanged;
+            InstanceManager.Instance.InstanceIconChanged -= OnInstanceIconChanged;
+        };
     }
 
     public Dashboard()
@@ -73,7 +86,11 @@ public partial class Dashboard : DataUserControl
 
     private void OnStatisticsChanged(object? sender, EventArgs e)
     {
-        Dispatcher.UIThread.Post(RecentPlayTimeChart.InvalidateVisual);
+        Dispatcher.UIThread.Post(() =>
+        {
+            DashboardPropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TotalPlayTime)));
+            RecentPlayTimeChart.InvalidateVisual();
+        });
     }
 
     private void OnInstanceIconChanged(object? sender, MinecraftInstance instance)

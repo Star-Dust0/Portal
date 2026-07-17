@@ -244,6 +244,12 @@ public class MinecraftInstance : ObservableObject
             SaveConfig();
             OnPropertyChanged(e.PropertyName);
 
+            if (e.PropertyName == nameof(MinecraftInstanceConfig.LastPlayTime))
+            {
+                OnPropertyChanged(nameof(DisplayLastPlayTime));
+                OnPropertyChanged(nameof(FullInfo));
+            }
+
             if (e.PropertyName == nameof(MinecraftInstanceConfig.Note))
             {
                 OnPropertyChanged(nameof(InstanceName));
@@ -304,6 +310,7 @@ public class MinecraftInstance : ObservableObject
         }
 
         InstanceManager.Instance.NotifyStatisticsChanged();
+        OnPropertyChanged(nameof(FullInfo));
     }
 
     /// <summary>
@@ -338,6 +345,7 @@ public class MinecraftInstance : ObservableObject
                     lock (_timerLock)
                     {
                         AddUnsavedPlayTime(DateTime.Today, 1);
+                        OnPropertyChanged(nameof(FullInfo));
                         InstanceManager.Instance.NotifyStatisticsChanged();
 
                         if (_unsavedPlayTimeByDate.Values.Sum() >= 60)

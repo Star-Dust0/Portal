@@ -4,6 +4,7 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using Portal.Const;
@@ -41,11 +42,12 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
             NewTabViewModel.ApplyFilterAndSort();
         };
         InstanceManager.Instance.StatisticsChanged += OnStatisticsChanged;
+        Unloaded += (_, _) => InstanceManager.Instance.StatisticsChanged -= OnStatisticsChanged;
     }
 
     private void OnStatisticsChanged(object? sender, EventArgs e)
     {
-        NewTabViewModel.UpdateStatistics();
+        Dispatcher.UIThread.Post(NewTabViewModel.UpdateStatistics);
     }
 
     public PageInfo PageInfo { get; init; } = new()

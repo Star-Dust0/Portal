@@ -303,6 +303,7 @@ public partial class InstanceListViewModelBase : ObservableObject
     public void UpdateStatistics()
     {
         UpdatePlayStatistics();
+        UpdateRecentInstance();
     }
 
     /// <summary>
