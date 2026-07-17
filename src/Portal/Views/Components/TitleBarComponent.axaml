@@ -60,7 +60,6 @@
             <converter:ThemeCompareConverter x:Key="ThemeCompareConverter" />
             <converter:IntCompareConverter x:Key="IntCompareConverter" />
             <converter:ManagedTaskStatusToBrushConverter x:Key="TaskStatusBrush" />
-            <converter:ManagedTaskStatusToTextConverter x:Key="TaskStatusText" />
         </StackPanel.Resources>
         <Border IsVisible="{Binding DropMsg, Converter={StaticResource StringIsNotWriteSpaceOrNullConverter}}" Margin="3,0">
             <Border
@@ -103,6 +102,7 @@
         </Button>
         <Button
             Click="OpenTasks"
+            IsVisible="{Binding Tasks.CurrentTaskTitle, Converter={StaticResource StringIsNotWriteSpaceOrNullConverter}}"
             Margin="3,0"
             Theme="{StaticResource TransparentButton}"
             ToolTip.Tip="任务"
@@ -121,7 +121,7 @@
                         Width="8" />
                     <TextBlock
                         FontSize="13"
-                        Text="{Binding Tasks.CurrentStatus, Converter={StaticResource TaskStatusText}}"
+                        Text="{Binding Tasks.CurrentTaskTitle}"
                         VerticalAlignment="Center" />
                 </StackPanel>
             </Border>

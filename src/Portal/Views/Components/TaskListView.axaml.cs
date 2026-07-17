@@ -23,8 +23,8 @@ public partial class TaskListView : UserControl
 
     public TaskManager Tasks => TaskManager.Instance;
 
-    private void RemoveCompletedTask(object? sender, RoutedEventArgs e)
+    private void RemoveTerminalTask(object? sender, RoutedEventArgs e)
     {
-        if (sender is Button { Tag: ManagedTask task }) Tasks.RemoveCompletedTask(task);
+        if (sender is Button { Tag: ManagedTask task }) Tasks.RemoveTerminalTask(task);
     }
 }

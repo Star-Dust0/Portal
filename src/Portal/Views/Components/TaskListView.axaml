@@ -15,7 +15,6 @@
     <UserControl.Resources>
         <converter:ManagedTaskStatusToBrushConverter x:Key="TaskStatusBrush" />
         <converter:ManagedTaskStatusToTextConverter x:Key="TaskStatusText" />
-        <converter:ManagedTaskStatusToCompletedBoolConverter x:Key="TaskCompleted" />
         <converter:NullableDoubleToBoolConverter x:Key="UnknownProgress" />
         <converter:IntCompareConverter x:Key="IntCompareConverter" />
         <DataTemplate DataType="tasks:ManagedTask" x:Key="TaskTreeItemTemplate">
@@ -100,12 +99,12 @@
                                         Text="{Binding Status, Converter={StaticResource TaskStatusText}}"
                                         VerticalAlignment="Center" />
                                     <HyperlinkButton
-                                        Click="RemoveCompletedTask"
+                                        Click="RemoveTerminalTask"
                                         Content="移除"
                                         FontSize="12"
                                         Foreground="{DynamicResource SystemAccentColor}"
                                         Grid.Column="3"
-                                        IsVisible="{Binding Status, Converter={StaticResource TaskCompleted}}"
+                                        IsVisible="{Binding IsTerminal}"
                                         Margin="8,0,0,0"
                                         Tag="{Binding}"
                                         Theme="{StaticResource TransparentHyperlinkButton}"
