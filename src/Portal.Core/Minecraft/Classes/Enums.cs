@@ -10,7 +10,6 @@ public enum MinecraftSpecialFolder
     ScreenshotsFolder,
     ConfigFolder,
     LogsFolder,
-    CrashReportsFolder
 }
 
 public enum MinecraftInstanceIconType

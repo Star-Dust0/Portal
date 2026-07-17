@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Input;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.Interactivity;
@@ -22,6 +23,7 @@ namespace Portal.Views.Pages.InstancePages;
 
 public partial class Dashboard : DataUserControl
 {
+    private InstanceDetailPage _parent;
     public MinecraftInstance Instance { get; }
 
     public string TotalPlayTime
@@ -34,8 +36,9 @@ public partial class Dashboard : DataUserControl
         }
     }
 
-    public Dashboard(MinecraftInstance instance)
+    public Dashboard(MinecraftInstance instance, InstanceDetailPage parent)
     {
+        _parent = parent;
         Instance = instance;
         InitializeComponent();
         DataContext = this;
@@ -172,5 +175,26 @@ public partial class Dashboard : DataUserControl
         }
 
         Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
+    }
+
+    private void JumpPage(object? sender, PointerPressedEventArgs e)
+    {
+        var tag = (sender as Control).Tag as  string;
+        if (tag == "mods")
+        {
+            _parent.NavigateTo(null);
+        }
+        else if (tag == "resource")
+        {
+            _parent.NavigateTo(null);
+        }
+        else if (tag == "shader")
+        {
+            _parent.NavigateTo(null);
+        }
+        else if (tag == "saves")
+        {
+            _parent.NavigateTo(null);
+        }
     }
 }

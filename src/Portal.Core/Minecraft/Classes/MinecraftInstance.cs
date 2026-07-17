@@ -485,9 +485,8 @@ public class MinecraftInstance : ObservableObject
                 MinecraftSpecialFolder.SavesFolder => Path.Combine(basePath, "saves"),
                 MinecraftSpecialFolder.ScreenshotsFolder => Path.Combine(basePath, "screenshots"),
                 MinecraftSpecialFolder.ShaderPacksFolder => Path.Combine(basePath, "shaderpacks"),
-                MinecraftSpecialFolder.ConfigFolder => Path.Combine(instancePath, "config"),
-                MinecraftSpecialFolder.LogsFolder => Path.Combine(instancePath, "logs"),
-                MinecraftSpecialFolder.CrashReportsFolder => Path.Combine(instancePath, "crash-reports"),
+                MinecraftSpecialFolder.ConfigFolder => Path.Combine(basePath, "config"),
+                MinecraftSpecialFolder.LogsFolder => Path.Combine(basePath, "logs"),
                 _ => basePath
             };
 

@@ -89,7 +89,9 @@
                             BorderThickness="1"
                             ClipToBounds="True"
                             CornerRadius="16"
-                            Cursor="Hand">
+                            Cursor="Hand"
+                            PointerPressed="JumpPage"
+                            Tag="mods">
                             <StackPanel Margin="10">
                                 <DockPanel>
                                     <Label
@@ -135,7 +137,9 @@
                             ClipToBounds="True"
                             CornerRadius="16"
                             Cursor="Hand"
-                            Grid.Column="1">
+                            Grid.Column="1"
+                            PointerPressed="JumpPage"
+                            Tag="resource">
                             <StackPanel Margin="10">
                                 <DockPanel>
                                     <Label
@@ -185,7 +189,9 @@
                             BorderThickness="1"
                             ClipToBounds="True"
                             CornerRadius="16"
-                            Cursor="Hand">
+                            Cursor="Hand"
+                            PointerPressed="JumpPage"
+                            Tag="shader">
                             <StackPanel Margin="10">
                                 <DockPanel>
                                     <Label
@@ -231,7 +237,9 @@
                             ClipToBounds="True"
                             CornerRadius="16"
                             Cursor="Hand"
-                            Grid.Column="3">
+                            Grid.Column="3"
+                            PointerPressed="JumpPage"
+                            Tag="saves">
                             <StackPanel Margin="10">
                                 <DockPanel>
                                     <Label
@@ -283,7 +291,8 @@
                             CornerRadius="16"
                             Cursor="Hand"
                             Grid.Column="0"
-                            Tag="resource">
+                            PointerPressed="JumpPage"
+                            Tag="screenshot">
                             <StackPanel Margin="10">
                                 <DockPanel>
                                     <Label
@@ -330,7 +339,8 @@
                             CornerRadius="16"
                             Cursor="Hand"
                             Grid.Column="1"
-                            Tag="shader">
+                            PointerPressed="JumpPage"
+                            Tag="logs">
                             <StackPanel Margin="10">
                                 <DockPanel>
                                     <Label
@@ -377,7 +387,8 @@
                             CornerRadius="16"
                             Cursor="Hand"
                             Grid.Column="2"
-                            Tag="saves">
+                            PointerPressed="JumpPage"
+                            Tag="config">
                             <StackPanel Margin="10">
                                 <DockPanel>
                                     <Label

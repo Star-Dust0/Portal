@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Portal.Core.Minecraft.Classes;
@@ -12,11 +13,13 @@ namespace Portal.Views.Pages.InstancePages;
 
 public partial class Files : UserControl
 {
+    private InstanceDetailPage _parent;
     public MinecraftInstance Instance { get; }
     public ObservableCollection<InstanceFolderItem> Folders { get; } = [];
 
-    public Files(MinecraftInstance instance)
+    public Files(MinecraftInstance instance, InstanceDetailPage parent)
     {
+        _parent = parent;
         Instance = instance;
         foreach (var (name, folder) in new[]
                  {
@@ -75,6 +78,39 @@ public partial class Files : UserControl
             case "config":
                 OpenPath(Instance.GetSpecialFolder(MinecraftSpecialFolder.ConfigFolder));
                 break;
+        }
+    }
+    
+    private void JumpPage(object? sender, PointerPressedEventArgs e)
+    {
+        var tag = (sender as Control).Tag as  string;
+        if (tag == "mods")
+        {
+            _parent.NavigateTo(null);
+        }
+        else if (tag == "resource")
+        {
+            _parent.NavigateTo(null);
+        }
+        else if (tag == "shader")
+        {
+            _parent.NavigateTo(null);
+        }
+        else if (tag == "saves")
+        {
+            _parent.NavigateTo(null);
+        }
+        else if (tag == "screenshot")
+        {
+            _parent.NavigateTo(null);
+        }
+        else if (tag == "logs")
+        {
+            _parent.NavigateTo(null);
+        }
+        else if (tag == "config")
+        {
+            _parent.NavigateTo(null);
         }
     }
 }

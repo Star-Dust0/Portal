@@ -22,7 +22,7 @@ public partial class InstanceDetailPage : UserControl, ITioTabPage
     public InstanceDetailPage(MinecraftInstance instance)
     {
         InitializeComponent();
-        ViewModel = new InstanceDetailPageViewModel(instance);
+        ViewModel = new InstanceDetailPageViewModel(instance, this);
         DataContext = ViewModel;
         PageInfo = new PageInfo
         {
@@ -42,7 +42,6 @@ public partial class InstanceDetailPage : UserControl, ITioTabPage
     public InstanceDetailPage()
     {
     }
-
 
     public PageInfo PageInfo { get; init; }
 
@@ -75,6 +74,7 @@ public partial class InstanceDetailPage : UserControl, ITioTabPage
 
     public void NavigateTo(Type pageType)
     {
+        if (pageType == null) return;
         ViewModel.NavigateType(pageType);
         var navMenu = this.FindControl<NavMenu>("NavMenu");
         var item = navMenu?.Items.OfType<NavMenuItem>()
@@ -88,14 +88,16 @@ public partial class InstanceDetailPage : UserControl, ITioTabPage
 public partial class InstanceDetailPageViewModel : ObservableObject
 {
     public MinecraftInstance Instance { get; }
+    private readonly InstanceDetailPage _parent;
 
     [ObservableProperty] public partial UserControl? CurrentPage { get; set; }
 
     private readonly Dictionary<Type, UserControl> _pageCache = new();
 
-    public InstanceDetailPageViewModel(MinecraftInstance instance)
+    public InstanceDetailPageViewModel(MinecraftInstance instance, InstanceDetailPage parent)
     {
         Instance = instance;
+        _parent = parent;
         NavigateType(typeof(Dashboard));
     }
 
@@ -105,8 +107,14 @@ public partial class InstanceDetailPageViewModel : ObservableObject
         if (parameter is not Type pageType || !typeof(UserControl).IsAssignableFrom(pageType))
             return;
 
+        var constructor = pageType.GetConstructor([typeof(MinecraftInstance), typeof(InstanceDetailPage)])
+                          ?? pageType.GetConstructor([typeof(MinecraftInstance)]);
+        var arguments = constructor?.GetParameters().Length == 2
+            ? new object[] { Instance, _parent }
+            : new object[] { Instance };
+
         if (!_pageCache.TryGetValue(pageType, out var page) &&
-            Activator.CreateInstance(pageType, Instance) is UserControl newPage)
+            constructor?.Invoke(arguments) is UserControl newPage)
         {
             page = newPage;
             _pageCache[pageType] = page;

@@ -14,7 +14,7 @@ public partial class InstanceStorageUsage : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VersionFolderSizeText), nameof(ModsPercentageText),
         nameof(ResourcePacksPercentageText), nameof(ShaderPacksPercentageText), nameof(SavesPercentageText),
-        nameof(ScreenshotsPercentageText), nameof(LogsPercentageText), nameof(CrashReportsPercentageText),
+        nameof(ScreenshotsPercentageText), nameof(LogsPercentageText),
         nameof(OtherPercentageText), nameof(ModsDisplayText), nameof(ResourcePacksDisplayText),
         nameof(ShaderPacksDisplayText), nameof(SavesDisplayText))]
     private long _versionFolderBytes;
@@ -46,9 +46,6 @@ public partial class InstanceStorageUsage : ObservableObject
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(LogsSizeText), nameof(LogsPercentageText))]
     private long _logsBytes;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CrashReportsSizeText), nameof(CrashReportsPercentageText))]
-    private long _crashReportsBytes;
-
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(OtherSizeText), nameof(OtherPercentageText))]
     private long _otherBytes;
 
@@ -61,7 +58,6 @@ public partial class InstanceStorageUsage : ObservableObject
     public string ScreenshotsSizeText => FormatSize(ScreenshotsBytes);
     public string ConfigSizeText => FormatSize(ConfigBytes);
     public string LogsSizeText => FormatSize(LogsBytes);
-    public string CrashReportsSizeText => FormatSize(CrashReportsBytes);
     public string OtherSizeText => FormatSize(OtherBytes);
     public string ModsPercentageText => FormatPercentage(ModsBytes);
     public string ResourcePacksPercentageText => FormatPercentage(ResourcePacksBytes);
@@ -70,7 +66,6 @@ public partial class InstanceStorageUsage : ObservableObject
     public string ScreenshotsPercentageText => FormatPercentage(ScreenshotsBytes);
     public string ConfigPercentageText => FormatPercentage(ConfigBytes);
     public string LogsPercentageText => FormatPercentage(LogsBytes);
-    public string CrashReportsPercentageText => FormatPercentage(CrashReportsBytes);
     public string OtherPercentageText => FormatPercentage(OtherBytes);
     public string ModsDisplayText => FormatSizeAndPercentage(ModsBytes);
     public string ResourcePacksDisplayText => FormatSizeAndPercentage(ResourcePacksBytes);
@@ -79,7 +74,6 @@ public partial class InstanceStorageUsage : ObservableObject
     public string ScreenshotsDisplayText => FormatSizeAndPercentage(ScreenshotsBytes);
     public string ConfigDisplayText => FormatSizeAndPercentage(ConfigBytes);
     public string LogsDisplayText => FormatSizeAndPercentage(LogsBytes);
-    public string CrashReportsDisplayText => FormatSizeAndPercentage(CrashReportsBytes);
     public string OtherDisplayText => FormatSizeAndPercentage(OtherBytes);
 
     public InstanceStorageUsage(MinecraftInstance instance)
@@ -119,17 +113,16 @@ public partial class InstanceStorageUsage : ObservableObject
                 GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.ScreenshotsFolder));
             var configBytes = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.ConfigFolder));
             var logsBytes = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.LogsFolder));
-            var crashReportsBytes =
-                GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.CrashReportsFolder));
+
 
             var categorizedBytes = modsBytes + resourcePacksBytes + shaderPacksBytes + savesBytes +
-                                   screenshotsBytes + configBytes + logsBytes + crashReportsBytes;
+                                   screenshotsBytes + configBytes + logsBytes;
             var otherBytes = _instance.Config.EnableIndependentInstance
                 ? Math.Max(0, versionBytes - categorizedBytes)
                 : versionBytes;
 
             return (versionBytes, modsBytes, resourcePacksBytes, shaderPacksBytes, savesBytes,
-                screenshotsBytes, configBytes, logsBytes, crashReportsBytes, otherBytes);
+                screenshotsBytes, configBytes, logsBytes, otherBytes);
         });
 
         VersionFolderBytes = usage.versionBytes;
@@ -140,7 +133,6 @@ public partial class InstanceStorageUsage : ObservableObject
         ScreenshotsBytes = usage.screenshotsBytes;
         ConfigBytes = usage.configBytes;
         LogsBytes = usage.logsBytes;
-        CrashReportsBytes = usage.crashReportsBytes;
         OtherBytes = usage.otherBytes;
     }
 
