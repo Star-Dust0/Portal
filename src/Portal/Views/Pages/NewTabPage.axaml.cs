@@ -68,6 +68,18 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
             InstanceDetailPage.Open(instance, topLevel);
     }
 
+    private void RecentInstanceCard_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            return;
+        if (e.Source is Visual visual && (visual is Button || visual.FindAncestorOfType<Button>() != null))
+            return;
+
+        if (sender is Control { Tag: MinecraftInstance instance } &&
+            TopLevel.GetTopLevel(this) is { } topLevel)
+            InstanceDetailPage.Open(instance, topLevel);
+    }
+
     private void InputElement_OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
     {
         ScrollViewer.Offset = new Vector(
@@ -85,6 +97,15 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
                 {
                     MinecraftLogPage.Open(logSession, this.GetTopLevel());
                 }));
+    }
+
+    private void LaunchInstance_Click(object? sender, RoutedEventArgs e)
+    {
+        if ((sender as Control)?.Tag is not MinecraftInstance instance)
+            return;
+
+        _ = MinecraftLaunchService.LaunchAsync(instance, TopLevel.GetTopLevel(this),
+            MinecraftLaunchOptionsFactory.Create(logSession => MinecraftLogPage.Open(logSession, this.GetTopLevel())));
     }
 
     private void Button_OnClick(object? sender, RoutedEventArgs e)

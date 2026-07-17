@@ -7,14 +7,17 @@ using Avalonia.Media;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Portal.Const;
+using Portal.Core.Minecraft;
 using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Instance;
 using Portal.Module.AggregatedSearch;
 using Portal.Module.DefaultPage;
 using Portal.ViewModels;
+using Portal.Services;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Entries;
 using Tio.Avalonia.Standard.Tab.Interface;
+using TioUi.Common.Extensions;
 
 namespace Portal.Views.Pages;
 
@@ -61,6 +64,15 @@ public partial class InstancesPage : DataUserControl, ITioTabPage
         instance.Config.IsFavorite = !instance.Config.IsFavorite;
         instance.SaveConfig();
         InstancesPageViewModel.ApplyFilterAndSort();
+    }
+
+    private void LaunchInstance_Click(object? sender, RoutedEventArgs e)
+    {
+        if ((sender as Control)?.Tag is not MinecraftInstance instance)
+            return;
+
+        _ = MinecraftLaunchService.LaunchAsync(instance, TopLevel.GetTopLevel(this),
+            MinecraftLaunchOptionsFactory.Create(logSession => MinecraftLogPage.Open(logSession, this.GetTopLevel())));
     }
 
     private void RefreshInstance_Click(object? sender, RoutedEventArgs e)
