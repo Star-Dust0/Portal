@@ -26,6 +26,7 @@ public partial class ConfigFiles : UserControl, IDisposable, INotifyPropertyChan
     private static readonly Geometry FolderIcon = Geometry.Parse("M3 5h5l2 2h11v12H3z");
     private static readonly Geometry FileIcon = Geometry.Parse("M6 2h8l5 5v15H6z M14 2v6h5");
     private readonly IHighlightingDefinition _highlighting;
+    private readonly List<ConfigTreeItem> _allRootItems = [];
 
     public string ConfigPath { get; }
     public ObservableCollection<ConfigTreeItem> RootItems { get; } = [];
@@ -33,6 +34,19 @@ public partial class ConfigFiles : UserControl, IDisposable, INotifyPropertyChan
 
     private ConfigEditorTab? _selectedTab;
     private bool _isWordWrap;
+    private string _searchText = string.Empty;
+
+    public string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            if (_searchText == value) return;
+            _searchText = value;
+            OnPropertyChanged();
+            ApplySearchFilter();
+        }
+    }
 
     public bool IsWordWrap
     {
@@ -90,10 +104,41 @@ public partial class ConfigFiles : UserControl, IDisposable, INotifyPropertyChan
 
     private void LoadTree()
     {
+        _allRootItems.Clear();
         RootItems.Clear();
         var root = new DirectoryInfo(ConfigPath);
         foreach (var item in ReadDirectory(root))
-            RootItems.Add(item);
+            _allRootItems.Add(item);
+        ApplySearchFilter();
+    }
+
+    private void ApplySearchFilter()
+    {
+        RootItems.Clear();
+        foreach (var item in _allRootItems)
+        {
+            var filteredItem = FilterItem(item, SearchText);
+            if (filteredItem != null)
+                RootItems.Add(filteredItem);
+        }
+    }
+
+    private static ConfigTreeItem? FilterItem(ConfigTreeItem item, string searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return item;
+
+        var filteredChildren = new ObservableCollection<ConfigTreeItem>();
+        foreach (var child in item.Children)
+        {
+            var filteredChild = FilterItem(child, searchText);
+            if (filteredChild != null)
+                filteredChildren.Add(filteredChild);
+        }
+
+        if (!item.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) && filteredChildren.Count == 0)
+            return null;
+
+        return new ConfigTreeItem(item.Name, item.FullPath, item.IsDirectory, item.Icon, filteredChildren);
     }
 
     private static IEnumerable<ConfigTreeItem> ReadDirectory(DirectoryInfo directory)
