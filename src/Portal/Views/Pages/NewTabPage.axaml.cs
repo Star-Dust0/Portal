@@ -8,6 +8,7 @@ using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using Portal.Const;
 using Portal.Core.Minecraft.Classes;
+using Portal.Core.Minecraft;
 using Portal.Core.Minecraft.Instance;
 using Portal.Core.Operations;
 using Portal.Module.AggregatedSearch;
@@ -80,7 +81,7 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
     private void ContinueGame_Click(object? sender, RoutedEventArgs e)
     {
         if (NewTabViewModel.RecentInstance != null)
-            _ = MinecraftLaunchService.LaunchAsync(NewTabViewModel.RecentInstance, TopLevel.GetTopLevel(this));
+            _ = MinecraftLaunchService.LaunchAsync(NewTabViewModel.RecentInstance, TopLevel.GetTopLevel(this), MinecraftLaunchOptionsFactory.Create());
     }
 
     private void Button_OnClick(object? sender, RoutedEventArgs e)
@@ -126,7 +127,7 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
             }
 
             if (feed == "yes")
-                _ = MinecraftLaunchService.LaunchAsync(result, topLevel);
+                _ = MinecraftLaunchService.LaunchAsync(result, topLevel, MinecraftLaunchOptionsFactory.Create());
         }
     }
 

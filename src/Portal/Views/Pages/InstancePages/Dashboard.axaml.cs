@@ -9,6 +9,7 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using MinecraftLaunch.Base.Models.Game;
 using Portal.Core.Minecraft.Classes;
+using Portal.Core.Minecraft;
 using Portal.Core.Minecraft.Instance;
 using Portal.Core.Minecraft.Instance.Java;
 using Portal.Services;
@@ -67,7 +68,7 @@ public partial class Dashboard : DataUserControl
 
     private void LaunchInstance_Click(object? sender, RoutedEventArgs e)
     {
-        _ = MinecraftLaunchService.LaunchAsync(Instance, TopLevel.GetTopLevel(this));
+        _ = MinecraftLaunchService.LaunchAsync(Instance, TopLevel.GetTopLevel(this), MinecraftLaunchOptionsFactory.Create());
     }
 
     private void OnStatisticsChanged(object? sender, EventArgs e)

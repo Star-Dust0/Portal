@@ -7,7 +7,6 @@ using MinecraftLaunch.Base.Models.Game;
 using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Launch;
-using Portal.Const;
 using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Instance.Java;
 using Portal.Core.Operations.Account;
@@ -16,17 +15,51 @@ using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common;
 using Avalonia.Controls.Notifications;
 
-namespace Portal.Services;
+namespace Portal.Core.Minecraft;
 
 public static class MinecraftLaunchService
 {
-    public static Task LaunchAsync(MinecraftInstance instance, TopLevel? topLevel)
+    public static Task LaunchAsync(MinecraftInstance instance, TopLevel? topLevel, MinecraftLaunchOptions options)
     {
+        var launchCompleted = false;
+        MinecraftProcess? process = null;
         var task = TaskManager.Instance.CreateTask(new TaskOptions
         {
             Name = $"启动 {instance.InstanceName}",
             Description = "正在准备启动流程",
-            Progress = 0
+            Progress = 0,
+            Actions =
+            [
+                new TaskActionDefinition
+                {
+                    Name = "取消启动流程",
+                    Description = "取消启动流程及其子任务。",
+                    IconKey = "Cancel",
+                    ExecuteAsync = (managedTask, _) =>
+                    {
+                        managedTask.RequestCancellation();
+                        return Task.CompletedTask;
+                    },
+                    CanExecute = managedTask => managedTask.CanBeCancelled,
+                    IsVisible = managedTask => !launchCompleted && !managedTask.IsTerminal
+                },
+                new TaskActionDefinition
+                {
+                    Name = "结束进程",
+                    Description = "结束 Minecraft 及其子进程。",
+                    ExecuteAsync = (_, _) =>
+                    {
+                        var nativeProcess = process?.Process;
+                        if (nativeProcess == null)
+                            throw new InvalidOperationException("Minecraft 进程尚未创建或已无法访问。");
+                        if (!nativeProcess.HasExited)
+                            nativeProcess.Kill(entireProcessTree: true);
+                        return Task.CompletedTask;
+                    },
+                    IsVisible = managedTask => launchCompleted && !managedTask.IsTerminal &&
+                                               process != null && IsProcessRunning(process)
+                }
+            ]
         });
         var verifyAccount = task.CreateChild(new TaskOptions
         {
@@ -45,12 +78,19 @@ public static class MinecraftLaunchService
             Name = "启动 Minecraft", Description = "等待启动参数构建完成", Progress = 0
         });
         task.Start();
-        _ = RunWorkflowAsync(instance, topLevel, task, verifyAccount, selectJava, buildArguments, startGame);
+        _ = RunWorkflowAsync(instance, topLevel, options, task, verifyAccount, selectJava, buildArguments, startGame,
+            launchedProcess =>
+            {
+                process = launchedProcess;
+                launchCompleted = true;
+                task.RefreshActions();
+            });
         return task.Completion;
     }
 
-    private static async Task RunWorkflowAsync(MinecraftInstance instance, TopLevel? topLevel, ManagedTask task,
-        ManagedTask verifyAccount, ManagedTask selectJava, ManagedTask buildArguments, ManagedTask startGame)
+    private static async Task RunWorkflowAsync(MinecraftInstance instance, TopLevel? topLevel, MinecraftLaunchOptions options, ManagedTask task,
+        ManagedTask verifyAccount, ManagedTask selectJava, ManagedTask buildArguments, ManagedTask startGame,
+        Action<MinecraftProcess> processStarted)
     {
         try
         {
@@ -64,7 +104,7 @@ public static class MinecraftLaunchService
             verifyAccount.Start(async context =>
             {
                 context.SetRunning("正在验证游戏账户");
-                account = await VerifyAccountAsync();
+                account = await VerifyAccountAsync(options);
                 context.ReportProgress(1);
             });
             await verifyAccount.Completion;
@@ -73,7 +113,7 @@ public static class MinecraftLaunchService
             selectJava.Start(async context =>
             {
                 context.SetRunning("正在检查可用 Java 运行时");
-                java = await SelectJavaAsync(instance, context.CancellationToken);
+                java = await SelectJavaAsync(instance, options, context.CancellationToken);
                 context.ReportProgress(1);
             });
             await selectJava.Completion;
@@ -82,16 +122,22 @@ public static class MinecraftLaunchService
             buildArguments.Start(context =>
             {
                 context.SetRunning("正在应用实例与全局游戏设置");
-                config = CreateLaunchConfig(instance, account!, java!);
+                config = CreateLaunchConfig(instance, account!, java!, options);
                 context.ReportProgress(1);
                 return Task.CompletedTask;
             });
             await buildArguments.Completion;
             ThrowIfFailed(buildArguments);
 
-            startGame.Start(context => StartGameStepAsync(context, instance, config!, topLevel, task));
+            startGame.Start(context => StartGameStepAsync(context, instance, config!, topLevel, task, processStarted));
             await startGame.Completion;
             ThrowIfFailed(startGame);
+        }
+        catch (OperationCanceledException) when (task.IsCancellationRequested)
+        {
+            if (!task.IsTerminal)
+                task.Complete();
+            Notice(topLevel, "取消任务", NotificationType.Information);
         }
         catch (Exception exception)
         {
@@ -109,7 +155,7 @@ public static class MinecraftLaunchService
     }
 
     private static async Task StartGameStepAsync(TaskExecutionContext context, MinecraftInstance instance,
-        LaunchConfig config, TopLevel? topLevel, ManagedTask task)
+        LaunchConfig config, TopLevel? topLevel, ManagedTask task, Action<MinecraftProcess> processStarted)
     {
         context.SetRunning("正在启动 Minecraft 进程");
         var parser = new MinecraftParser(instance.MinecraftEntry!.MinecraftFolderPath);
@@ -117,13 +163,14 @@ public static class MinecraftLaunchService
             .RunAsync(instance.MinecraftEntry, context.CancellationToken);
         if (process == null)
             throw new InvalidOperationException("Minecraft 启动器未返回进程信息。");
-        ObserveProcess(instance, topLevel, process, task);
+        ObserveProcess(instance, topLevel, process, task, context);
+        processStarted(process);
         context.ReportProgress(1);
     }
 
-    private static async Task<Account> VerifyAccountAsync()
+    private static async Task<Account> VerifyAccountAsync(MinecraftLaunchOptions options)
     {
-        var account = Data.ConfigEntry.UsingMinecraftMinecraftAccount
+        var account = options.Account
                       ?? throw new InvalidOperationException("请先在账户设置中选择用于启动游戏的账户。");
         if (string.IsNullOrWhiteSpace(account.Name))
             throw new InvalidOperationException("所选账户没有有效的玩家名。");
@@ -142,7 +189,7 @@ public static class MinecraftLaunchService
             case AccountType.Microsoft:
                 var refreshed = await AccountRefresher.RefreshMicrosoft(account)
                                 ?? throw new InvalidOperationException("微软账户令牌刷新失败，请重新登录。");
-                UpdateMicrosoftAccount(account, refreshed);
+                options.AccountRefreshed?.Invoke(account, refreshed);
                 if (!refreshed.Uuid.HasValue || string.IsNullOrWhiteSpace(refreshed.AccessToken) ||
                     string.IsNullOrWhiteSpace(refreshed.RefreshToken))
                     throw new InvalidOperationException("微软账户刷新后缺少必要的验证信息。");
@@ -153,28 +200,20 @@ public static class MinecraftLaunchService
         }
     }
 
-    private static void UpdateMicrosoftAccount(MinecraftAccount original, MinecraftAccount refreshed)
-    {
-        var accounts = Data.ConfigEntry.MinecraftAccounts;
-        var index = accounts.IndexOf(original);
-        if (index >= 0)
-            accounts[index] = refreshed;
-        Data.ConfigEntry.UsingMinecraftMinecraftAccount = refreshed;
-    }
-
-    private static async Task<JavaEntry> SelectJavaAsync(MinecraftInstance instance, CancellationToken cancellationToken)
+    private static async Task<JavaEntry> SelectJavaAsync(MinecraftInstance instance, MinecraftLaunchOptions options,
+        CancellationToken cancellationToken)
     {
         var preferred = instance.Config.EnableSpecificJava ? instance.Config.SpecificJavaEntry : null;
-        var candidates = preferred != null ? [preferred] : Data.ConfigEntry.JavaRuntimes.ToList();
-        if (candidates.Count == 0 && Data.ConfigEntry.EnableAutoSelectJava)
+        var candidates = preferred != null ? [preferred] : options.JavaRuntimes.ToList();
+        if (candidates.Count == 0 && options.EnableAutoSelectJava)
             candidates = (await JavaRuntimeManager.ScanAsync(cancellationToken)).ToList();
         if (candidates.Count == 0)
             throw new InvalidOperationException("没有可用的 Java 运行时，请在设置中添加 Java。");
 
         var javaEntries = candidates.Select(ToJavaEntry).ToList();
-        var selected = preferred != null ? javaEntries[0] : Data.ConfigEntry.EnableAutoSelectJava
+        var selected = preferred != null ? javaEntries[0] : options.EnableAutoSelectJava
             ? instance.MinecraftEntry!.GetAppropriateJava(javaEntries)
-            : Data.ConfigEntry.DefaultJavaRuntime is { } defaultJava ? ToJavaEntry(defaultJava) : javaEntries[0];
+            : options.DefaultJavaRuntime is { } defaultJava ? ToJavaEntry(defaultJava) : javaEntries[0];
         return selected ?? throw new InvalidOperationException("找不到与当前 Minecraft 版本兼容的 Java 运行时。");
     }
 
@@ -184,41 +223,28 @@ public static class MinecraftLaunchService
         MajorVersion = java.MajorVersion, Is64bit = java.Is64Bit
     };
 
-    private static LaunchConfig CreateLaunchConfig(MinecraftInstance instance, Account account, JavaEntry java) => new()
+    private static LaunchConfig CreateLaunchConfig(MinecraftInstance instance, Account account, JavaEntry java,
+        MinecraftLaunchOptions options) => new()
     {
         Account = account,
         JavaPath = java,
         LauncherName = "Portal",
         IsEnableIndependency = instance.Config.EnableIndependentInstance,
-        Width = Data.ConfigEntry.MinecraftWindowWidth,
-        Height = Data.ConfigEntry.MinecraftWindowHeight,
+        Width = options.WindowWidth,
+        Height = options.WindowHeight,
         MinMemorySize = 512,
         MaxMemorySize = instance.Config.EnableOverrideMaxMemory
             ? instance.Config.MinecraftMaxMemory
-            : Data.ConfigEntry.MinecraftMaxMemory
+            : options.MaxMemory
     };
 
     private static void ObserveProcess(MinecraftInstance instance, TopLevel? topLevel, MinecraftProcess process,
-        ManagedTask task)
+        ManagedTask task, TaskExecutionContext context)
     {
         instance.Config.LastPlayTime = DateTime.Now;
+        context.SetRunning("启动完成，正在监视 Minecraft 进程");
         instance.IncrementPlaySessions();
         instance.StartPlayTimer();
-        task.AddAction(new TaskActionDefinition
-        {
-            Name = "结束进程",
-            Description = "结束 Minecraft 及其子进程。",
-            ExecuteAsync = (_, _) =>
-            {
-                var nativeProcess = process.Process;
-                if (nativeProcess == null)
-                    throw new InvalidOperationException("Minecraft 进程尚未创建或已无法访问。");
-                if (!nativeProcess.HasExited)
-                    nativeProcess.Kill(entireProcessTree: true);
-                return Task.CompletedTask;
-            },
-            IsVisible = _ => IsProcessRunning(process)
-        });
         task.AddAction(new TaskActionDefinition
         {
             Name = "复制启动参数",
@@ -273,4 +299,16 @@ public static class MinecraftLaunchService
         UnauthorizedAccessException => "没有访问游戏目录或 Java 文件的权限。",
         _ => exception.Message
     };
+}
+
+public sealed class MinecraftLaunchOptions
+{
+    public MinecraftAccount? Account { get; init; }
+    public IReadOnlyList<JavaRuntimeEntry> JavaRuntimes { get; init; } = [];
+    public JavaRuntimeEntry? DefaultJavaRuntime { get; init; }
+    public bool EnableAutoSelectJava { get; init; }
+    public int WindowWidth { get; init; }
+    public int WindowHeight { get; init; }
+    public int MaxMemory { get; init; }
+    public Action<MinecraftAccount, MinecraftAccount>? AccountRefreshed { get; init; }
 }
