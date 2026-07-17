@@ -6,7 +6,7 @@ namespace Portal.Services;
 
 public static class MinecraftLaunchOptionsFactory
 {
-    public static MinecraftLaunchOptions Create() => new()
+    public static MinecraftLaunchOptions Create(Action<MinecraftLogSession>? openLog = null) => new()
     {
         Account = Data.ConfigEntry.UsingMinecraftMinecraftAccount,
         JavaRuntimes = Data.ConfigEntry.JavaRuntimes,
@@ -15,7 +15,8 @@ public static class MinecraftLaunchOptionsFactory
         WindowWidth = Data.ConfigEntry.MinecraftWindowWidth,
         WindowHeight = Data.ConfigEntry.MinecraftWindowHeight,
         MaxMemory = Data.ConfigEntry.MinecraftMaxMemory,
-        AccountRefreshed = UpdateMicrosoftAccount
+        AccountRefreshed = UpdateMicrosoftAccount,
+        OpenLog = openLog
     };
 
     private static void UpdateMicrosoftAccount(MinecraftAccount original, MinecraftAccount refreshed)

@@ -61,6 +61,8 @@ public partial class Screenshots : UserControl, INotifyPropertyChanged
     {
         if (_hasLoaded || string.IsNullOrEmpty(_screenshotsPath))
             return;
+        
+        ScreenshotItems.Clear();
 
         _hasLoaded = true;
         IsLoading = true;
@@ -176,6 +178,11 @@ public partial class Screenshots : UserControl, INotifyPropertyChanged
     private void RaisePropertyChanged(string propertyName) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
+    private void Title_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        _hasLoaded = false;
+        _ = LoadAsync();
+    }
 }
 
 public sealed class ScreenshotItem(string filePath, string fileName)

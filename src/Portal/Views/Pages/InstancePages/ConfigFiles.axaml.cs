@@ -440,6 +440,11 @@ public partial class ConfigFiles : UserControl, IDisposable, INotifyPropertyChan
     {
         _ = this.GetTopLevel().Launcher.LaunchFileInfoAsync(new FileInfo(SelectedTab.FilePath));
     }
+
+    private void Title_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        LoadTree();
+    }
 }
 
 public sealed record ConfigTreeItem(

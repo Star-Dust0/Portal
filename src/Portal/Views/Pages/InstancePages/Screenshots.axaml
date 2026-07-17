@@ -18,7 +18,12 @@
                 Content="打开文件夹"
                 DockPanel.Dock="Right" />
             <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-                <TextBlock FontSize="24" Text="截图" />
+                <TextBlock
+                    Cursor="Hand"
+                    FontSize="24"
+                    Name="Title"
+                    PointerPressed="Title_OnPointerPressed"
+                    Text="截图" />
                 <TextBlock
                     Foreground="{DynamicResource InnerForegroundColor}"
                     Margin="10,8,0,0"
@@ -51,14 +56,14 @@
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate x:DataType="instancePages:ScreenshotItem">
                         <Grid Background="Transparent" RowDefinitions="*,Auto">
-                             <Border
-                                 BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                                 BorderThickness="1"
-                                 ClipToBounds="True"
-                                 CornerRadius="16"
-                                 Cursor="Hand"
-                                 PointerPressed="OpenImageViewer_OnPointerPressed">
-                                 <asyncImageLoader:AdvancedImage
+                            <Border
+                                BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                                BorderThickness="1"
+                                ClipToBounds="True"
+                                CornerRadius="16"
+                                Cursor="Hand"
+                                PointerPressed="OpenImageViewer_OnPointerPressed">
+                                <asyncImageLoader:AdvancedImage
                                     CornerRadius="15"
                                     Loader="{Binding ImageLoader}"
                                     Source="{Binding FilePath}"
@@ -122,11 +127,12 @@
                                 </Border.ContextFlyout>
                             </Border>
                             <TextBlock
-                                Grid.Row="1"
                                 Foreground="{DynamicResource InnerForegroundColor}"
+                                Grid.Row="1"
                                 Margin="4,7,4,0"
                                 Text="{Binding FileName}"
                                 TextTrimming="CharacterEllipsis"
+                                TextWrapping="NoWrap"
                                 ToolTip.Tip="{Binding FileName}" />
                         </Grid>
                     </DataTemplate>

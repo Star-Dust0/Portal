@@ -81,7 +81,13 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
 
     private void LaunchInstance_Click(object? sender, RoutedEventArgs e)
     {
-        _ = MinecraftLaunchService.LaunchAsync(Instance, TopLevel.GetTopLevel(this), MinecraftLaunchOptionsFactory.Create());
+        var topLevel = TopLevel.GetTopLevel(this);
+        _ = MinecraftLaunchService.LaunchAsync(Instance, topLevel,
+            MinecraftLaunchOptionsFactory.Create(logSession =>
+            {
+                if (topLevel != null)
+                    MinecraftLogPage.Open(logSession, topLevel);
+            }));
     }
 
     private void OnStatisticsChanged(object? sender, EventArgs e)

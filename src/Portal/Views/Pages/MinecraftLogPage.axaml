@@ -1,0 +1,54 @@
+<UserControl
+    x:Class="Portal.Views.Pages.MinecraftLogPage"
+    x:DataType="local:MinecraftLogPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Portal.Views.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    d:DesignHeight="600"
+    d:DesignWidth="1000"
+    mc:Ignorable="d">
+    <Grid Margin="12" RowDefinitions="Auto,*">
+        <DockPanel Margin="0,0,0,10">
+            <CheckBox
+                Content="自动滚动到底部"
+                DockPanel.Dock="Right"
+                IsChecked="True"
+                Name="AutoScrollCheckBox"
+                VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock FontSize="17" FontWeight="SemiBold" Text="Minecraft 日志" VerticalAlignment="Center" />
+                <CheckBox Content="信息" IsChecked="True" Name="InformationFilter" IsCheckedChanged="FilterChanged" />
+                <CheckBox Content="警告" IsChecked="True" Name="WarningFilter" IsCheckedChanged="FilterChanged" />
+                <CheckBox Content="错误" IsChecked="True" Name="ErrorFilter" IsCheckedChanged="FilterChanged" />
+                <CheckBox Content="调试" IsChecked="True" Name="DebugFilter" IsCheckedChanged="FilterChanged" />
+                <CheckBox Content="跟踪" IsChecked="True" Name="TraceFilter" IsCheckedChanged="FilterChanged" />
+                <CheckBox Content="其他" IsChecked="True" Name="OtherFilter" IsCheckedChanged="FilterChanged" />
+            </StackPanel>
+        </DockPanel>
+        <Border
+            Background="{DynamicResource TranslucentBackgroundColor}"
+            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="8"
+            Grid.Row="1">
+            <ListBox
+                Background="Transparent"
+                BorderThickness="0"
+                FontFamily="Consolas, Cascadia Mono, monospace"
+                FontSize="13"
+                ItemsSource="{Binding VisibleEntries}"
+                Name="LogList"
+                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="local:MinecraftLogLine">
+                        <TextBlock Foreground="{Binding Foreground}" Text="{Binding Text}" TextWrapping="NoWrap" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+    </Grid>
+</UserControl>

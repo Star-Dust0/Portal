@@ -23,6 +23,7 @@ public static class MinecraftLaunchService
     {
         var launchCompleted = false;
         MinecraftProcess? process = null;
+        var logSession = new MinecraftLogSession(instance);
         var task = TaskManager.Instance.CreateTask(new TaskOptions
         {
             Name = $"启动 {instance.InstanceName}",
@@ -58,6 +59,17 @@ public static class MinecraftLaunchService
                     },
                     IsVisible = managedTask => launchCompleted && !managedTask.IsTerminal &&
                                                process != null && IsProcessRunning(process)
+                },
+                new TaskActionDefinition
+                {
+                    Name = "查看日志",
+                    Description = "打开本次启动任务的 Minecraft 实时日志。",
+                    ExecuteAsync = (_, _) =>
+                    {
+                        options.OpenLog?.Invoke(logSession);
+                        return Task.CompletedTask;
+                    },
+                    IsVisible = _ => options.OpenLog != null
                 }
             ]
         });
@@ -78,7 +90,7 @@ public static class MinecraftLaunchService
             Name = "启动 Minecraft", Description = "等待启动参数构建完成", Progress = 0
         });
         task.Start();
-        _ = RunWorkflowAsync(instance, topLevel, options, task, verifyAccount, selectJava, buildArguments, startGame,
+        _ = RunWorkflowAsync(instance, topLevel, options, task, verifyAccount, selectJava, buildArguments, startGame, logSession,
             launchedProcess =>
             {
                 process = launchedProcess;
@@ -90,7 +102,7 @@ public static class MinecraftLaunchService
 
     private static async Task RunWorkflowAsync(MinecraftInstance instance, TopLevel? topLevel, MinecraftLaunchOptions options, ManagedTask task,
         ManagedTask verifyAccount, ManagedTask selectJava, ManagedTask buildArguments, ManagedTask startGame,
-        Action<MinecraftProcess> processStarted)
+        MinecraftLogSession logSession, Action<MinecraftProcess> processStarted)
     {
         try
         {
@@ -129,7 +141,7 @@ public static class MinecraftLaunchService
             await buildArguments.Completion;
             ThrowIfFailed(buildArguments);
 
-            startGame.Start(context => StartGameStepAsync(context, instance, config!, topLevel, task, processStarted));
+            startGame.Start(context => StartGameStepAsync(context, instance, config!, topLevel, task, logSession, processStarted));
             await startGame.Completion;
             ThrowIfFailed(startGame);
         }
@@ -155,7 +167,8 @@ public static class MinecraftLaunchService
     }
 
     private static async Task StartGameStepAsync(TaskExecutionContext context, MinecraftInstance instance,
-        LaunchConfig config, TopLevel? topLevel, ManagedTask task, Action<MinecraftProcess> processStarted)
+        LaunchConfig config, TopLevel? topLevel, ManagedTask task, MinecraftLogSession logSession,
+        Action<MinecraftProcess> processStarted)
     {
         context.SetRunning("正在启动 Minecraft 进程");
         var parser = new MinecraftParser(instance.MinecraftEntry!.MinecraftFolderPath);
@@ -163,7 +176,7 @@ public static class MinecraftLaunchService
             .RunAsync(instance.MinecraftEntry, context.CancellationToken);
         if (process == null)
             throw new InvalidOperationException("Minecraft 启动器未返回进程信息。");
-        ObserveProcess(instance, topLevel, process, task, context);
+        ObserveProcess(instance, topLevel, process, task, context, logSession);
         processStarted(process);
         context.ReportProgress(1);
     }
@@ -239,12 +252,20 @@ public static class MinecraftLaunchService
     };
 
     private static void ObserveProcess(MinecraftInstance instance, TopLevel? topLevel, MinecraftProcess process,
-        ManagedTask task, TaskExecutionContext context)
+        ManagedTask task, TaskExecutionContext context, MinecraftLogSession logSession)
     {
         instance.Config.LastPlayTime = DateTime.Now;
         context.SetRunning("启动完成，正在监视 Minecraft 进程");
         instance.IncrementPlaySessions();
         instance.StartPlayTimer();
+        process.Process.OutputDataReceived += (_, data) =>
+        {
+            if (string.IsNullOrEmpty(data.Data))
+                return;
+
+            var entry = new MinecraftLogEntry(data.Data, GetLogLevel(data.Data));
+            logSession.Add(entry);
+        };
         task.AddAction(new TaskActionDefinition
         {
             Name = "复制启动参数",
@@ -286,6 +307,22 @@ public static class MinecraftLaunchService
         }
     }
 
+    private static MinecraftLogLevel GetLogLevel(string line)
+    {
+        if (line.Contains("/FATAL]", StringComparison.OrdinalIgnoreCase) ||
+            line.Contains("/ERROR]", StringComparison.OrdinalIgnoreCase))
+            return MinecraftLogLevel.Error;
+        if (line.Contains("/WARN]", StringComparison.OrdinalIgnoreCase))
+            return MinecraftLogLevel.Warning;
+        if (line.Contains("/DEBUG]", StringComparison.OrdinalIgnoreCase))
+            return MinecraftLogLevel.Debug;
+        if (line.Contains("/TRACE]", StringComparison.OrdinalIgnoreCase))
+            return MinecraftLogLevel.Trace;
+        if (line.Contains("/INFO]", StringComparison.OrdinalIgnoreCase))
+            return MinecraftLogLevel.Information;
+        return MinecraftLogLevel.Other;
+    }
+
     private static void Notice(TopLevel? topLevel, string message, NotificationType type)
     {
         if (topLevel == null)
@@ -301,6 +338,50 @@ public static class MinecraftLaunchService
     };
 }
 
+public enum MinecraftLogLevel
+{
+    Trace,
+    Debug,
+    Information,
+    Warning,
+    Error,
+    Other
+}
+
+public sealed record MinecraftLogEntry(string Text, MinecraftLogLevel Level);
+
+public sealed class MinecraftLogSession
+{
+    private const int MaximumBufferedLogLines = 10_000;
+    private readonly object _syncRoot = new();
+    private readonly Queue<MinecraftLogEntry> _entries = new();
+
+    public MinecraftInstance Instance { get; }
+    public event Action<MinecraftLogEntry>? LogReceived;
+
+    public MinecraftLogSession(MinecraftInstance instance)
+    {
+        Instance = instance;
+    }
+
+    internal void Add(MinecraftLogEntry entry)
+    {
+        lock (_syncRoot)
+        {
+            _entries.Enqueue(entry);
+            if (_entries.Count > MaximumBufferedLogLines)
+                _entries.Dequeue();
+        }
+        LogReceived?.Invoke(entry);
+    }
+
+    public IReadOnlyList<MinecraftLogEntry> GetEntries()
+    {
+        lock (_syncRoot)
+            return _entries.ToArray();
+    }
+}
+
 public sealed class MinecraftLaunchOptions
 {
     public MinecraftAccount? Account { get; init; }
@@ -311,4 +392,5 @@ public sealed class MinecraftLaunchOptions
     public int WindowHeight { get; init; }
     public int MaxMemory { get; init; }
     public Action<MinecraftAccount, MinecraftAccount>? AccountRefreshed { get; init; }
+    public Action<MinecraftLogSession>? OpenLog { get; init; }
 }
