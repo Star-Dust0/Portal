@@ -106,7 +106,7 @@ public partial class Files : UserControl
         }
         else if (tag == "logs")
         {
-            _parent.NavigateTo(null);
+            _parent.NavigateTo(typeof(Logs));
         }
         else if (tag == "config")
         {

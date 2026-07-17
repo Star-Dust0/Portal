@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Xml;
 using Avalonia.Controls;
@@ -142,6 +143,12 @@ public partial class MinecraftLogPage : UserControl, ITioTabPage
     {
         _ = ExportLogAsync();
     }
+    
+    private void SelectAll_OnClick(object? sender, RoutedEventArgs e) => LogEditor.SelectAll();
+
+    private void Copy_OnClick(object? sender, RoutedEventArgs e) => LogEditor.Copy();
+
+    private void Export_OnClick(object? sender, RoutedEventArgs e) => _ = ExportLogAsync();
 
     private async Task ExportLogAsync()
     {

@@ -106,6 +106,25 @@
                         Opacity="0.2"
                         x:Key="TextAreaSelectionBrush" />
                 </avaloniaEdit:TextEditor.Resources>
+                <avaloniaEdit:TextEditor.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuItem
+                            Classes="hide-icon"
+                            Click="SelectAll_OnClick"
+                            Header="全选"
+                            InputGesture="ctrl+a" />
+                        <MenuItem
+                            Classes="hide-icon"
+                            Click="Copy_OnClick"
+                            Header="复制"
+                            InputGesture="ctrl+c" />
+                        <Separator />
+                        <MenuItem
+                            Classes="hide-icon"
+                            Click="Export_OnClick"
+                            Header="导出" />
+                    </MenuFlyout>
+                </avaloniaEdit:TextEditor.ContextFlyout>
             </avaloniaEdit:TextEditor>
         </Border>
     </Grid>

@@ -41,6 +41,10 @@
                     Header="截图" />
                 <tio:NavMenuItem
                     Command="{Binding NavigateTypeCommand}"
+                    CommandParameter="{x:Type instancePages:Logs}"
+                    Header="日志" />
+                <tio:NavMenuItem
+                    Command="{Binding NavigateTypeCommand}"
                     CommandParameter="{x:Type instancePages:ConfigFiles}"
                     Header="配置文件" />
                 <tio:NavMenuItem
