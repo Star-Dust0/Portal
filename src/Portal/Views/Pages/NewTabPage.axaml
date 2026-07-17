@@ -109,6 +109,7 @@
                                     </StackPanel>
                                 </DockPanel>
                                 <HyperlinkButton
+                                    Click="ContinueGame_Click"
                                     Content="继续游戏"
                                     FontSize="13"
                                     HorizontalAlignment="Right"

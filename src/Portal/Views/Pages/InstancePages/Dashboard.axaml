@@ -69,6 +69,7 @@
                             TextTrimming="CharacterEllipsis"
                             TextWrapping="NoWrap" />
                         <Button
+                            Click="LaunchInstance_Click"
                             Content="启动此实例"
                             DockPanel.Dock="Right"
                             HorizontalAlignment="Right"

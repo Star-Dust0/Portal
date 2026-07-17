@@ -11,6 +11,7 @@ using MinecraftLaunch.Base.Models.Game;
 using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Instance;
 using Portal.Core.Minecraft.Instance.Java;
+using Portal.Services;
 using Portal.ViewModels;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Modules.Extensions;
@@ -62,6 +63,11 @@ public partial class Dashboard : DataUserControl
         if (sender is Control control)
             _ = (sender as Control)!.GetTopLevel().Launcher
                 .LaunchDirectoryInfoAsync(new DirectoryInfo(Instance.InstanceFolderPath));
+    }
+
+    private void LaunchInstance_Click(object? sender, RoutedEventArgs e)
+    {
+        _ = MinecraftLaunchService.LaunchAsync(Instance, TopLevel.GetTopLevel(this));
     }
 
     private void OnStatisticsChanged(object? sender, EventArgs e)

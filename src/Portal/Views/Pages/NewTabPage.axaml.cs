@@ -12,6 +12,7 @@ using Portal.Core.Minecraft.Instance;
 using Portal.Core.Operations;
 using Portal.Module.AggregatedSearch;
 using Portal.Module.DefaultPage;
+using Portal.Services;
 using Portal.ViewModels;
 using Tio.Avalonia.Standard.Tab.Entries;
 using Tio.Avalonia.Standard.Tab.Extensions;
@@ -76,6 +77,12 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
         e.Handled = true;
     }
 
+    private void ContinueGame_Click(object? sender, RoutedEventArgs e)
+    {
+        if (NewTabViewModel.RecentInstance != null)
+            _ = MinecraftLaunchService.LaunchAsync(NewTabViewModel.RecentInstance, TopLevel.GetTopLevel(this));
+    }
+
     private void Button_OnClick(object? sender, RoutedEventArgs e)
     {
         if (InstanceManager.Instance.Instances.Count == 0)
@@ -118,7 +125,8 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
                 return;
             }
 
-            // TODO: Handle the result
+            if (feed == "yes")
+                _ = MinecraftLaunchService.LaunchAsync(result, topLevel);
         }
     }
 
