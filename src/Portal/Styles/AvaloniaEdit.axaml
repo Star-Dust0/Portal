@@ -1,0 +1,33 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <ResourceDictionary>
+            <x:Double x:Key="ControlContentThemeFontSize">14</x:Double>
+            <FontFamily x:Key="ContentControlThemeFontFamily">avares://TioUi/Assets#AlimamaFangYuanTi</FontFamily>
+            <Thickness x:Key="ToolTipBorderThemeThickness">1</Thickness>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="ToolTipBackground" Color="#FAFAFA" />
+                    <SolidColorBrush x:Key="ToolTipForeground" Color="#494C4F" />
+                    <SolidColorBrush x:Key="ToolTipBorderBrush" Color="#26000000" />
+                    <Color x:Key="SystemChromeMediumColor">#F2F4F3</Color>
+                    <Color x:Key="SystemBaseLowColor">#26000000</Color>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="ToolTipBackground" Color="#292B2E" />
+                    <SolidColorBrush x:Key="ToolTipForeground" Color="#E6E1CF" />
+                    <SolidColorBrush x:Key="ToolTipBorderBrush" Color="#33FFFFFF" />
+                    <Color x:Key="SystemChromeMediumColor">#292B2E</Color>
+                    <Color x:Key="SystemBaseLowColor">#33FFFFFF</Color>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="ToolTipBackground" Color="#FAFAFA" />
+                    <SolidColorBrush x:Key="ToolTipForeground" Color="#494C4F" />
+                    <SolidColorBrush x:Key="ToolTipBorderBrush" Color="#26000000" />
+                    <Color x:Key="SystemChromeMediumColor">#F2F4F3</Color>
+                    <Color x:Key="SystemBaseLowColor">#26000000</Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+    <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+</Styles>

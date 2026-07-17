@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -59,7 +60,13 @@ public partial class InstanceDetailPage : UserControl, ITioTabPage
 
     public void OnClose()
     {
+        ViewModel.ClosePages();
         ViewModel.Instance.PropertyChanged -= Instance_PropertyChanged;
+    }
+
+    public Task<bool> RequestCloseAsync()
+    {
+        return ViewModel.RequestCloseAsync();
     }
 
     public static void Open(MinecraftInstance instance, TopLevel sender)
@@ -78,7 +85,6 @@ public partial class InstanceDetailPage : UserControl, ITioTabPage
         ViewModel.NavigateType(pageType);
         var navMenu = this.FindControl<NavMenu>("NavMenu");
         var item = navMenu?.Items.OfType<NavMenuItem>()
-            .SelectMany(x => x.Items.OfType<NavMenuItem>())
             .FirstOrDefault(x => x.CommandParameter is Type type && type == pageType);
         if (item != null)
             navMenu!.SelectedItem = item;
@@ -122,5 +128,19 @@ public partial class InstanceDetailPageViewModel : ObservableObject
 
         if (page != null)
             CurrentPage = page;
+    }
+
+    public Task<bool> RequestCloseAsync()
+    {
+        return _pageCache.TryGetValue(typeof(ConfigFiles), out var page) && page is ConfigFiles configFiles
+            ? configFiles.RequestCloseAsync()
+            : Task.FromResult(true);
+    }
+
+    public void ClosePages()
+    {
+        foreach (var page in _pageCache.Values.OfType<IDisposable>())
+            page.Dispose();
+        _pageCache.Clear();
     }
 }

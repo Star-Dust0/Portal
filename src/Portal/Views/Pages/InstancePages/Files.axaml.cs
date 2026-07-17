@@ -110,7 +110,7 @@ public partial class Files : UserControl
         }
         else if (tag == "config")
         {
-            _parent.NavigateTo(null);
+            _parent.NavigateTo(typeof(ConfigFiles));
         }
     }
 }

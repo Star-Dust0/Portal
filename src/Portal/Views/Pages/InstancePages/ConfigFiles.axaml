@@ -1,0 +1,240 @@
+<UserControl
+    d:DesignHeight="600"
+    d:DesignWidth="1000"
+    mc:Ignorable="d"
+    x:Class="Portal.Views.Pages.InstancePages.ConfigFiles"
+    x:DataType="local:ConfigFiles"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+    xmlns:common="clr-namespace:Tio.Avalonia.Standard.Tab.Common;assembly=Tio.Avalonia.Standard.Tab"
+    xmlns:controls="clr-namespace:SmoothScroll.Avalonia.Controls;assembly=SmoothScroll.Avalonia.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Portal.Views.Pages.InstancePages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <common:NavScrollOpacityMaskConverter x:Key="NavScrollOpacityMaskConverter" />
+    </UserControl.Resources>
+    <UserControl.Styles>
+        <Style Selector="ListBox.editor-tabs ListBoxItem">
+            <Setter Property="Background" Value="{DynamicResource TabBackground}" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Margin" Value="5,0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style Selector="ListBox.editor-tabs ListBoxItem:pointerover">
+            <Setter Property="Background" Value="{DynamicResource TabHover}" />
+        </Style>
+        <Style Selector="ListBox.editor-tabs ListBoxItem:selected">
+            <Setter Property="Background" Value="{DynamicResource TabSelected}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid ColumnDefinitions="260,5,*" RowDefinitions="Auto,*">
+        <StackPanel Margin="3,2,12,10">
+            <TextBlock
+                FontSize="16"
+                FontWeight="SemiBold"
+                Text="配置文件"
+                TextWrapping="NoWrap" />
+            <TextBlock
+                FontSize="11"
+                Margin="0,4,0,0"
+                Opacity="0.65"
+                Text="{Binding ConfigPath}"
+                TextTrimming="LeadingCharacterEllipsis"
+                TextWrapping="NoWrap"
+                ToolTip.Tip="{Binding ConfigPath}" />
+        </StackPanel>
+        <GridSplitter
+            Background="{DynamicResource TranslucentBorderBrush}"
+            Grid.Column="1"
+            Grid.RowSpan="2"
+            ResizeBehavior="PreviousAndNext"
+            ResizeDirection="Columns" />
+        <controls:ScrollView
+            Classes="Flat"
+            Grid.Column="0"
+            Grid.Row="1"
+            Margin="0,0,3,10"
+            MinWidth="140">
+            <TreeView
+                ItemsSource="{Binding RootItems}"
+                Margin="0,0,7,0"
+                SelectionChanged="FileTree_OnSelectionChanged">
+                <TreeView.ItemTemplate>
+                    <TreeDataTemplate ItemsSource="{Binding Children}" x:DataType="local:ConfigTreeItem">
+                        <DockPanel Margin="2,3">
+                            <PathIcon
+                                Data="{Binding Icon}"
+                                Height="14"
+                                Margin="0,0,7,0"
+                                Width="14" />
+                            <TextBlock Text="{Binding Name}" TextTrimming="LeadingCharacterEllipsis" />
+                        </DockPanel>
+                    </TreeDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </controls:ScrollView>
+
+        <Grid
+            Grid.Column="2"
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            MinWidth="320"
+            RowDefinitions="Auto,Auto,*">
+            <Border
+                BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                BorderThickness="0,0,0,1"
+                MinHeight="30"
+                Padding="0,0,0,0">
+                <controls:ScrollView
+                    Classes="Flat"
+                    HorizontalScrollBarVisibility="Auto"
+                    Name="EditorTabsScrollViewer"
+                    OpacityMask="{Binding #EditorTabsScrollViewer.Offset, Converter={StaticResource NavScrollOpacityMaskConverter}}"
+                    PointerWheelChanged="EditorTabs_OnPointerWheelChanged"
+                    VerticalScrollBarVisibility="Disabled">
+                    <ListBox
+                        Classes="editor-tabs"
+                        ItemsSource="{Binding Tabs}"
+                        Margin="0,0,0,5"
+                        SelectedItem="{Binding SelectedTab}"
+                        SelectionChanged="EditorTabs_OnSelectionChanged">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="local:ConfigEditorTab">
+                                <DockPanel MinWidth="120">
+                                    <Button
+                                        Click="CloseTab_OnClick"
+                                        DockPanel.Dock="Right"
+                                        Height="28"
+                                        Margin="4,1,6,0"
+                                        MaxHeight="14"
+                                        MaxWidth="16"
+                                        MinHeight="14"
+                                        Tag="{Binding}"
+                                        Theme="{StaticResource TransparentButton}"
+                                        ToolTip.Tip="关闭文件"
+                                        Width="20">
+                                        <PathIcon
+                                            Data="M13.41 12l4.3-4.29a1 1 0 1 0-1.42-1.42L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42l4.3 4.29-4.3 4.29a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l4.29-4.3 4.29 4.3a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42z"
+                                            Height="9"
+                                            Width="9" />
+                                    </Button>
+                                    <TextBlock
+                                        Margin="10,5,8,5"
+                                        Text="{Binding Header}"
+                                        VerticalAlignment="Center" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </controls:ScrollView>
+            </Border>
+
+            <Border
+                BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Grid.Row="1"
+                IsVisible="{Binding HasOpenTabs}"
+                Padding="10,5">
+                <DockPanel>
+                    <CheckBox
+                        Content="自动换行"
+                        DockPanel.Dock="Right"
+                        IsChecked="{Binding IsWordWrap}"
+                        VerticalAlignment="Center" />
+                    <TextBlock
+                        Margin="0,0,16,0"
+                        Opacity="0.65"
+                        Text="{Binding SelectedTab.FilePath}"
+                        TextTrimming="LeadingCharacterEllipsis"
+                        TextWrapping="NoWrap"
+                        ToolTip.Tip="{Binding SelectedTab.FilePath}"
+                        VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
+
+            <Grid Grid.Row="2">
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    IsVisible="{Binding !HasOpenTabs}"
+                    VerticalAlignment="Center">
+                    <TextBlock
+                        FontSize="16"
+                        HorizontalAlignment="Center"
+                        Text="选择左侧文件开始编辑" />
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        Margin="0,6,0,0"
+                        Opacity="0.6"
+                        Text="Ctrl+S 保存当前文件" />
+                </StackPanel>
+                <Border
+                    Background="{DynamicResource PanelBackgroundColor}"
+                    CornerRadius="8"
+                    IsVisible="{Binding HasOpenTabs}"
+                    Margin="0,8,0,10">
+                    <avaloniaEdit:TextEditor
+                        FontFamily="Cascadia Mono,Consolas,Monospace"
+                        FontSize="14"
+                        HorizontalScrollBarVisibility="Auto"
+                        Name="Editor"
+                        ShowLineNumbers="True"
+                        VerticalScrollBarVisibility="Auto"
+                        WordWrap="{Binding IsWordWrap}">
+                        <avaloniaEdit:TextEditor.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem
+                                    Click="Undo_OnClick"
+                                    Header="撤销"
+                                    InputGesture="Ctrl+Z" />
+                                <MenuItem
+                                    Click="Redo_OnClick"
+                                    Header="重做"
+                                    InputGesture="Ctrl+Y" />
+                                <Separator />
+                                <MenuItem
+                                    Click="Cut_OnClick"
+                                    Header="剪切"
+                                    InputGesture="Ctrl+X" />
+                                <MenuItem
+                                    Click="Copy_OnClick"
+                                    Header="复制"
+                                    InputGesture="Ctrl+C" />
+                                <MenuItem
+                                    Click="Paste_OnClick"
+                                    Header="粘贴"
+                                    InputGesture="Ctrl+V" />
+                                <MenuItem
+                                    Click="SelectAll_OnClick"
+                                    Header="全选"
+                                    InputGesture="Ctrl+A" />
+                                <Separator />
+                                <MenuItem
+                                    Click="Save_OnClick"
+                                    Header="保存"
+                                    InputGesture="Ctrl+S" />
+                                <MenuItem
+                                    Click="Format_OnClick"
+                                    Header="格式化"
+                                    InputGesture="Shift+Alt+F" />
+                            </ContextMenu>
+                        </avaloniaEdit:TextEditor.ContextMenu>
+                        <avaloniaEdit:TextEditor.Resources>
+                            <SolidColorBrush
+                                Color="{DynamicResource SystemAccentColor}"
+                                Opacity="0.2"
+                                x:Key="TextAreaSelectionBrush" />
+                        </avaloniaEdit:TextEditor.Resources>
+                    </avaloniaEdit:TextEditor>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>
