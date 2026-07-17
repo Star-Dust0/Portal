@@ -1,5 +1,7 @@
 using System.IO;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
 using Avalonia.Threading;
 using MinecraftLaunch.Base.Models.Authentication;
@@ -14,6 +16,7 @@ using Tio.Avalonia.Standard.Modules.Tasks;
 using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common;
 using Avalonia.Controls.Notifications;
+using Tio.Avalonia.Standard.Standard.Ui;
 
 namespace Portal.Core.Minecraft;
 
@@ -21,6 +24,7 @@ public static class MinecraftLaunchService
 {
     public static Task LaunchAsync(MinecraftInstance instance, TopLevel? topLevel, MinecraftLaunchOptions options)
     {
+        topLevel?.Notice($"启动 {instance.InstanceName}");
         var launchCompleted = false;
         MinecraftProcess? process = null;
         var logSession = new MinecraftLogSession(instance);

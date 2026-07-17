@@ -1,11 +1,20 @@
-using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Xml;
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using AvaloniaEdit.Document;
+using AvaloniaEdit.Highlighting;
+using AvaloniaEdit.Highlighting.Xshd;
+using Portal.Const;
 using Portal.Core.Minecraft;
 using Portal.Core.Minecraft.Classes;
 using Tio.Avalonia.Standard.Tab.Entries;
+using Tio.Avalonia.Standard.Tab.Gateway;
 using Tio.Avalonia.Standard.Tab.Interface;
 
 namespace Portal.Views.Pages;
@@ -15,29 +24,33 @@ public partial class MinecraftLogPage : UserControl, ITioTabPage
     private const int MaximumVisibleLogLines = 10_000;
     private readonly MinecraftLogSession? _logSession;
     private readonly List<MinecraftLogEntry> _entries = [];
-
-    public ObservableCollection<MinecraftLogLine> VisibleEntries { get; } = [];
+    private readonly IHighlightingDefinition _highlighting;
 
     public MinecraftLogPage(MinecraftLogSession logSession)
     {
         _logSession = logSession;
+        _highlighting = LoadHighlighting();
         InitializeComponent();
         DataContext = this;
+        ConfigureEditor();
         _entries.AddRange(logSession.GetEntries());
         RefreshVisibleEntries();
         logSession.LogReceived += OnLogReceived;
+        LogEditor.Options.AllowScrollBelowDocument = false;
     }
 
     public MinecraftLogPage()
     {
+        _highlighting = LoadHighlighting();
         InitializeComponent();
         DataContext = this;
+        ConfigureEditor();
     }
 
     public PageInfo PageInfo { get; init; } = new()
     {
         Title = "Minecraft 日志",
-        Icon = StreamGeometry.Parse("M128,64L512,64C547.3,64,576,92.7,576,128L576,512C576,547.3,547.3,576,512,576L128,576C92.7,576,64,547.3,64,512L64,128C64,92.7,92.7,64,128,64z M160,176L160,240L480,240L480,176L160,176z M160,304L160,368L416,368L416,304L160,304z M160,432L160,496L352,496L352,432L160,432z")
+        Icon = StreamGeometry.Parse("F1 M640,640z M0,0z M128,128C128,92.7,156.7,64,192,64L341.5,64C358.5,64,374.8,70.7,386.8,82.7L493.3,189.3C505.3,201.3,512,217.6,512,234.6L512,512C512,547.3,483.3,576,448,576L192,576C156.7,576,128,547.3,128,512L128,416 188.3,416 237.1,478.7C242.2,485.3 250.4,488.7 258.7,487.8 267,486.9 274.2,481.7 277.8,474.2L320.7,383 330.6,402.8C334.7,410.9,343,416.1,352.1,416.1L424.1,416.1C437.4,416.1 448.1,405.4 448.1,392.1 448.1,378.8 437.4,368.1 424.1,368.1L366.9,368.1 341.5,317.4C337.4,309.2 328.9,304 319.7,304.1 310.5,304.2 302.2,309.6 298.3,317.9L251,418.5 219,377.4C214.4,371.4,207.4,368,200,368L128,368 128,128z M336,122.5L336,216C336,229.3,346.7,240,360,240L453.5,240 336,122.5z")
     };
 
     public TabEntry HostTab { get; set; } = null!;
@@ -52,8 +65,16 @@ public partial class MinecraftLogPage : UserControl, ITioTabPage
 
     public static void Open(MinecraftLogSession logSession, TopLevel sender)
     {
-        if (sender is not TioTabWindowBase window)
-            return;
+        TioTabWindowBase window;
+        if (sender is not TioTabWindowBase window1)
+        {
+            window = UiProperty.ActiveWindow as TioTabWindowBase ?? UiProperty.TabWindow;
+        }
+        else
+        {
+            window = window1;
+        }
+        if(window is null) return;
 
         var tab = new TabEntry(window, new MinecraftLogPage(logSession)) { Title = $"{logSession.Instance.InstanceName} 日志" };
         window.CreateTab(tab);
@@ -68,11 +89,7 @@ public partial class MinecraftLogPage : UserControl, ITioTabPage
             if (_entries.Count > MaximumVisibleLogLines)
                 _entries.RemoveAt(0);
             if (IsLogLevelEnabled(entry.Level))
-            {
-                VisibleEntries.Add(new MinecraftLogLine(entry));
-                if (VisibleEntries.Count > MaximumVisibleLogLines)
-                    VisibleEntries.RemoveAt(0);
-            }
+                LogEditor.Document.Insert(LogEditor.Document.TextLength, entry.Text + Environment.NewLine);
             ScrollToLatest();
         });
     }
@@ -88,9 +105,8 @@ public partial class MinecraftLogPage : UserControl, ITioTabPage
 
     private void RefreshVisibleEntries()
     {
-        VisibleEntries.Clear();
-        foreach (var entry in _entries.Where(entry => IsLogLevelEnabled(entry.Level)))
-            VisibleEntries.Add(new MinecraftLogLine(entry));
+        LogEditor.Document.Text = string.Join(Environment.NewLine,
+            _entries.Where(entry => IsLogLevelEnabled(entry.Level)).Select(entry => entry.Text));
     }
 
     private bool IsLogLevelEnabled(MinecraftLogLevel level) => level switch
@@ -105,21 +121,71 @@ public partial class MinecraftLogPage : UserControl, ITioTabPage
 
     private void ScrollToLatest()
     {
-        if (AutoScrollCheckBox?.IsChecked == true && VisibleEntries.Count > 0)
-            LogList.ScrollIntoView(VisibleEntries[^1]);
+        if (AutoScrollCheckBox?.IsChecked == true && LogEditor.Document.TextLength > 0)
+            LogEditor.ScrollToEnd();
     }
-}
 
-public sealed class MinecraftLogLine(MinecraftLogEntry entry)
-{
-    public string Text { get; } = entry.Text;
-    public IBrush Foreground { get; } = entry.Level switch
+    private void ConfigureEditor()
     {
-        MinecraftLogLevel.Error => Brushes.IndianRed,
-        MinecraftLogLevel.Warning => Brushes.Goldenrod,
-        MinecraftLogLevel.Debug => Brushes.MediumPurple,
-        MinecraftLogLevel.Trace => Brushes.SlateGray,
-        MinecraftLogLevel.Information => Brushes.DodgerBlue,
-        _ => Brushes.Gray
-    };
+        LogEditor.Document = new TextDocument();
+        LogEditor.SyntaxHighlighting = _highlighting;
+    }
+
+    private static IHighlightingDefinition LoadHighlighting()
+    {
+        using var stream = Avalonia.Platform.AssetLoader.Open(new Uri("avares://Portal/Assets/Highlighting/MinecraftLog.xshd"));
+        using var reader = XmlReader.Create(stream);
+        return HighlightingLoader.Load(reader, HighlightingManager.Instance);
+    }
+
+    private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        _ = ExportLogAsync();
+    }
+
+    private async Task ExportLogAsync()
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null)
+            return;
+
+        var logContent = LogEditor.Document.Text;
+        if (string.IsNullOrWhiteSpace(logContent))
+        {
+            NotificationGateway.Notice(topLevel, "没有可导出的日志", NotificationType.Warning);
+            return;
+        }
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "导出 Minecraft 日志",
+            DefaultExtension = "log",
+            SuggestedFileName = $"{GetSuggestedFileName()}-{DateTime.Now:yyyyMMdd-HHmmss}",
+            FileTypeChoices = [new FilePickerFileType("日志文件") { Patterns = ["*.log"] }]
+        });
+        if (file == null)
+            return;
+
+        try
+        {
+            await using var stream = await file.OpenWriteAsync();
+            await using var writer = new StreamWriter(stream);
+            await writer.WriteAsync(logContent);
+            NotificationGateway.Notice(topLevel, "日志已导出", NotificationType.Success);
+        }
+        catch (Exception ex)
+        {
+            NotificationGateway.Notice(topLevel, $"导出失败：{ex.Message}", NotificationType.Error);
+        }
+    }
+
+    private string GetSuggestedFileName()
+    {
+        var instanceName = _logSession?.Instance.InstanceName;
+        if (string.IsNullOrWhiteSpace(instanceName))
+            return "Minecraft日志";
+
+        return string.Concat(instanceName.Select(character =>
+            Path.GetInvalidFileNameChars().Contains(character) ? '_' : character));
+    }
 }

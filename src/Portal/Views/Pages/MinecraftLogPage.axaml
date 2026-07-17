@@ -1,54 +1,112 @@
 <UserControl
+    d:DesignHeight="600"
+    d:DesignWidth="1000"
+    mc:Ignorable="d"
     x:Class="Portal.Views.Pages.MinecraftLogPage"
     x:DataType="local:MinecraftLogPage"
     xmlns="https://github.com/avaloniaui"
+    xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Portal.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    d:DesignHeight="600"
-    d:DesignWidth="1000"
-    mc:Ignorable="d">
-    <Grid Margin="12" RowDefinitions="Auto,*">
-        <DockPanel Margin="0,0,0,10">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="12" RowDefinitions="Auto,Auto,*">
+        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+            <TextBlock
+                FontSize="17"
+                FontWeight="SemiBold"
+                Text="Minecraft 日志"
+                VerticalAlignment="Center" />
             <CheckBox
                 Content="自动滚动到底部"
-                DockPanel.Dock="Right"
+                Grid.Column="1"
                 IsChecked="True"
                 Name="AutoScrollCheckBox"
                 VerticalAlignment="Center" />
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBlock FontSize="17" FontWeight="SemiBold" Text="Minecraft 日志" VerticalAlignment="Center" />
-                <CheckBox Content="信息" IsChecked="True" Name="InformationFilter" IsCheckedChanged="FilterChanged" />
-                <CheckBox Content="警告" IsChecked="True" Name="WarningFilter" IsCheckedChanged="FilterChanged" />
-                <CheckBox Content="错误" IsChecked="True" Name="ErrorFilter" IsCheckedChanged="FilterChanged" />
-                <CheckBox Content="调试" IsChecked="True" Name="DebugFilter" IsCheckedChanged="FilterChanged" />
-                <CheckBox Content="跟踪" IsChecked="True" Name="TraceFilter" IsCheckedChanged="FilterChanged" />
-                <CheckBox Content="其他" IsChecked="True" Name="OtherFilter" IsCheckedChanged="FilterChanged" />
-            </StackPanel>
-        </DockPanel>
+        </Grid>
         <Border
             Background="{DynamicResource TranslucentBackgroundColor}"
             BorderBrush="{DynamicResource TranslucentBorderBrush}"
             BorderThickness="1"
             CornerRadius="8"
-            Padding="8"
-            Grid.Row="1">
-            <ListBox
+            Grid.Row="1"
+            Padding="10,8">
+            <DockPanel>
+                <WrapPanel
+                    DockPanel.Dock="Left"
+                    ItemSpacing="14"
+                    LineSpacing="8">
+                    <TextBlock
+                        Foreground="{DynamicResource InnerForegroundColor}"
+                        Text="显示级别"
+                        VerticalAlignment="Center" />
+                    <CheckBox
+                        Content="信息"
+                        IsChecked="True"
+                        IsCheckedChanged="FilterChanged"
+                        Name="InformationFilter" />
+                    <CheckBox
+                        Content="警告"
+                        IsChecked="True"
+                        IsCheckedChanged="FilterChanged"
+                        Name="WarningFilter" />
+                    <CheckBox
+                        Content="错误"
+                        IsChecked="True"
+                        IsCheckedChanged="FilterChanged"
+                        Name="ErrorFilter" />
+                    <CheckBox
+                        Content="调试"
+                        IsChecked="True"
+                        IsCheckedChanged="FilterChanged"
+                        Name="DebugFilter" />
+                    <CheckBox
+                        Content="跟踪"
+                        IsChecked="True"
+                        IsCheckedChanged="FilterChanged"
+                        Name="TraceFilter" />
+                    <CheckBox
+                        Content="其他"
+                        IsChecked="True"
+                        IsCheckedChanged="FilterChanged"
+                        Name="OtherFilter" />
+                </WrapPanel>
+                <TextBlock
+                    Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    Foreground="{DynamicResource SystemAccentColor}"
+                    HorizontalAlignment="Right"
+                    PointerPressed="InputElement_OnPointerPressed"
+                    Text="导出"
+                    VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
+        <Border
+            Background="{DynamicResource TranslucentBackgroundColor}"
+            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Grid.Row="2"
+            Margin="0,10,0,0"
+            Padding="8">
+            <avaloniaEdit:TextEditor
                 Background="Transparent"
-                BorderThickness="0"
-                FontFamily="Consolas, Cascadia Mono, monospace"
+                CaretOffset=""
                 FontSize="13"
-                ItemsSource="{Binding VisibleEntries}"
-                Name="LogList"
-                ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <ListBox.ItemTemplate>
-                    <DataTemplate x:DataType="local:MinecraftLogLine">
-                        <TextBlock Foreground="{Binding Foreground}" Text="{Binding Text}" TextWrapping="NoWrap" />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                HorizontalScrollBarVisibility="Disabled"
+                IsReadOnly="True"
+                LineNumbersForeground="{DynamicResource ForegroundColor}"
+                Name="LogEditor"
+                ShowLineNumbers="True"
+                VerticalScrollBarVisibility="Auto"
+                WordWrap="True">
+                <avaloniaEdit:TextEditor.Resources>
+                    <SolidColorBrush
+                        Color="{DynamicResource SystemAccentColor}"
+                        Opacity="0.2"
+                        x:Key="TextAreaSelectionBrush" />
+                </avaloniaEdit:TextEditor.Resources>
+            </avaloniaEdit:TextEditor>
         </Border>
     </Grid>
 </UserControl>

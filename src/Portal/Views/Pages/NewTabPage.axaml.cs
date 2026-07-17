@@ -37,10 +37,7 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
         InitializeComponent();
         NewTabViewModel = new NewTabViewModel();
         DataContext = NewTabViewModel;
-        Loaded += (_, _) =>
-        {
-            NewTabViewModel.ApplyFilterAndSort();
-        };
+        Loaded += (_, _) => { NewTabViewModel.ApplyFilterAndSort(); };
         InstanceManager.Instance.StatisticsChanged += OnStatisticsChanged;
         Unloaded += (_, _) => InstanceManager.Instance.StatisticsChanged -= OnStatisticsChanged;
     }
@@ -83,7 +80,11 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
     private void ContinueGame_Click(object? sender, RoutedEventArgs e)
     {
         if (NewTabViewModel.RecentInstance != null)
-            _ = MinecraftLaunchService.LaunchAsync(NewTabViewModel.RecentInstance, TopLevel.GetTopLevel(this), MinecraftLaunchOptionsFactory.Create());
+            _ = MinecraftLaunchService.LaunchAsync(NewTabViewModel.RecentInstance, TopLevel.GetTopLevel(this),
+                MinecraftLaunchOptionsFactory.Create(logSession =>
+                {
+                    MinecraftLogPage.Open(logSession, this.GetTopLevel());
+                }));
     }
 
     private void Button_OnClick(object? sender, RoutedEventArgs e)
@@ -129,7 +130,11 @@ public partial class NewTabPage : DataUserControl, ITioTabPage
             }
 
             if (feed == "yes")
-                _ = MinecraftLaunchService.LaunchAsync(result, topLevel, MinecraftLaunchOptionsFactory.Create());
+                _ = MinecraftLaunchService.LaunchAsync(result, topLevel,
+                    MinecraftLaunchOptionsFactory.Create(logSession =>
+                    {
+                        MinecraftLogPage.Open(logSession, this.GetTopLevel());
+                    }));
         }
     }
 
@@ -170,7 +175,7 @@ public partial class NewTabViewModel : InstanceListViewModelBase
     }
 
     public NewsPage NewsPage { get; } = new(true);
-    
+
     [RelayCommand]
     public void ToggleFavorite(MinecraftInstance instance)
     {

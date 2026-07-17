@@ -224,6 +224,7 @@
                     <avaloniaEdit:TextEditor
                         FontSize="14"
                         HorizontalScrollBarVisibility="Auto"
+                        LineNumbersForeground="{DynamicResource ForegroundColor}"
                         Name="Editor"
                         ShowLineNumbers="True"
                         VerticalScrollBarVisibility="Auto"
