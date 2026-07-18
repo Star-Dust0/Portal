@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -18,7 +17,7 @@
         <Authors>github.com/tiouoo/Portal</Authors>
         <ApplicationIcon>Icon-Pattern.ico</ApplicationIcon>
         <Title>Portal</Title>
-        
+
         <CFBundleName>Portal</CFBundleName>
         <CFBundleDisplayName>Portal</CFBundleDisplayName>
         <CFBundleIdentifier>xyz.tiouoo.portal</CFBundleIdentifier>
@@ -49,21 +48,18 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Portal\Portal.csproj"/>
-        <ProjectReference Include="..\Portal.Bedrock.Windows\Portal.Bedrock.Windows.csproj"/>
-    </ItemGroup>
-
-    <PropertyGroup>
-        <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <AvaloniaResource Include="Icon-Pattern.ico" />
-      <AvaloniaResource Include="Icon-Pattern.svg" />
-      <AvaloniaResource Include="Icon-Pattern-Shadow.png" />
+        <ProjectReference Condition="$(RuntimeIdentifier.Contains('win'))"
+                          Include="..\Portal.Bedrock.Windows\Portal.Bedrock.Windows.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Icon-Pattern-Shadow-Border.icns" />
-      <AvaloniaResource Include="Icon-Pattern-Shadow-Border.icns" />
+        <AvaloniaResource Include="Icon-Pattern.ico"/>
+        <AvaloniaResource Include="Icon-Pattern.svg"/>
+        <AvaloniaResource Include="Icon-Pattern-Shadow.png"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Icon-Pattern-Shadow-Border.icns"/>
+        <AvaloniaResource Include="Icon-Pattern-Shadow-Border.icns"/>
     </ItemGroup>
 </Project>
