@@ -18,36 +18,48 @@
             DockPanel.Dock="Left"
             Margin="7,0,00,10"
             Width="140">
-            <tio:NavMenu
-                Margin="0,0,10,0"
-                Name="NavMenu"
-                Theme="{StaticResource FlatScrollBarTheme}">
+                <tio:NavMenu
+                    Margin="0,0,10,0"
+                    Name="NavMenu"
+                    Theme="{StaticResource FlatScrollBarTheme}">
                 <tio:NavMenuItem
                     Command="{Binding NavigateTypeCommand}"
                     CommandParameter="{x:Type instancePages:Dashboard}"
                     Header="仪表盘"
                     IsSelected="True" />
-                <tio:NavMenuItem
-                    Command="{Binding NavigateTypeCommand}"
-                    CommandParameter="{x:Type instancePages:Files}"
-                    Header="存储" />
-                <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="模组" />
-                <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="资源包" />
-                <tio:NavMenuItem Command="{Binding NavigateTypeCommand}" Header="光影包" />
-                <tio:NavMenuItem
-                    Command="{Binding NavigateTypeCommand}"
+                    <tio:NavMenuItem IsVisible="{Binding IsJava}" Command="{Binding NavigateTypeCommand}" Header="模组" />
+                    <tio:NavMenuItem IsVisible="{Binding IsJava}" Command="{Binding NavigateTypeCommand}" Header="资源包" />
+                    <tio:NavMenuItem IsVisible="{Binding IsJava}" Command="{Binding NavigateTypeCommand}" Header="光影包" />
+                    <tio:NavMenuItem IsVisible="{Binding IsJava}"
+                        Command="{Binding NavigateTypeCommand}"
                     CommandParameter="{x:Type instancePages:Saves}"
                     Header="存档" />
-                <tio:NavMenuItem
-                    Command="{Binding NavigateTypeCommand}"
+                    <tio:NavMenuItem IsVisible="{Binding IsJava}"
+                        Command="{Binding NavigateTypeCommand}"
                     CommandParameter="{x:Type instancePages:Screenshots}"
                     Header="截图" />
-                <tio:NavMenuItem
-                    Command="{Binding NavigateTypeCommand}"
+                    <tio:NavMenuItem IsVisible="{Binding IsJava}"
+                        Command="{Binding NavigateTypeCommand}"
                     CommandParameter="{x:Type instancePages:Logs}"
                     Header="日志" />
-                <tio:NavMenuItem
-                    Command="{Binding NavigateTypeCommand}"
+                    <tio:NavMenuItem IsVisible="{Binding IsBedrock}"
+                        Command="{Binding NavigateTypeCommand}"
+                        CommandParameter="{x:Type instancePages:BedrockFolders}"
+                        Header="资源与行为包" />
+                    <tio:NavMenuItem IsVisible="{Binding IsBedrock}"
+                        Command="{Binding NavigateTypeCommand}"
+                        CommandParameter="{x:Type instancePages:BedrockWorlds}"
+                        Header="世界与模板" />
+                    <tio:NavMenuItem IsVisible="{Binding IsBedrock}"
+                        Command="{Binding NavigateTypeCommand}"
+                        CommandParameter="{x:Type instancePages:BedrockSkins}"
+                        Header="皮肤包" />
+                    <tio:NavMenuItem IsVisible="{Binding IsBedrock}"
+                        Command="{Binding NavigateTypeCommand}"
+                        CommandParameter="{x:Type instancePages:Screenshots}"
+                        Header="截图" />
+                    <tio:NavMenuItem IsVisible="{Binding IsJava}"
+                        Command="{Binding NavigateTypeCommand}"
                     CommandParameter="{x:Type instancePages:ConfigFiles}"
                     Header="配置文件" />
                 <tio:NavMenuItem

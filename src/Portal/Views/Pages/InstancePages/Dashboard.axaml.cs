@@ -226,5 +226,17 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
         {
             _parent.NavigateTo(typeof(Saves));
         }
+        else if (tag == "bedrock-packs")
+        {
+            _parent.NavigateTo(typeof(BedrockFolders));
+        }
+        else if (tag == "bedrock-worlds")
+        {
+            _parent.NavigateTo(typeof(BedrockWorlds));
+        }
+        else if (tag == "bedrock-screenshots")
+        {
+            _parent.NavigateTo(typeof(Screenshots));
+        }
     }
 }

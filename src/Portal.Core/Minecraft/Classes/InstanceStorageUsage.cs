@@ -25,7 +25,7 @@ public partial class InstanceStorageUsage : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ResourcePacksSizeText), nameof(ResourcePacksPercentageText),
-        nameof(ResourcePacksDisplayText))]
+        nameof(ResourcePacksDisplayText), nameof(ResourceContentSizeText))]
     private long _resourcePacksBytes;
 
     [ObservableProperty]
@@ -49,6 +49,12 @@ public partial class InstanceStorageUsage : ObservableObject
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(OtherSizeText), nameof(OtherPercentageText))]
     private long _otherBytes;
 
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(WorldsSizeText))] private long _worldsBytes;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(BehaviorPacksSizeText), nameof(ResourceContentSizeText))] private long _behaviorPacksBytes;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(SkinPacksSizeText), nameof(ResourceContentSizeText))] private long _skinPacksBytes;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(WorldTemplatesSizeText))] private long _worldTemplatesBytes;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(DevelopmentPacksSizeText), nameof(ResourceContentSizeText))] private long _developmentPacksBytes;
+
     public bool CanDisplayPercentage => _instance.Config.EnableIndependentInstance;
     public string VersionFolderSizeText => FormatSize(VersionFolderBytes);
     public string ModsSizeText => FormatSize(ModsBytes);
@@ -59,6 +65,12 @@ public partial class InstanceStorageUsage : ObservableObject
     public string ConfigSizeText => FormatSize(ConfigBytes);
     public string LogsSizeText => FormatSize(LogsBytes);
     public string OtherSizeText => FormatSize(OtherBytes);
+    public string WorldsSizeText => FormatSize(WorldsBytes);
+    public string BehaviorPacksSizeText => FormatSize(BehaviorPacksBytes);
+    public string SkinPacksSizeText => FormatSize(SkinPacksBytes);
+    public string WorldTemplatesSizeText => FormatSize(WorldTemplatesBytes);
+    public string DevelopmentPacksSizeText => FormatSize(DevelopmentPacksBytes);
+    public string ResourceContentSizeText => FormatSize(ResourcePacksBytes + BehaviorPacksBytes + SkinPacksBytes);
     public string ModsPercentageText => FormatPercentage(ModsBytes);
     public string ResourcePacksPercentageText => FormatPercentage(ResourcePacksBytes);
     public string ShaderPacksPercentageText => FormatPercentage(ShaderPacksBytes);
@@ -100,6 +112,33 @@ public partial class InstanceStorageUsage : ObservableObject
 
     private async Task LoadAsync()
     {
+        if (_instance.IsBedrock)
+        {
+            var bedrockUsage = await Task.Run(() =>
+            {
+                var instanceBytes = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.InstanceFolder));
+                var worlds = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.SavesFolder));
+                var resources = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.ResourcePacksFolder));
+                var behaviors = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.BehaviorPacksFolder));
+                var skins = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.SkinPacksFolder));
+                var templates = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.WorldTemplatesFolder));
+                var development = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.DevelopmentResourcePacksFolder)) +
+                                  GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.DevelopmentBehaviorPacksFolder));
+                var screenshots = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.ScreenshotsFolder));
+                return (instanceBytes, worlds, resources, behaviors, skins, templates, development, screenshots);
+            });
+
+            VersionFolderBytes = bedrockUsage.instanceBytes;
+            WorldsBytes = bedrockUsage.worlds;
+            ResourcePacksBytes = bedrockUsage.resources;
+            BehaviorPacksBytes = bedrockUsage.behaviors;
+            SkinPacksBytes = bedrockUsage.skins;
+            WorldTemplatesBytes = bedrockUsage.templates;
+            DevelopmentPacksBytes = bedrockUsage.development;
+            ScreenshotsBytes = bedrockUsage.screenshots;
+            return;
+        }
+
         var usage = await Task.Run(() =>
         {
             var versionBytes = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.InstanceFolder));

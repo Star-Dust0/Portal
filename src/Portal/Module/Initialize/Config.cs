@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Portal.Classes.Entries;
 using Portal.Const;
 using Portal.Core.Minecraft.Instance;
+using Portal.Core.Minecraft.Instance.Bedrock;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Modules.Events;
 using Tio.Avalonia.Standard.Modules.Extensions;
@@ -21,6 +22,7 @@ public class Config
     {
         Helper.TryCreateFolder(ConfigPath.UserDataRootPath);
         Helper.TryCreateFolder(ConfigPath.TempFolderPath);
+        BedrockDataPathResolver.EnsurePortalDataDirectories();
 
         if (!File.Exists(ConfigPath.SettingDataPath))
             File.WriteAllText(ConfigPath.SettingDataPath, new ConfigEntry().AsJson());

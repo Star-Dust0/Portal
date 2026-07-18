@@ -44,7 +44,7 @@ public partial class Screenshots : UserControl, INotifyPropertyChanged
     public bool IsEmpty => !IsLoading && ScreenshotItems.Count == 0;
     public string ScreenshotCountText => IsLoading ? string.Empty : $"{ScreenshotItems.Count} 张";
 
-    private readonly string? _screenshotsPath;
+    private MinecraftInstance? _instance;
     private bool _hasLoaded;
 
     public Screenshots()
@@ -56,13 +56,29 @@ public partial class Screenshots : UserControl, INotifyPropertyChanged
 
     public Screenshots(MinecraftInstance instance) : this()
     {
-        _screenshotsPath = instance.GetSpecialFolder(MinecraftSpecialFolder.ScreenshotsFolder);
+        _instance = instance;
+        instance.PropertyChanged += Instance_PropertyChanged;
+        _ = instance.StorageUsage.EnsureLoadedAsync();
         AttachedToVisualTree += async (_, _) => await LoadAsync();
+        DetachedFromVisualTree += (_, _) => instance.PropertyChanged -= Instance_PropertyChanged;
+    }
+
+    private string? ScreenshotsPath => _instance?.GetSpecialFolder(MinecraftSpecialFolder.ScreenshotsFolder);
+
+    private void Instance_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(MinecraftInstance.EnableIndependentBedrockVersion) or
+            nameof(MinecraftInstance.ShareBedrockDataWithOtherLaunchers))
+        {
+            _hasLoaded = false;
+            _ = LoadAsync();
+        }
     }
 
     private async Task LoadAsync()
     {
-        if (_hasLoaded || string.IsNullOrEmpty(_screenshotsPath))
+        var screenshotsPath = ScreenshotsPath;
+        if (_hasLoaded || string.IsNullOrEmpty(screenshotsPath))
             return;
         
         ScreenshotItems.Clear();
@@ -74,10 +90,10 @@ public partial class Screenshots : UserControl, INotifyPropertyChanged
 
         var files = await Task.Run(() =>
         {
-            if (!Directory.Exists(_screenshotsPath))
+            if (!Directory.Exists(screenshotsPath))
                 return [];
 
-            return Directory.EnumerateFiles(_screenshotsPath)
+            return Directory.EnumerateFiles(screenshotsPath)
                 .Where(path => ScreenshotItem.IsSupported(path))
                 .Select(path => new FileInfo(path))
                 .OrderByDescending(file => file.LastWriteTimeUtc)
@@ -150,8 +166,9 @@ public partial class Screenshots : UserControl, INotifyPropertyChanged
 
     private async void OpenFolder_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(_screenshotsPath))
-            await TopLevel.GetTopLevel(this).Launcher.LaunchDirectoryInfoAsync(new DirectoryInfo(_screenshotsPath));
+        var screenshotsPath = ScreenshotsPath;
+        if (!string.IsNullOrEmpty(screenshotsPath))
+            await TopLevel.GetTopLevel(this).Launcher.LaunchDirectoryInfoAsync(new DirectoryInfo(screenshotsPath));
     }
 
     private async void DeleteScreenshot_OnClick(object? sender, RoutedEventArgs e)

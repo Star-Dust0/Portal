@@ -98,6 +98,9 @@ public partial class InstanceDetailPageViewModel : ObservableObject
 
     [ObservableProperty] public partial UserControl? CurrentPage { get; set; }
 
+    public bool IsJava => Instance.IsJava;
+    public bool IsBedrock => Instance.IsBedrock;
+
     private readonly Dictionary<Type, UserControl> _pageCache = new();
 
     public InstanceDetailPageViewModel(MinecraftInstance instance, InstanceDetailPage parent)

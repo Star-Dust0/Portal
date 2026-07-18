@@ -67,6 +67,13 @@ public class BedrockHelper
         return result;
     }
 
+    public static void SaveInstanceConfig(BedrockInstanceConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        var configFile = Path.Combine(config.InstancePath, ConfigFolder, "config.json");
+        new ConfigEntity<BedrockInstanceConfig>(configFile) { Data = config }.Save();
+    }
+
     public static BedrockInstanceReleaseType GetVersionTypeWithPackName(string packName)
     {
         if (string.IsNullOrEmpty(packName)) return BedrockInstanceReleaseType.Release;

@@ -60,6 +60,33 @@ public class MinecraftInstance : ObservableObject
         }
     }
 
+    public bool IsJava => Type == MinecraftInstanceType.Java;
+    public bool IsBedrock => Type == MinecraftInstanceType.Bedrock;
+
+    public bool EnableIndependentBedrockVersion
+    {
+        get => BedrockConfig?.EnableIndependentInstance ?? false;
+        set => UpdateBedrockDataSetting(nameof(EnableIndependentBedrockVersion), config =>
+            config.EnableIndependentInstance = value);
+    }
+
+    public bool ShareBedrockDataWithOtherLaunchers
+    {
+        get => BedrockConfig?.ShareDataWithOtherLaunchers ?? false;
+        set => UpdateBedrockDataSetting(nameof(ShareBedrockDataWithOtherLaunchers), config =>
+            config.ShareDataWithOtherLaunchers = value);
+    }
+
+    public bool UsesSharedBedrockData => Type == MinecraftInstanceType.Bedrock &&
+                                         BedrockConfig?.EnableIndependentInstance == true &&
+                                         BedrockConfig.ShareDataWithOtherLaunchers;
+
+    public string BedrockDataScope => EnableIndependentBedrockVersion
+        ? (UsesSharedBedrockData
+            ? "独立数据(启动器间共享)"
+            : "独立数据")
+        : "共享数据";
+
     public string InstanceName
     {
         get
@@ -104,8 +131,7 @@ public class MinecraftInstance : ObservableObject
 
     public MinecraftInstanceConfig Config => field ??= GetInstanceConfig();
 
-    [JsonIgnore]
-    public InstanceStorageUsage StorageUsage => field ??= new InstanceStorageUsage(this);
+    [JsonIgnore] public InstanceStorageUsage StorageUsage => field ??= new InstanceStorageUsage(this);
 
     public Bitmap Icon => _icon ??= GetInstanceIcon(48);
     private Bitmap? _icon;
@@ -265,6 +291,20 @@ public class MinecraftInstance : ObservableObject
         };
     }
 
+    private void UpdateBedrockDataSetting(string propertyName, Action<BedrockInstanceConfig> update)
+    {
+        if (BedrockConfig == null)
+            return;
+
+        update(BedrockConfig);
+        BedrockHelper.SaveInstanceConfig(BedrockConfig);
+        StorageUsage.Refresh();
+        OnPropertyChanged(propertyName);
+        OnPropertyChanged(nameof(UsesSharedBedrockData));
+        OnPropertyChanged(nameof(BedrockDataScope));
+        OnPropertyChanged(nameof(StorageUsage));
+    }
+
     private MinecraftInstanceConfig GetInstanceConfig()
     {
         var configPath = Path.Combine(MinecraftPath, "Portal.config.json");
@@ -389,9 +429,9 @@ public class MinecraftInstance : ObservableObject
         lock (_timerLock)
         {
             return Config.ArchivedPlayTimeSeconds
-                + Config.LegacyPlayTimeSeconds
-                + GetDailyPlayTimeByDate().Values.Sum()
-                + _unsavedPlayTimeByDate.Values.Sum();
+                   + Config.LegacyPlayTimeSeconds
+                   + GetDailyPlayTimeByDate().Values.Sum()
+                   + _unsavedPlayTimeByDate.Values.Sum();
         }
     }
 
@@ -410,7 +450,8 @@ public class MinecraftInstance : ObservableObject
                 .Select(date =>
                 {
                     var key = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-                    return (date, playTimeByDate.GetValueOrDefault(key) + _unsavedPlayTimeByDate.GetValueOrDefault(key));
+                    return (date,
+                        playTimeByDate.GetValueOrDefault(key) + _unsavedPlayTimeByDate.GetValueOrDefault(key));
                 })
                 .ToArray();
         }
@@ -503,6 +544,14 @@ public class MinecraftInstance : ObservableObject
                 Directory.CreateDirectory(path);
             }
 
+            return path;
+        }
+
+        if (Type == MinecraftInstanceType.Bedrock && BedrockConfig != null)
+        {
+            var path = BedrockDataPathResolver.GetFolder(BedrockConfig, folder);
+            if (folder != MinecraftSpecialFolder.InstanceFolder && !Directory.Exists(path))
+                Directory.CreateDirectory(path);
             return path;
         }
 
@@ -678,11 +727,16 @@ public partial class MinecraftInstanceConfig : ObservableObject
     [ObservableProperty] public partial bool EnableOverrideMaxMemory { get; set; }
     [ObservableProperty] public partial DateTime LastPlayTime { get; set; } = DateTime.MinValue;
     [ObservableProperty] public partial int MinecraftMaxMemory { get; set; }
-    [ObservableProperty] public partial Dictionary<string, long> PlayTimeByDate { get; set; } = []; //string : Data (yyyy-MM-dd)
+
+    [ObservableProperty]
+    public partial Dictionary<string, long> PlayTimeByDate { get; set; } = []; //string : Data (yyyy-MM-dd)
+
     public bool ShouldSerializePlayTimeByDate() => PlayTimeByDate?.Count > 0;
     public long ArchivedPlayTimeSeconds { get; set; }
+
     [JsonProperty("PlayTimeSeconds", DefaultValueHandling = DefaultValueHandling.Ignore)]
     public long LegacyPlayTimeSeconds { get; set; }
+
     [ObservableProperty] public partial int PlaySessions { get; set; }
     [ObservableProperty] public partial JavaRuntimeEntry? SpecificJavaEntry { get; set; }
 }

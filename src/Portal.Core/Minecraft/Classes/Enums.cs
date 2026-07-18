@@ -10,20 +10,9 @@ public enum MinecraftSpecialFolder
     ScreenshotsFolder,
     ConfigFolder,
     LogsFolder,
-}
-
-public enum MinecraftInstanceIconType
-{
-    Auto,
-    Base64,
-    CraftingTable,
-    GrassBlock,
-    Furnace,
-    DirtPath,
-    GlassBlock,
-    Fabric,
-    Forge,
-    NoeForge,
-    Quilt,
-    Optifine
+    BehaviorPacksFolder,
+    SkinPacksFolder,
+    WorldTemplatesFolder,
+    DevelopmentResourcePacksFolder,
+    DevelopmentBehaviorPacksFolder,
 }
