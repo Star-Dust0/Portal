@@ -22,11 +22,12 @@ public sealed class BedrockStorage(MinecraftInstance instance) : BedrockFolderPa
     ("截图", MinecraftSpecialFolder.ScreenshotsFolder)
 ]);
 
-public sealed class BedrockFolders(MinecraftInstance instance) : BedrockFolderPage(instance, "资源与行为包", "管理基岩版资源包、行为包及开发包目录", [
-    ("资源包", MinecraftSpecialFolder.ResourcePacksFolder),
-    ("行为包", MinecraftSpecialFolder.BehaviorPacksFolder),
-    ("开发资源包", MinecraftSpecialFolder.DevelopmentResourcePacksFolder),
-    ("开发行为包", MinecraftSpecialFolder.DevelopmentBehaviorPacksFolder)
+public sealed class BedrockResourcePacks(MinecraftInstance instance) : BedrockFolderPage(instance, "资源包", "管理基岩版资源包目录", [
+    ("资源包", MinecraftSpecialFolder.ResourcePacksFolder)
+]);
+
+public sealed class BedrockBehaviorPacks(MinecraftInstance instance) : BedrockFolderPage(instance, "行为包", "管理基岩版行为包目录", [
+    ("行为包", MinecraftSpecialFolder.BehaviorPacksFolder)
 ]);
 
 public sealed class BedrockWorlds(MinecraftInstance instance) : BedrockFolderPage(instance, "世界与模板", "基岩版世界位于 minecraftWorlds，世界模板位于 world_templates", [

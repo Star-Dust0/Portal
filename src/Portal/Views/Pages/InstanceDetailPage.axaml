@@ -44,8 +44,12 @@
                     Header="日志" />
                     <tio:NavMenuItem IsVisible="{Binding IsBedrock}"
                         Command="{Binding NavigateTypeCommand}"
-                        CommandParameter="{x:Type instancePages:BedrockFolders}"
-                        Header="资源与行为包" />
+                        CommandParameter="{x:Type instancePages:BedrockResourcePacks}"
+                        Header="资源包" />
+                    <tio:NavMenuItem IsVisible="{Binding IsBedrock}"
+                        Command="{Binding NavigateTypeCommand}"
+                        CommandParameter="{x:Type instancePages:BedrockBehaviorPacks}"
+                        Header="行为包" />
                     <tio:NavMenuItem IsVisible="{Binding IsBedrock}"
                         Command="{Binding NavigateTypeCommand}"
                         CommandParameter="{x:Type instancePages:BedrockWorlds}"

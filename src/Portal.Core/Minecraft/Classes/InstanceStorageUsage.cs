@@ -205,7 +205,12 @@ public partial class InstanceStorageUsage : ObservableObject
         long total = 0;
         try
         {
-            foreach (var file in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(path, "*", new EnumerationOptions
+                     {
+                         RecurseSubdirectories = true,
+                         IgnoreInaccessible = true,
+                         AttributesToSkip = FileAttributes.ReparsePoint
+                     }))
             {
                 try
                 {

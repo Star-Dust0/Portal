@@ -360,17 +360,17 @@
                             CornerRadius="16"
                             Cursor="Hand"
                             PointerPressed="JumpPage"
-                            Tag="bedrock-packs">
+                            Tag="bedrock-resource-packs">
                             <StackPanel Margin="10" Spacing="4">
                                 <Label
                                     Content="资源包"
                                     FontSize="13"
                                     Foreground="{DynamicResource InnerForegroundColor}" />
-                                <TextBlock FontSize="24" Text="{Binding Instance.StorageUsage.ResourceContentSizeText}" />
+                                <TextBlock FontSize="24" Text="{Binding Instance.StorageUsage.ResourcePacksSizeText}" />
                                 <TextBlock
                                     FontSize="12"
                                     Foreground="{DynamicResource InnerForegroundColor}"
-                                    Text="资源、行为与皮肤包" />
+                                    Text="resource_packs" />
                             </StackPanel>
                         </Border>
                         <Border
@@ -380,6 +380,27 @@
                             CornerRadius="16"
                             Cursor="Hand"
                             Grid.Column="1"
+                            PointerPressed="JumpPage"
+                            Tag="bedrock-behavior-packs">
+                            <StackPanel Margin="10" Spacing="4">
+                                <Label
+                                    Content="行为包"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource InnerForegroundColor}" />
+                                <TextBlock FontSize="24" Text="{Binding Instance.StorageUsage.BehaviorPacksSizeText}" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Foreground="{DynamicResource InnerForegroundColor}"
+                                    Text="behavior_packs" />
+                            </StackPanel>
+                        </Border>
+                        <Border
+                            Background="{DynamicResource TranslucentBackgroundColor}"
+                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="16"
+                            Cursor="Hand"
+                            Grid.Column="2"
                             PointerPressed="JumpPage"
                             Tag="bedrock-worlds">
                             <StackPanel Margin="10" Spacing="4">
@@ -392,27 +413,6 @@
                                     FontSize="12"
                                     Foreground="{DynamicResource InnerForegroundColor}"
                                     Text="minecraftWorlds" />
-                            </StackPanel>
-                        </Border>
-                        <Border
-                            Background="{DynamicResource TranslucentBackgroundColor}"
-                            BorderBrush="{DynamicResource TranslucentBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="16"
-                            Cursor="Hand"
-                            Grid.Column="2"
-                            PointerPressed="JumpPage"
-                            Tag="bedrock-screenshots">
-                            <StackPanel Margin="10" Spacing="4">
-                                <Label
-                                    Content="截图"
-                                    FontSize="13"
-                                    Foreground="{DynamicResource InnerForegroundColor}" />
-                                <TextBlock FontSize="24" Text="{Binding Instance.StorageUsage.ScreenshotsSizeText}" />
-                                <TextBlock
-                                    FontSize="12"
-                                    Foreground="{DynamicResource InnerForegroundColor}"
-                                    Text="Screenshots" />
                             </StackPanel>
                         </Border>
                     </Grid>

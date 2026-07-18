@@ -57,7 +57,7 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
         InstanceManager.Instance.InstanceIconChanged += OnInstanceIconChanged;
         Loaded += (_, _) =>
         {
-            _ = Instance.StorageUsage.EnsureLoadedAsync();
+            Instance.StorageUsage.Refresh();
             Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
         };
         Unloaded += (_, _) =>
@@ -226,17 +226,17 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
         {
             _parent.NavigateTo(typeof(Saves));
         }
-        else if (tag == "bedrock-packs")
+        else if (tag == "bedrock-resource-packs")
         {
-            _parent.NavigateTo(typeof(BedrockFolders));
+            _parent.NavigateTo(typeof(BedrockResourcePacks));
+        }
+        else if (tag == "bedrock-behavior-packs")
+        {
+            _parent.NavigateTo(typeof(BedrockBehaviorPacks));
         }
         else if (tag == "bedrock-worlds")
         {
             _parent.NavigateTo(typeof(BedrockWorlds));
-        }
-        else if (tag == "bedrock-screenshots")
-        {
-            _parent.NavigateTo(typeof(Screenshots));
         }
     }
 }
