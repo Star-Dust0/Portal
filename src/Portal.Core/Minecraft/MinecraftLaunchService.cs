@@ -239,7 +239,9 @@ public static class MinecraftLaunchService
     private static async Task<JavaEntry> SelectJavaAsync(MinecraftInstance instance, MinecraftLaunchOptions options,
         CancellationToken cancellationToken)
     {
-        var preferred = instance.Config.EnableSpecificJava ? instance.Config.SpecificJavaEntry : null;
+        var javaConfig = instance.JavaConfig
+                         ?? throw new InvalidOperationException("Java 版实例配置缺失。");
+        var preferred = javaConfig.EnableSpecificJava ? javaConfig.SpecificJavaEntry : null;
         var candidates = preferred != null ? [preferred] : options.JavaRuntimes.ToList();
         if (candidates.Count == 0 && options.EnableAutoSelectJava)
             candidates = (await JavaRuntimeManager.ScanAsync(cancellationToken)).ToList();
@@ -265,12 +267,12 @@ public static class MinecraftLaunchService
         Account = account,
         JavaPath = java,
         LauncherName = "Portal",
-        IsEnableIndependency = instance.Config.EnableIndependentInstance,
+        IsEnableIndependency = instance.JavaConfig?.EnableIndependentInstance == true,
         Width = options.WindowWidth,
         Height = options.WindowHeight,
         MinMemorySize = 512,
-        MaxMemorySize = instance.Config.EnableOverrideMaxMemory
-            ? instance.Config.MinecraftMaxMemory
+        MaxMemorySize = instance.JavaConfig?.EnableOverrideMaxMemory == true
+            ? instance.JavaConfig.MinecraftMaxMemory
             : options.MaxMemory
     };
 

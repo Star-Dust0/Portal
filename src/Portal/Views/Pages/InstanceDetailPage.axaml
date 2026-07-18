@@ -65,7 +65,7 @@
                 <tio:NavMenuItem
                     Command="{Binding NavigateTypeCommand}"
                     CommandParameter="{x:Type instancePages:Properties}"
-                    Header="实例设置" />
+                    Header="配置管理" />
             </tio:NavMenu>
         </controls:ScrollView>
         <Rectangle

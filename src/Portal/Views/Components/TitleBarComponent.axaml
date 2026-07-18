@@ -105,7 +105,7 @@
             IsVisible="{Binding Tasks.CurrentTaskTitle, Converter={StaticResource StringIsNotWriteSpaceOrNullConverter}}"
             Margin="3,0"
             Theme="{StaticResource TransparentButton}"
-            ToolTip.Tip="任务"
+            ToolTip.Tip="启动的服务"
             VerticalAlignment="Center">
             <Border
                 Background="{DynamicResource TranslucentBackgroundColor}"

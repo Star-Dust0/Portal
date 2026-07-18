@@ -55,7 +55,7 @@ public partial class InstanceStorageUsage : ObservableObject
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(WorldTemplatesSizeText))] private long _worldTemplatesBytes;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(DevelopmentPacksSizeText), nameof(ResourceContentSizeText))] private long _developmentPacksBytes;
 
-    public bool CanDisplayPercentage => _instance.Config.EnableIndependentInstance;
+    public bool CanDisplayPercentage => _instance.JavaConfig?.EnableIndependentInstance == true;
     public string VersionFolderSizeText => FormatSize(VersionFolderBytes);
     public string ModsSizeText => FormatSize(ModsBytes);
     public string ResourcePacksSizeText => FormatSize(ResourcePacksBytes);
@@ -156,7 +156,7 @@ public partial class InstanceStorageUsage : ObservableObject
 
             var categorizedBytes = modsBytes + resourcePacksBytes + shaderPacksBytes + savesBytes +
                                    screenshotsBytes + configBytes + logsBytes;
-            var otherBytes = _instance.Config.EnableIndependentInstance
+            var otherBytes = _instance.JavaConfig?.EnableIndependentInstance == true
                 ? Math.Max(0, versionBytes - categorizedBytes)
                 : versionBytes;
 

@@ -131,6 +131,9 @@ public class MinecraftInstance : ObservableObject
 
     public MinecraftInstanceConfig Config => field ??= GetInstanceConfig();
 
+    [JsonIgnore]
+    public JavaInstanceConfig? JavaConfig => Config as JavaInstanceConfig;
+
     [JsonIgnore] public InstanceStorageUsage StorageUsage => field ??= new InstanceStorageUsage(this);
 
     public Bitmap Icon => _icon ??= GetInstanceIcon(48);
@@ -283,7 +286,7 @@ public class MinecraftInstance : ObservableObject
                 OnPropertyChanged(nameof(FullInfo));
             }
 
-            if (e.PropertyName == nameof(MinecraftInstanceConfig.EnableIndependentInstance))
+            if (e.PropertyName == nameof(JavaInstanceConfig.EnableIndependentInstance))
             {
                 StorageUsage.Refresh();
                 OnPropertyChanged(nameof(StorageUsage));
@@ -309,9 +312,17 @@ public class MinecraftInstance : ObservableObject
     {
         var configPath = Path.Combine(MinecraftPath, "Portal.config.json");
         if (File.Exists(configPath))
-            return JsonConvert.DeserializeObject<MinecraftInstanceConfig>(File.ReadAllText(configPath));
+        {
+            var loadedConfig = Type == MinecraftInstanceType.Java
+                ? JsonConvert.DeserializeObject<JavaInstanceConfig>(File.ReadAllText(configPath))!
+                : JsonConvert.DeserializeObject<MinecraftInstanceConfig>(File.ReadAllText(configPath))!;
+            if (loadedConfig != null)
+                return loadedConfig;
+        }
 
-        var config = new MinecraftInstanceConfig();
+        MinecraftInstanceConfig config = Type == MinecraftInstanceType.Java
+            ? new JavaInstanceConfig()
+            : new MinecraftInstanceConfig();
         File.WriteAllText(configPath, JsonConvert.SerializeObject(config, Formatting.Indented));
         return config;
     }
@@ -525,7 +536,7 @@ public class MinecraftInstance : ObservableObject
         if (Type == MinecraftInstanceType.Java && MinecraftEntry != null)
         {
             var instancePath = Path.Combine(MinecraftEntry.MinecraftFolderPath, "versions", MinecraftEntry.Id);
-            var basePath = Config.EnableIndependentInstance ? instancePath : MinecraftEntry.MinecraftFolderPath;
+            var basePath = JavaConfig?.EnableIndependentInstance == true ? instancePath : MinecraftEntry.MinecraftFolderPath;
             var path = folder switch
             {
                 MinecraftSpecialFolder.InstanceFolder => instancePath,
@@ -722,11 +733,7 @@ public partial class MinecraftInstanceConfig : ObservableObject
 {
     [ObservableProperty] public partial string Note { get; set; }
     [ObservableProperty] public partial bool IsFavorite { get; set; }
-    [ObservableProperty] public partial bool EnableIndependentInstance { get; set; } = true;
-    [ObservableProperty] public partial bool EnableSpecificJava { get; set; }
-    [ObservableProperty] public partial bool EnableOverrideMaxMemory { get; set; }
     [ObservableProperty] public partial DateTime LastPlayTime { get; set; } = DateTime.MinValue;
-    [ObservableProperty] public partial int MinecraftMaxMemory { get; set; }
 
     [ObservableProperty]
     public partial Dictionary<string, long> PlayTimeByDate { get; set; } = []; //string : Data (yyyy-MM-dd)
@@ -738,6 +745,17 @@ public partial class MinecraftInstanceConfig : ObservableObject
     public long LegacyPlayTimeSeconds { get; set; }
 
     [ObservableProperty] public partial int PlaySessions { get; set; }
+}
+
+/// <summary>
+/// Java 版实例独有的启动与运行时配置。
+/// </summary>
+public partial class JavaInstanceConfig : MinecraftInstanceConfig
+{
+    [ObservableProperty] public partial bool EnableIndependentInstance { get; set; } = true;
+    [ObservableProperty] public partial bool EnableSpecificJava { get; set; }
+    [ObservableProperty] public partial bool EnableOverrideMaxMemory { get; set; }
+    [ObservableProperty] public partial int MinecraftMaxMemory { get; set; }
     [ObservableProperty] public partial JavaRuntimeEntry? SpecificJavaEntry { get; set; }
 }
 

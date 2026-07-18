@@ -133,10 +133,10 @@
                         </tio:DescriptionsItem>
                     </tio:Descriptions>
                     <tio:Descriptions Grid.Column="3" LabelPosition="Top">
-                        <tio:DescriptionsItem Label="版本">
+                        <tio:DescriptionsItem Label="游戏版本">
                             <TextBlock TextTrimming="LeadingCharacterEllipsis" TextWrapping="NoWrap">
-                                <Run FontSize="24" Text="{Binding Instance.Type}" />
-                                <Run FontSize="24" Text="/" />
+                                <Run FontSize="24" Text="{Binding Instance.LoaderDescription}" />
+                                <Run FontSize="24" Text=" · " />
                                 <Run FontSize="24" Text="{Binding Instance.VersionId}" />
                             </TextBlock>
                         </tio:DescriptionsItem>
@@ -189,7 +189,7 @@
                                     Text="mc" />
                                 <TextBlock
                                     Foreground="{DynamicResource InnerForegroundColor}"
-                                    IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                    IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                     Text="/versions" />
                                 <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/mods" />
                             </StackPanel>
@@ -238,7 +238,7 @@
                                     Text="mc" />
                                 <TextBlock
                                     Foreground="{DynamicResource InnerForegroundColor}"
-                                    IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                    IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                     Text="/versions" />
                                 <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/resourcepacks" />
                             </StackPanel>
@@ -287,7 +287,7 @@
                                     Text="mc" />
                                 <TextBlock
                                     Foreground="{DynamicResource InnerForegroundColor}"
-                                    IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                    IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                     Text="/versions" />
                                 <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/shaderpacks" />
                             </StackPanel>
@@ -336,7 +336,7 @@
                                     Text="mc" />
                                 <TextBlock
                                     Foreground="{DynamicResource InnerForegroundColor}"
-                                    IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                    IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                     Text="/versions" />
                                 <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/saves" />
                             </StackPanel>
@@ -347,7 +347,11 @@
                     IsVisible="{Binding Instance.IsBedrock}"
                     Margin="5,12,0,0"
                     Spacing="12">
-                    <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="{Binding Instance.BedrockDataScope}" />
+                    <TextBlock
+                        Foreground="{DynamicResource InnerForegroundColor}"
+                        HorizontalAlignment="Left"
+                        Margin="6,0,0,0"
+                        Text="{Binding Instance.BedrockDataScope}" />
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
                         <Border
                             Background="{DynamicResource TranslucentBackgroundColor}"

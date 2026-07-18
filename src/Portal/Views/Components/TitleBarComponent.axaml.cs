@@ -55,7 +55,7 @@ public partial class TitleBarComponent : Grid
         var hostId = Root.TryGetHostId();
         _ = OverlayDrawer.ShowStandardAsync(new TaskDrawerView(), null, hostId, new DrawerOptions
         {
-            Title = "任务",
+            Title = "启动的服务",
             TitleCommand = new RelayCommand(OpenTaskTab),
             Buttons = DialogButton.None,
             MinWidth = 500,

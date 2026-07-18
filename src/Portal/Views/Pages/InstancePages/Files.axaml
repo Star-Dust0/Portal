@@ -26,7 +26,7 @@
                     <MenuItem
                         Classes="hide-icon"
                         Click="MenuItem_OnClick"
-                        Header="版本文件夹"
+                        Header="实例文件夹"
                         Tag="version" />
                     <MenuItem
                         Classes="hide-icon"
@@ -124,7 +124,7 @@
                                         Text="mc" />
                                     <TextBlock
                                         Foreground="{DynamicResource InnerForegroundColor}"
-                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                         Text="/versions" />
                                     <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/mods" />
                                 </StackPanel>
@@ -172,7 +172,7 @@
                                         Text="mc" />
                                     <TextBlock
                                         Foreground="{DynamicResource InnerForegroundColor}"
-                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                         Text="/versions" />
                                     <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/resourcepacks" />
                                 </StackPanel>
@@ -224,7 +224,7 @@
                                         Text="mc" />
                                     <TextBlock
                                         Foreground="{DynamicResource InnerForegroundColor}"
-                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                         Text="/versions" />
                                     <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/shaderpacks" />
                                 </StackPanel>
@@ -272,7 +272,7 @@
                                         Text="mc" />
                                     <TextBlock
                                         Foreground="{DynamicResource InnerForegroundColor}"
-                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                         Text="/versions" />
                                     <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/saves" />
                                 </StackPanel>
@@ -325,7 +325,7 @@
                                         Text="mc" />
                                     <TextBlock
                                         Foreground="{DynamicResource InnerForegroundColor}"
-                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                         Text="/versions" />
                                     <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/screenshots" />
                                 </StackPanel>
@@ -373,7 +373,7 @@
                                         Text="mc" />
                                     <TextBlock
                                         Foreground="{DynamicResource InnerForegroundColor}"
-                                        IsVisible="{Binding Instance.Config.EnableIndependentInstance}"
+                                        IsVisible="{Binding Instance.JavaConfig.EnableIndependentInstance}"
                                         Text="/versions" />
                                     <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="/logs" />
                                 </StackPanel>
