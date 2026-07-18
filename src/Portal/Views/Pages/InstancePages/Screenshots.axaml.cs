@@ -14,6 +14,9 @@ using Avalonia.Platform.Storage;
 using Portal.Core.Minecraft.Classes;
 using Portal.Views.StaticPages;
 using Tio.Avalonia.Standard.Modules.Extensions;
+using TioUi.Common;
+using TioUi.Common.Extensions;
+using TioUi.Controls;
 
 namespace Portal.Views.Pages.InstancePages;
 
@@ -99,7 +102,7 @@ public partial class Screenshots : UserControl, INotifyPropertyChanged
             TopLevel.GetTopLevel(this) is not { } topLevel)
             return;
 
-        ImageViewer.Open(item.FilePath, topLevel);
+        Portal.Views.StaticPages.ImageViewer.Open(item.FilePath, topLevel);
         e.Handled = true;
     }
 
@@ -151,10 +154,25 @@ public partial class Screenshots : UserControl, INotifyPropertyChanged
             await TopLevel.GetTopLevel(this).Launcher.LaunchDirectoryInfoAsync(new DirectoryInfo(_screenshotsPath));
     }
 
-    private void DeleteScreenshot_OnClick(object? sender, RoutedEventArgs e)
+    private async void DeleteScreenshot_OnClick(object? sender, RoutedEventArgs e)
     {
         var item = GetItem(sender);
-        if (item == null)
+        if (item == null || !File.Exists(item.FilePath))
+            return;
+
+        var result = await OverlayDialog.ShowStandardAsync(
+            new TextBlock { Margin = new Avalonia.Thickness(24), Text = $"确定要永久删除截图“{item.FileName}”吗？此操作无法撤销。", TextWrapping = Avalonia.Media.TextWrapping.Wrap },
+            null, this.TryGetHostId(), new OverlayDialogOptions
+            {
+                Title = "删除截图",
+                Mode = DialogMode.Error,
+                Buttons = DialogButton.YesNo,
+                OverrideYesButtonText = "删除",
+                OverrideNoButtonText = "取消",
+                CanLightDismiss = false,
+                CanResize = false
+            });
+        if (result != DialogResult.Yes)
             return;
 
         try

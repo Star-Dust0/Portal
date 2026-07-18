@@ -209,7 +209,7 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
 
     private void JumpPage(object? sender, PointerPressedEventArgs e)
     {
-        var tag = (sender as Control).Tag as  string;
+        var tag = (sender as Control).Tag as string;
         if (tag == "mods")
         {
             _parent.NavigateTo(null);
@@ -224,7 +224,7 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
         }
         else if (tag == "saves")
         {
-            _parent.NavigateTo(null);
+            _parent.NavigateTo(typeof(Saves));
         }
     }
 }

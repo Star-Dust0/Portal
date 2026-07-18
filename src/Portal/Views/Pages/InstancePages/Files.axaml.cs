@@ -98,7 +98,7 @@ public partial class Files : UserControl
         }
         else if (tag == "saves")
         {
-            _parent.NavigateTo(null);
+            _parent.NavigateTo(typeof(Saves));
         }
         else if (tag == "screenshot")
         {
