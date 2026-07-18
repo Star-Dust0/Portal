@@ -228,7 +228,7 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
         }
         else if (tag == "bedrock-resource-packs")
         {
-            _parent.NavigateTo(typeof(ResourcePacks));
+            _parent.NavigateTo(typeof(BedrockResourcePacks));
         }
         else if (tag == "bedrock-behavior-packs")
         {
