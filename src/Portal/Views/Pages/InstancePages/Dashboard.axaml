@@ -135,9 +135,7 @@
                     <tio:Descriptions Grid.Column="3" LabelPosition="Top">
                         <tio:DescriptionsItem Label="游戏版本">
                             <TextBlock TextTrimming="LeadingCharacterEllipsis" TextWrapping="NoWrap">
-                                <Run FontSize="24" Text="{Binding Instance.LoaderDescription}" />
-                                <Run FontSize="24" Text=" · " />
-                                <Run FontSize="24" Text="{Binding Instance.VersionId}" />
+                                <Run FontSize="24" Text="{Binding Instance.ShortDisplay}" />
                             </TextBlock>
                         </tio:DescriptionsItem>
                     </tio:Descriptions>
