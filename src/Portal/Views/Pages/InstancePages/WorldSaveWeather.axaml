@@ -1,0 +1,71 @@
+<UserControl
+    x:Class="Portal.Views.Pages.InstancePages.WorldSaveWeather"
+    x:DataType="local:WorldSaveDetailsViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:local="clr-namespace:Portal.Views.Pages.InstancePages"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <StackPanel Spacing="8">
+            <TextBlock
+                FontSize="22"
+                FontWeight="SemiBold"
+                Text="天气" />
+            <TextBlock
+                Foreground="{DynamicResource InnerForegroundColor}"
+                Text="直接修改 weather.dat。时间单位为游戏刻，20 刻约为 1 秒。"
+                TextWrapping="Wrap" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" Margin="0,14,0,0">
+            <StackPanel Spacing="8">
+                <StackPanel IsVisible="{Binding HasWeather}" Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="正在下雨" VerticalAlignment="Center" />
+                        <ToggleSwitch
+                            Grid.Column="1"
+                            IsChecked="{Binding Raining}"
+                            OffContent="false"
+                            OnContent="true" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="正在打雷" VerticalAlignment="Center" />
+                        <ToggleSwitch
+                            Grid.Column="1"
+                            IsChecked="{Binding Thundering}"
+                            OffContent="false"
+                            OnContent="true" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="下雨剩余时间" VerticalAlignment="Center" />
+                        <TextBox
+                            Grid.Column="1"
+                            Text="{Binding RainTime}"
+                            Width="130" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="雷暴剩余时间" VerticalAlignment="Center" />
+                        <TextBox
+                            Grid.Column="1"
+                            Text="{Binding ThunderTime}"
+                            Width="130" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="晴天剩余时间" VerticalAlignment="Center" />
+                        <TextBox
+                            Grid.Column="1"
+                            Text="{Binding ClearWeatherTime}"
+                            Width="130" />
+                    </Grid>
+                </StackPanel>
+                <TextBlock IsVisible="{Binding !HasWeather}" Text="此世界未找到天气数据文件。" />
+            </StackPanel>
+        </ScrollViewer>
+        <Button
+            Command="{Binding SaveWeatherCommand}"
+            Content="保存"
+            Grid.Row="2"
+            HorizontalAlignment="Right"
+            IsEnabled="{Binding HasWeather}"
+            IsVisible="{Binding !IsLocked}"
+            Margin="0,12,0,0" />
+    </Grid>
+</UserControl>

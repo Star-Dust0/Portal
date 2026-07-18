@@ -1,0 +1,46 @@
+<UserControl
+    x:Class="Portal.Views.Pages.InstancePages.WorldSaveClocks"
+    x:DataType="local:WorldSaveDetailsViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:local="clr-namespace:Portal.Views.Pages.InstancePages"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <StackPanel Spacing="8">
+            <TextBlock
+                FontSize="22"
+                FontWeight="SemiBold"
+                Text="世界时钟" />
+            <TextBlock
+                Foreground="{DynamicResource InnerForegroundColor}"
+                Text="直接修改 world_clocks.dat 中各维度的累计游戏刻。20 刻约为 1 秒。"
+                TextWrapping="Wrap" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" Margin="0,14,0,0">
+            <StackPanel Spacing="8">
+                <TextBlock IsVisible="{Binding !HasClocks}" Text="此世界未找到世界时钟数据文件。" />
+                <ItemsRepeater ItemsSource="{Binding ClockSettings}">
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="local:WorldNumberSetting">
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+                                <TextBox
+                                    Grid.Column="1"
+                                    PlaceholderText="非负整数"
+                                    Text="{Binding Value}"
+                                    Width="130" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </StackPanel>
+        </ScrollViewer>
+        <Button
+            Command="{Binding SaveClocksCommand}"
+            Content="保存"
+            Grid.Row="2"
+            HorizontalAlignment="Right"
+            IsEnabled="{Binding HasClocks}"
+            IsVisible="{Binding !IsLocked}"
+            Margin="0,12,0,0" />
+    </Grid>
+</UserControl>

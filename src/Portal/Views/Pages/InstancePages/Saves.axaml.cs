@@ -215,14 +215,7 @@ public partial class Saves : UserControl, INotifyPropertyChanged
     {
         if (GetItem(sender) is not { } item)
             return;
-        await OverlayDialog.ShowStandardAsync(
-            new TextBlock
-                { Margin = new Avalonia.Thickness(24), Text = item.Details, TextWrapping = TextWrapping.Wrap }, null,
-            this.TryGetHostId(),
-            new OverlayDialogOptions
-            {
-                Title = item.DisplayName, Mode = DialogMode.None, Buttons = DialogButton.OK, CanLightDismiss = true
-            });
+        await ShowInfoAsync(item);
     }
 
     private async void DeleteWorld_OnClick(object? sender, RoutedEventArgs e)
@@ -373,7 +366,24 @@ public partial class Saves : UserControl, INotifyPropertyChanged
 
     private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
+        if (e.GetCurrentPoint(sender as Control).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed ||
+            (sender as Control)?.DataContext is not SaveItem item)
+            return;
+
+        _ = ShowInfoAsync(item);
     }
+
+    private Task ShowInfoAsync(SaveItem item) => OverlayDialog.ShowCustomAsync<WorldSaveDetails, WorldSaveDetailsViewModel, object>(
+        new WorldSaveDetailsViewModel(item.Info), this.TryGetHostId(),
+        new OverlayDialogOptions
+        {
+            Mode = DialogMode.None,
+            Buttons = DialogButton.None,
+            CanLightDismiss = false,
+            CanResize = false,
+            IsCloseButtonVisible = true,
+            CloseBtnMargin = new Thickness(0,12,12,0)
+        });
 }
 
 public sealed class SaveItem(WorldSaveInfo info)

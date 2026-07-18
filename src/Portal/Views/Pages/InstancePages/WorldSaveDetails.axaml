@@ -1,0 +1,67 @@
+<UserControl
+    x:Class="Portal.Views.Pages.InstancePages.WorldSaveDetails"
+    x:DataType="local:WorldSaveDetailsViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:SmoothScroll.Avalonia.Controls;assembly=SmoothScroll.Avalonia.Controls"
+    xmlns:local="clr-namespace:Portal.Views.Pages.InstancePages"
+    xmlns:tio="https://github.com/tiouoo/TioUi.Avalonia"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel Height="540" Width="840">
+        <DockPanel
+            DockPanel.Dock="Top"
+            Height="48"
+            Margin="16,0,12,0">
+            <TextBlock
+                FontSize="18"
+                FontWeight="SemiBold"
+                Text="{Binding DisplayName}"
+                VerticalAlignment="Center" />
+            <Button
+                Background="Transparent"
+                Click="Close_OnClick"
+                DockPanel.Dock="Right"
+                Height="28"
+                HorizontalAlignment="Right"
+                IsVisible="False"
+                Theme="{DynamicResource TransparentButton}"
+                ToolTip.Tip="关闭"
+                VerticalAlignment="Center"
+                Width="36">
+                <PathIcon
+                    Data="{DynamicResource Close}"
+                    Foreground="{DynamicResource InnerForegroundColor}"
+                    Height="11"
+                    Width="20" />
+            </Button>
+        </DockPanel>
+        <controls:ScrollView
+            Classes="Flat"
+            DockPanel.Dock="Left"
+            Margin="7,0,0,10"
+            Width="128">
+            <tio:NavMenu
+                Margin="0,0,10,0"
+                SelectionChanged="NavMenu_OnSelectionChanged"
+                Theme="{StaticResource FlatScrollBarTheme}">
+                <tio:NavMenuItem
+                    Header="概览"
+                    IsSelected="True"
+                    Tag="{x:Static local:WorldSaveDetailsPage.Overview}" />
+                <tio:NavMenuItem Header="游戏规则" Tag="{x:Static local:WorldSaveDetailsPage.GameRules}" />
+                <tio:NavMenuItem Header="天气" Tag="{x:Static local:WorldSaveDetailsPage.Weather}" />
+                <tio:NavMenuItem Header="世界时钟" Tag="{x:Static local:WorldSaveDetailsPage.Clocks}" />
+            </tio:NavMenu>
+        </controls:ScrollView>
+        <Rectangle
+            DockPanel.Dock="Left"
+            Fill="{DynamicResource TranslucentBorderBrush}"
+            Margin="0,0,0,10"
+            Width="1" />
+        <Grid Margin="24,18,20,12">
+            <local:WorldSaveOverview IsVisible="{Binding IsOverview}" />
+            <local:WorldSaveGameRules IsVisible="{Binding IsGameRules}" />
+            <local:WorldSaveWeather IsVisible="{Binding IsWeather}" />
+            <local:WorldSaveClocks IsVisible="{Binding IsClocks}" />
+        </Grid>
+    </DockPanel>
+</UserControl>

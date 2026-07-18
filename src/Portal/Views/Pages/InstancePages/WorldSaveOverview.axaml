@@ -1,0 +1,19 @@
+<UserControl x:Class="Portal.Views.Pages.InstancePages.WorldSaveOverview" x:DataType="local:WorldSaveDetailsViewModel"
+             xmlns="https://github.com/avaloniaui" xmlns:local="clr-namespace:Portal.Views.Pages.InstancePages" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer>
+        <StackPanel Spacing="12">
+            <TextBlock FontSize="22" FontWeight="SemiBold" Text="概览" />
+            <TextBlock Foreground="{DynamicResource InnerForegroundColor}" Text="世界基本信息与本地文件统计。" />
+            <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="9">
+                <TextBlock Text="文件夹" /><TextBlock Grid.Column="1" Text="{Binding FolderName}" />
+                <TextBlock Grid.Row="1" Text="创建时间" /><TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding CreationTime}" />
+                <TextBlock Grid.Row="2" Text="最近游玩" /><TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding LastPlayedTime}" />
+                <TextBlock Grid.Row="3" Text="游戏版本" /><TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Version}" />
+                <TextBlock Grid.Row="4" Text="世界种子" /><TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding Seed}" />
+                <TextBlock Grid.Row="5" Text="游戏模式" /><TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding GameMode}" />
+                <TextBlock Grid.Row="6" Text="允许作弊" /><TextBlock Grid.Column="1" Grid.Row="6" Text="{Binding AllowCommands}" />
+                <TextBlock Grid.Row="7" Text="玩家 / 数据包" /><TextBlock Grid.Column="1" Grid.Row="7" Text="{Binding FileStatistics}" />
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
