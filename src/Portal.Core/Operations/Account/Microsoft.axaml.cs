@@ -76,7 +76,7 @@ public partial class MicrosoftAccountViewModel : ObservableObject, IDialogContex
     {
         try
         {
-            var authenticator = new MicrosoftAuthenticator("c06d4d68-7751-4a8a-a2ff-d1b46688f428");
+            var authenticator = new MicrosoftAuthenticator(ServiceCredentials.MicrosoftClientId);
             var oAuth2Token = await authenticator.DeviceFlowAuthAsync(deviceCode =>
             {
                 IsReady = true;

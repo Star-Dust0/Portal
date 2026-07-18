@@ -1,16 +1,24 @@
 using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using AsyncImageLoader;
 using CommunityToolkit.Mvvm.Input;
+using Flurl.Http;
+using Portal.Const;
 using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Services;
 using Tio.Avalonia.Standard.Modules.Extensions;
+using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common;
 using TioUi.Common.Extensions;
@@ -18,13 +26,15 @@ using TioUi.Controls;
 
 namespace Portal.Views.Pages.InstancePages;
 
-public partial class Mods : UserControl, INotifyPropertyChanged
+public partial class Mods : UserControl, INotifyPropertyChanged, IDisposable
 {
     private readonly MinecraftInstance? _instance;
     private readonly ModService _modService = new();
     private bool _hasLoaded;
     private bool _isLoading;
+    private bool _isDisposed;
     private string _filter = string.Empty;
+    private readonly CancellationTokenSource _disposeCancellation = new();
 
     public ObservableCollection<ModItem> Items { get; } = [];
     public ObservableCollection<ModItem> FilteredItems { get; } = [];
@@ -88,13 +98,40 @@ public partial class Mods : UserControl, INotifyPropertyChanged
         _hasLoaded = true;
         IsLoading = true;
         RaiseListProperties();
-        var mods = await _modService.ScanAsync(_instance);
+        var mods = await _modService.ScanAsync(_instance, _disposeCancellation.Token);
+        if (_isDisposed)
+            return;
         Items.Clear();
         foreach (var mod in mods)
             Items.Add(new ModItem(mod));
         ApplyFilter();
         IsLoading = false;
         RaiseListProperties();
+        _ = RefreshMetadataAsync(mods, _disposeCancellation.Token);
+    }
+
+    private async Task RefreshMetadataAsync(IReadOnlyList<ModInfo> mods, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _modService.RefreshMetadataAsync(mods, updated => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                if (_isDisposed)
+                    return;
+                var item = Items.FirstOrDefault(candidate => candidate.Info.FilePath == updated.FilePath);
+                item?.Update(updated);
+            }), cancellationToken);
+        }
+        catch (OperationCanceledException) { }
+        catch (FlurlHttpException exception)
+        {
+            var statusCode = exception.Call.Response?.StatusCode;
+            Logger.Error($"获取 CurseForge 模组信息失败 ({statusCode?.ToString() ?? "网络错误"}): {exception.Message}");
+        }
+        catch (Exception exception)
+        {
+            Logger.Error($"获取 CurseForge 模组信息失败: {exception.Message}");
+        }
     }
 
     private void ApplyFilter()
@@ -311,17 +348,35 @@ public partial class Mods : UserControl, INotifyPropertyChanged
 
     private void RaisePropertyChanged(string propertyName) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+    public void Dispose()
+    {
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
+        _disposeCancellation.Cancel();
+        foreach (var item in Items)
+            item.Dispose();
+        Items.Clear();
+        FilteredItems.Clear();
+        _disposeCancellation.Dispose();
+    }
 }
 
-public sealed class ModItem(ModInfo info) : INotifyPropertyChanged
+public sealed class ModItem(ModInfo info) : INotifyPropertyChanged, IDisposable
 {
     private bool _isSelected;
-    public ModInfo Info { get; } = info;
-    public string DisplayName => info.DisplayName;
-    public string FriendlyName => info.DisplayName;
-    public string FileName => info.FileName + ".jar";
-    public string DescriptionText => info.Description ?? "没有可用的模组描述";
-    public bool IsDisabled => info.IsDisabled;
+    private ModInfo _info = info;
+    public ModInfo Info => _info;
+    public string DisplayName => _info.DisplayName;
+    public string FriendlyName => _info.DisplayName;
+    public string FileName => _info.FileName + ".jar";
+    public string DescriptionText => _info.Description ?? "没有可用的模组描述";
+    public string? IconUrl => _info.IconUrl;
+    public bool HasIcon => !string.IsNullOrWhiteSpace(IconUrl);
+    public IAsyncImageLoader ImageLoader { get; } = new ModImageLoader();
+    public bool IsDisabled => _info.IsDisabled;
     public bool IsEnabled => !IsDisabled;
 
     public bool IsSelected
@@ -335,5 +390,66 @@ public sealed class ModItem(ModInfo info) : INotifyPropertyChanged
         }
     }
 
+    public void Update(ModInfo info)
+    {
+        _info = info;
+        foreach (var propertyName in new[] { nameof(DisplayName), nameof(FriendlyName), nameof(DescriptionText), nameof(IconUrl), nameof(HasIcon) })
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public void Dispose() => ImageLoader.Dispose();
+}
+
+public sealed class ModImageLoader : IAsyncImageLoader
+{
+    private const int CacheImageWidth = 56;
+    private static readonly HttpClient Client = new();
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> DownloadLocks = new();
+
+    public async Task<Avalonia.Media.Imaging.Bitmap?> ProvideImageAsync(string url)
+    {
+        try
+        {
+            var cachePath = GetCachePath(url);
+            if (File.Exists(cachePath))
+                return new Bitmap(cachePath);
+
+            var downloadLock = DownloadLocks.GetOrAdd(cachePath, _ => new SemaphoreSlim(1, 1));
+            await downloadLock.WaitAsync();
+            try
+            {
+                if (File.Exists(cachePath))
+                    return new Bitmap(cachePath);
+
+                using var response = await Client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                await using var stream = await response.Content.ReadAsStreamAsync();
+                using var bitmap = Bitmap.DecodeToWidth(stream, CacheImageWidth);
+                Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
+                var temporaryPath = cachePath + ".tmp";
+                using (var output = File.Create(temporaryPath))
+                    bitmap.Save(output, PngBitmapEncoderOptions.Default);
+                File.Move(temporaryPath, cachePath, true);
+                return new Bitmap(cachePath);
+            }
+            finally
+            {
+                downloadLock.Release();
+            }
+        }
+        catch (HttpRequestException) { return null; }
+        catch (IOException) { return null; }
+        catch (UnauthorizedAccessException) { return null; }
+        catch (InvalidDataException) { return null; }
+    }
+
+    private static string GetCachePath(string url)
+    {
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(url))).ToLowerInvariant();
+        return Path.Combine(ConfigPath.CacheFolderPath, "#mod-images", hash[..2], hash + ".png");
+    }
+
+    public void Dispose() { }
 }

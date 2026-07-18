@@ -12,6 +12,8 @@ public static class ConfigPath
 
     public static string TempFolderPath => Path.Combine(UserDataRootPath, "Temp");
     public static string LogFolderPath => Path.Combine(UserDataRootPath, "Log");
+    public static string CacheFolderPath => Path.Combine(UserDataRootPath, "Cache");
+    public static string ModCacheFolderPath => Path.Combine(CacheFolderPath, "mods");
     public static string BedrockDataRootPath => Path.Combine(UserDataRootPath, "Bedrock");
 
     public static string SettingDataPath => Path.Combine(UserDataRootPath, "Setting.portal");

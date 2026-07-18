@@ -13,7 +13,7 @@ public static class MinecraftCoreInitializer
             settings.MaxRetryCount = options.MaxRetryCount;
             settings.IsEnableMirror = options.IsEnableMirror;
             settings.IsEnableFragment = options.IsEnableFragment;
-            settings.CurseForgeApiKey = "$2a$10$ndSPnOpYqH3DRmLTWJTf5Ofm7lz9uYoTGvhSj0OjJWJ8WdO4ZTsr.";
+            settings.CurseForgeApiKey = ServiceCredentials.CurseForgeApiKey;
             settings.UserAgent = $"Portal/{options.AppVersion}";
         });
         if (options.EnableCustomUserAgent && !string.IsNullOrEmpty(options.CustomUserAgent))
