@@ -10,11 +10,6 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
     
-  <PropertyGroup Condition="$(RuntimeIdentifier.Contains('win'))">
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
-    <DefineConstants>WINDOWS</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup Condition="$(RuntimeIdentifier.Contains('osx'))">
     <DefineConstants>MACOS</DefineConstants>
     <UseMauiEssentials>false</UseMauiEssentials>

@@ -4,6 +4,15 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <IsWindowsBuildHost>$([MSBuild]::IsOSPlatform('Windows'))</IsWindowsBuildHost>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(IsWindowsBuildHost)' == 'true'">
+        <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+        <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <HotAvaloniaAutoEnable>false</HotAvaloniaAutoEnable>
         <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
@@ -48,8 +57,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Portal\Portal.csproj"/>
-        <ProjectReference Condition="$(RuntimeIdentifier.Contains('win'))"
-                          Include="..\Portal.Bedrock.Windows\Portal.Bedrock.Windows.csproj"/>
+        <ProjectReference Condition="'$(IsWindowsBuildHost)' == 'true'"
+                           Include="..\Portal.Bedrock.Windows\Portal.Bedrock.Windows.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
