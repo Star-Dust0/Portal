@@ -23,6 +23,7 @@ public partial class ResourcePacks : UserControl, INotifyPropertyChanged, IDispo
     private readonly MinecraftInstance? _instance;
     private MinecraftSpecialFolder _folder = MinecraftSpecialFolder.ResourcePacksFolder;
     private string _packName = "资源包";
+    private bool _isCompactLayout;
     private readonly ResourcePackService _resourcePackService = new();
     private readonly CancellationTokenSource _disposeCancellation = new();
     private bool _hasLoaded;
@@ -42,6 +43,7 @@ public partial class ResourcePacks : UserControl, INotifyPropertyChanged, IDispo
     public string SearchPlaceholder => $"搜索{PackName}";
     public string LoadingText => $"正在读取{PackName}...";
     public string EmptyText => $"此实例没有可识别的{PackName}";
+    public int CardMinHeight => 117;
 
     public ResourcePacks()
     {
@@ -51,11 +53,12 @@ public partial class ResourcePacks : UserControl, INotifyPropertyChanged, IDispo
 
     public ResourcePacks(MinecraftInstance instance) : this(instance, MinecraftSpecialFolder.ResourcePacksFolder, "资源包") { }
 
-    protected ResourcePacks(MinecraftInstance instance, MinecraftSpecialFolder folder, string packName) : this()
+    protected ResourcePacks(MinecraftInstance instance, MinecraftSpecialFolder folder, string packName, bool isCompactLayout = false) : this()
     {
         _instance = instance;
         _folder = folder;
         _packName = packName;
+        _isCompactLayout = isCompactLayout;
         RaisePropertyChanged(nameof(PackName));
         RaisePropertyChanged(nameof(SearchPlaceholder));
         RaisePropertyChanged(nameof(LoadingText));
@@ -80,7 +83,7 @@ public partial class ResourcePacks : UserControl, INotifyPropertyChanged, IDispo
             if (_isDisposed) return;
             foreach (var item in Items) item.Dispose();
             Items.Clear();
-            foreach (var pack in packs) Items.Add(new ResourcePackItem(pack));
+            foreach (var pack in packs) Items.Add(new ResourcePackItem(pack, _isCompactLayout));
             ApplyFilter();
         }
         catch (OperationCanceledException) { }
@@ -207,17 +210,25 @@ public partial class ResourcePacks : UserControl, INotifyPropertyChanged, IDispo
 public sealed class BehaviorPacks(MinecraftInstance instance) : ResourcePacks(instance,
     MinecraftSpecialFolder.BehaviorPacksFolder, "行为包");
 
-public sealed class ResourcePackItem(ResourcePackInfo info) : INotifyPropertyChanged, IDisposable
+public sealed class SkinPacks(MinecraftInstance instance) : ResourcePacks(instance,
+    MinecraftSpecialFolder.SkinPacksFolder, "皮肤包", true);
+
+public sealed class ResourcePackItem(ResourcePackInfo info, bool isCompactLayout = false) : INotifyPropertyChanged, IDisposable
 {
     private bool _isSelected;
     public ResourcePackInfo Info { get; } = info;
     public string DisplayName => Info.DisplayName;
     public string FileName => Info.FileName;
-    public string SecondaryText => Info.IsBedrock ? $"最低支持版本：{Info.MinEngineVersion ?? "未知"}" : FileName;
+    public bool IsCompactLayout { get; } = isCompactLayout;
+    public string SecondaryText => IsCompactLayout
+        ? Info.SkinCount is int count ? $"包含 {count} 个皮肤" : "皮肤数量未知"
+        : Info.IsBedrock ? $"最低支持版本：{Info.MinEngineVersion ?? "未知"}" : FileName;
     public string DescriptionText => string.IsNullOrWhiteSpace(Info.Description) ? "没有可用的资源包描述" : Info.Description;
     public string SupportedFormatsText => Info.SupportedFormats ?? "未知";
     public string VersionLabel => Info.IsBedrock ? "版本:" : "支持格式:";
-    public string DetailsText => Info.IsBedrock
+    public string DetailsText => IsCompactLayout
+        ? $"名称：{DisplayName}\n文件夹：{FileName}\nUUID：{Info.Uuid ?? "未知"}\n版本：{SupportedFormatsText}\n皮肤：{DescriptionText}"
+        : Info.IsBedrock
         ? $"名称：{DisplayName}\n文件夹：{FileName}\nUUID：{Info.Uuid ?? "未知"}\n版本：{SupportedFormatsText}\n最低引擎版本：{Info.MinEngineVersion ?? "未知"}\n作者：{(Info.Authors.Count == 0 ? "未知" : string.Join("、", Info.Authors))}\n模块：{(Info.Modules.Count == 0 ? "无" : string.Join("、", Info.Modules))}\n依赖：{(Info.Dependencies.Count == 0 ? "无" : string.Join("、", Info.Dependencies))}\n子包：{(Info.Subpacks.Count == 0 ? "无" : string.Join("、", Info.Subpacks))}\n能力：{(Info.Capabilities.Count == 0 ? "无" : string.Join("、", Info.Capabilities))}\n\n{DescriptionText}"
         : $"名称：{DisplayName}\n文件：{FileName}\n支持格式：{SupportedFormatsText}\n\n{DescriptionText}";
     public Bitmap? Icon { get; } = CreateIcon(info.IconData);

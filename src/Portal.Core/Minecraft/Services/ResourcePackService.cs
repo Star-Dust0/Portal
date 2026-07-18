@@ -19,9 +19,12 @@ public sealed class ResourcePackService
             var root = instance.GetSpecialFolder(folder);
             var packs = instance.Type == MinecraftInstanceType.Java
                 ? Directory.EnumerateFiles(root, "*.zip").Select(path => ReadJavaPack(path, cancellationToken))
-                : Directory.EnumerateDirectories(root)
-                    .Where(path => File.Exists(Path.Combine(path, "manifest.json")))
-                    .Select(path => ReadBedrockPack(path, cancellationToken));
+                : folder == MinecraftSpecialFolder.SkinPacksFolder
+                    ? Directory.EnumerateDirectories(root).Select(path => ReadBedrockSkinPack(path, cancellationToken))
+                        .Where(pack => pack != null).Cast<ResourcePackInfo>()
+                    : Directory.EnumerateDirectories(root)
+                        .Where(path => File.Exists(Path.Combine(path, "manifest.json")))
+                        .Select(path => ReadBedrockPack(path, cancellationToken));
             return packs
                 .OrderBy(pack => pack.DisplayName, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(pack => pack.FileName, StringComparer.OrdinalIgnoreCase)
@@ -120,6 +123,69 @@ public sealed class ResourcePackService
 
         return new ResourcePackInfo(path, fileName, displayName, description, version, GetDirectorySize(directory, cancellationToken),
             directory.LastWriteTime, ReadIcon(Path.Combine(path, "pack_icon.png")), true, minEngineVersion, uuid, authors, subpacks, capabilities, modules, dependencies);
+    }
+
+    private static ResourcePackInfo? ReadBedrockSkinPack(string path, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var manifestPath = Path.Combine(path, "manifest.json");
+        if (!File.Exists(manifestPath))
+            return null;
+
+        var directory = new DirectoryInfo(path);
+        var fileName = directory.Name;
+        var displayName = fileName;
+        string? description = null;
+        string? version = null;
+        string? uuid = null;
+        var modules = new List<string>();
+
+        try
+        {
+            using var stream = File.OpenRead(manifestPath);
+            using var document = JsonDocument.Parse(stream, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
+            var root = document.RootElement;
+            if (!root.TryGetProperty("header", out var header) || header.ValueKind != JsonValueKind.Object ||
+                !root.TryGetProperty("modules", out var moduleValues) || moduleValues.ValueKind != JsonValueKind.Array)
+                return null;
+
+            var skinPackModules = moduleValues.EnumerateArray().Where(module => module.ValueKind == JsonValueKind.Object &&
+                string.Equals(GetString(module, "type"), "skin_pack", StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (skinPackModules.Length == 0)
+                return null;
+
+            displayName = GetString(header, "name") ?? displayName;
+            description = GetString(header, "description");
+            version = GetVersion(header, "version");
+            uuid = GetString(header, "uuid");
+            modules.AddRange(skinPackModules.Select(module => GetString(module, "type")).OfType<string>());
+        }
+        catch (IOException) { return null; }
+        catch (UnauthorizedAccessException) { return null; }
+        catch (JsonException) { return null; }
+
+        var skinCount = ReadSkinCount(Path.Combine(path, "skins.json"));
+        return new ResourcePackInfo(path, fileName, displayName, description, version,
+            GetDirectorySize(directory, cancellationToken), directory.LastWriteTime,
+            ReadIcon(Path.Combine(path, "pack_icon.png")), true, null, uuid, [], [], [], modules, [], skinCount);
+    }
+
+    private static int? ReadSkinCount(string path)
+    {
+        if (!File.Exists(path))
+            return 0;
+
+        try
+        {
+            using var stream = File.OpenRead(path);
+            using var document = JsonDocument.Parse(stream, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
+            if (!document.RootElement.TryGetProperty("skins", out var skins) || skins.ValueKind != JsonValueKind.Array)
+                return 0;
+            return skins.GetArrayLength();
+        }
+        catch (IOException) { return null; }
+        catch (UnauthorizedAccessException) { return null; }
+        catch (JsonException) { return null; }
     }
 
     private static string? GetString(JsonElement element, string property) => element.TryGetProperty(property, out var value) &&
@@ -233,4 +299,5 @@ public sealed record ResourcePackInfo(
     IReadOnlyList<string> Subpacks,
     IReadOnlyList<string> Capabilities,
     IReadOnlyList<string> Modules,
-    IReadOnlyList<string> Dependencies);
+    IReadOnlyList<string> Dependencies,
+    int? SkinCount = null);

@@ -101,7 +101,7 @@
                     <UniformGridLayout
                         ItemsStretch="Fill"
                         MinColumnSpacing="16"
-                        MinItemHeight="117"
+                        MinItemHeight="{Binding CardMinHeight}"
                         MinItemWidth="300"
                         MinRowSpacing="16"
                         Orientation="Horizontal" />
