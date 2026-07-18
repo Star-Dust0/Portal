@@ -31,10 +31,10 @@ public static class MinecraftLaunchService
         topLevel?.Notice($"启动 {instance.InstanceName}");
         var launchCompleted = false;
         Process? process = null;
-        var logSession = new MinecraftLogSession(instance);
+        var logSession = instance.Type == MinecraftInstanceType.Java ? new MinecraftLogSession(instance) : null;
         var task = TaskManager.Instance.CreateTask(new TaskOptions
         {
-            Name = $"启动 {instance.InstanceName}",
+            Name = $"启动 {GetEditionName(instance)} {instance.InstanceName}",
             Description = "正在准备启动流程",
             Progress = 0,
             Actions =
@@ -73,28 +73,36 @@ public static class MinecraftLaunchService
                     Description = "打开本次启动任务的 Minecraft 实时日志。",
                     ExecuteAsync = (_, _) =>
                     {
-                        options.OpenLog?.Invoke(logSession);
+                        options.OpenLog?.Invoke(logSession!);
                         return Task.CompletedTask;
                     },
-                    IsVisible = _ => options.OpenLog != null
+                    IsVisible = _ => logSession != null && options.OpenLog != null
                 }
             ]
         });
-        var verifyAccount = task.CreateChild(new TaskOptions
+        ManagedTask? verifyAccount = null;
+        ManagedTask? selectJava = null;
+        ManagedTask? buildArguments = null;
+        if (instance.Type == MinecraftInstanceType.Java)
         {
-            Name = "验证游戏账户", Description = "等待验证", Progress = 0
-        });
-        var selectJava = task.CreateChild(new TaskOptions
-        {
-            Name = "选择 Java 运行时", Description = "等待账户验证完成", Progress = 0
-        });
-        var buildArguments = task.CreateChild(new TaskOptions
-        {
-            Name = "构建启动参数", Description = "等待 Java 运行时选择完成", Progress = 0
-        });
+            verifyAccount = task.CreateChild(new TaskOptions
+            {
+                Name = "验证游戏账户", Description = "等待验证", Progress = 0
+            });
+            selectJava = task.CreateChild(new TaskOptions
+            {
+                Name = "选择 Java 运行时", Description = "等待账户验证完成", Progress = 0
+            });
+            buildArguments = task.CreateChild(new TaskOptions
+            {
+                Name = "构建启动参数", Description = "等待 Java 运行时选择完成", Progress = 0
+            });
+        }
         var startGame = task.CreateChild(new TaskOptions
         {
-            Name = "启动 Minecraft", Description = "等待启动参数构建完成", Progress = 0
+            Name = instance.Type == MinecraftInstanceType.Bedrock ? "启动基岩版" : "启动 Minecraft",
+            Description = instance.Type == MinecraftInstanceType.Bedrock ? "等待启动" : "等待启动参数构建完成",
+            Progress = 0
         });
         task.Start();
         _ = RunWorkflowAsync(instance, topLevel, options, task, verifyAccount, selectJava, buildArguments, startGame, logSession,
@@ -108,14 +116,14 @@ public static class MinecraftLaunchService
     }
 
     private static async Task RunWorkflowAsync(MinecraftInstance instance, TopLevel? topLevel, MinecraftLaunchOptions options, ManagedTask task,
-        ManagedTask verifyAccount, ManagedTask selectJava, ManagedTask buildArguments, ManagedTask startGame,
-        MinecraftLogSession logSession, Action<Process> processStarted)
+        ManagedTask? verifyAccount, ManagedTask? selectJava, ManagedTask? buildArguments, ManagedTask startGame,
+        MinecraftLogSession? logSession, Action<Process> processStarted)
     {
         try
         {
             if (instance.Type == MinecraftInstanceType.Bedrock)
             {
-                startGame.Start(context => LaunchBedrockAsync(context, instance, topLevel, options, task, logSession, processStarted));
+                startGame.Start(context => LaunchBedrockAsync(context, instance, topLevel, options, task, processStarted));
                 await startGame.Completion;
                 ThrowIfFailed(startGame);
                 return;
@@ -128,7 +136,7 @@ public static class MinecraftLaunchService
             JavaEntry? java = null;
             LaunchConfig? config = null;
 
-            verifyAccount.Start(async context =>
+            verifyAccount!.Start(async context =>
             {
                 context.SetRunning("正在验证游戏账户");
                 account = await VerifyAccountAsync(options);
@@ -137,7 +145,7 @@ public static class MinecraftLaunchService
             await verifyAccount.Completion;
             ThrowIfFailed(verifyAccount);
 
-            selectJava.Start(async context =>
+            selectJava!.Start(async context =>
             {
                 context.SetRunning("正在检查可用 Java 运行时");
                 java = await SelectJavaAsync(instance, options, context.CancellationToken);
@@ -146,7 +154,7 @@ public static class MinecraftLaunchService
             await selectJava.Completion;
             ThrowIfFailed(selectJava);
 
-            buildArguments.Start(context =>
+            buildArguments!.Start(context =>
             {
                 context.SetRunning("正在应用实例与全局游戏设置");
                 config = CreateLaunchConfig(instance, account!, java!, options);
@@ -156,7 +164,7 @@ public static class MinecraftLaunchService
             await buildArguments.Completion;
             ThrowIfFailed(buildArguments);
 
-            startGame.Start(context => StartGameStepAsync(context, instance, config!, topLevel, task, logSession, processStarted));
+            startGame.Start(context => StartGameStepAsync(context, instance, config!, topLevel, task, logSession!, processStarted));
             await startGame.Completion;
             ThrowIfFailed(startGame);
         }
@@ -335,7 +343,7 @@ public static class MinecraftLaunchService
     }
 
     private static async Task LaunchBedrockAsync(TaskExecutionContext context, MinecraftInstance instance,
-        TopLevel? topLevel, MinecraftLaunchOptions options, ManagedTask task, MinecraftLogSession logSession,
+        TopLevel? topLevel, MinecraftLaunchOptions options, ManagedTask task,
         Action<Process> processStarted)
     {
         context.SetRunning("正在启动基岩版游戏");
@@ -349,11 +357,14 @@ public static class MinecraftLaunchService
         var launcher = factory(instance.BedrockConfig);
         launcher.UpdateProgress = (text, progress) =>
         {
-            if (!context.Task.IsTerminal)
+            Dispatcher.UIThread.Post(() =>
             {
+                if (context.Task.IsTerminal)
+                    return;
+
                 context.SetRunning(text);
                 context.ReportProgress(progress / 100.0);
-            }
+            });
         };
 
         await launcher.Launch();
@@ -361,13 +372,13 @@ public static class MinecraftLaunchService
         var process = launcher.GetProcess()
                       ?? throw new InvalidOperationException("基岩版启动器未返回进程信息。");
 
-        ObserveBedrockProcess(instance, topLevel, process, task, logSession);
+        ObserveBedrockProcess(instance, topLevel, process, task);
         processStarted(process);
         context.ReportProgress(1);
     }
 
     private static void ObserveBedrockProcess(MinecraftInstance instance, TopLevel? topLevel, Process process,
-        ManagedTask task, MinecraftLogSession logSession)
+        ManagedTask task)
     {
         instance.Config.LastPlayTime = DateTime.Now;
         instance.IncrementPlaySessions();
@@ -406,6 +417,13 @@ public static class MinecraftLaunchService
             return MinecraftLogLevel.Information;
         return MinecraftLogLevel.Other;
     }
+
+    private static string GetEditionName(MinecraftInstance instance) => instance.Type switch
+    {
+        MinecraftInstanceType.Java => "Java 版",
+        MinecraftInstanceType.Bedrock => "基岩版",
+        _ => "Minecraft"
+    };
 
     private static void Notice(TopLevel? topLevel, string message, NotificationType type)
     {

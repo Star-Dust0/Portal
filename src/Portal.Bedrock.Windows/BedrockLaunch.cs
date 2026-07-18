@@ -18,7 +18,7 @@ public class BedrockLaunch : IBedrockLaunch
 
     public override async Task Launch()
     {
-        MinecraftProcess = await new BedrockCore().LaunchGameAsync(new LaunchOptions
+        var options = new LaunchOptions
         {
             GameFolder = _instanceConfig.InstancePath,
             GameType = _instanceConfig.Type switch
@@ -52,7 +52,11 @@ public class BedrockLaunch : IBedrockLaunch
                 }
             }),
             LaunchArgs = null
-        });
+        };
+
+        // Package registration can perform synchronous work before its task is returned.
+        // Keep it off Avalonia's UI thread so the task drawer remains responsive.
+        MinecraftProcess = await Task.Run(() => new BedrockCore().LaunchGameAsync(options)).ConfigureAwait(false);
         
         LaunchFinish?.Invoke();
     }
