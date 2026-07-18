@@ -20,11 +20,36 @@ public static class BedrockDataPathResolver
     private static string GetPortalIsolationRoot(string instancePath) =>
         Path.Combine(instancePath, "config", "Portal.Desktop", "isolation");
 
-    public static string GetMojangDataRoot(BedrockInstanceConfig config)
+    public static string GetMojangDataRoot(BedrockInstanceConfig config, string userId = "Shared")
     {
         var root = GetDataRoot(config);
-        return Path.Combine(root, "Users", "Shared", "games", "com.mojang");
+        return Path.Combine(root, "Users", userId, "games", "com.mojang");
     }
+
+    public static IReadOnlyList<string> GetWorldUserIds(BedrockInstanceConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        var usersRoot = Path.Combine(GetDataRoot(config), "Users");
+        if (!Directory.Exists(usersRoot))
+            return ["Shared"];
+
+        var userIds = Directory.EnumerateDirectories(usersRoot)
+            .Select(Path.GetFileName)
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Cast<string>()
+            .OrderBy(name => string.Equals(name, "Shared", StringComparison.OrdinalIgnoreCase))
+            .ThenBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (!userIds.Contains("Shared", StringComparer.OrdinalIgnoreCase))
+            userIds.Add("Shared");
+
+        return userIds;
+    }
+
+    public static string GetWorldsFolder(BedrockInstanceConfig config, string userId) =>
+        Path.Combine(GetMojangDataRoot(config, userId), "minecraftWorlds");
 
     public static void EnsurePortalDataDirectories()
     {
@@ -39,7 +64,7 @@ public static class BedrockDataPathResolver
     public static string GetFolder(BedrockInstanceConfig config, MinecraftSpecialFolder folder) => folder switch
     {
         MinecraftSpecialFolder.InstanceFolder => config.InstancePath,
-        MinecraftSpecialFolder.SavesFolder => Path.Combine(GetMojangDataRoot(config), "minecraftWorlds"),
+        MinecraftSpecialFolder.SavesFolder => GetWorldsFolder(config, "Shared"),
         MinecraftSpecialFolder.ResourcePacksFolder => Path.Combine(GetMojangDataRoot(config), "resource_packs"),
         MinecraftSpecialFolder.BehaviorPacksFolder => Path.Combine(GetMojangDataRoot(config), "behavior_packs"),
         MinecraftSpecialFolder.SkinPacksFolder => Path.Combine(GetMojangDataRoot(config), "skin_packs"),

@@ -1,5 +1,6 @@
 <UserControl
     x:Class="Portal.Views.Pages.InstancePages.BedrockWorlds"
+    x:DataType="local:BedrockWorlds"
     xmlns="https://github.com/avaloniaui"
     xmlns:local="clr-namespace:Portal.Views.Pages.InstancePages"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -10,13 +11,23 @@
                 Content="打开文件夹"
                 DockPanel.Dock="Right"
                 VerticalAlignment="Top" />
+            <ComboBox
+                DisplayMemberBinding="{Binding}"
+                DockPanel.Dock="Right"
+                ItemsSource="{Binding WorldUserIds}"
+                Margin="0,0,10,0"
+                MinWidth="180"
+                Name="WorldUserIdSelector"
+                SelectionChanged="WorldUserIdSelector_OnSelectionChanged"
+                ToolTip.Tip="选择基岩版数据用户 ID"
+                VerticalAlignment="Top" />
             <DockPanel DockPanel.Dock="Top" LastChildFill="False">
                 <TextBlock
                     Cursor="Hand"
                     FontSize="24"
                     Name="Title"
                     PointerPressed="Title_OnPointerPressed"
-                    Text="世界" />
+                    Text="存档" />
                 <TextBlock
                     Foreground="{DynamicResource InnerForegroundColor}"
                     Margin="10,8,0,0"
@@ -27,12 +38,12 @@
                 Foreground="{DynamicResource InnerForegroundColor}"
                 IsVisible="False"
                 Margin="0,8,0,0"
-                Text="正在读取世界..." />
+                Text="正在读取存档..." />
             <TextBlock
                 DockPanel.Dock="Top"
                 Foreground="{DynamicResource InnerForegroundColor}"
                 Margin="0,8,0,0"
-                Text="此实例没有可识别的世界" />
+                Text="此实例没有可识别的存档" />
         </DockPanel>
         <Border />
     </DockPanel>
