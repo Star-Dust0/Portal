@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Portal.Core.Minecraft.Instance.Bedrock;
 
 namespace Portal.Core.Minecraft.Classes;
 
@@ -99,7 +100,7 @@ public partial class InstanceStorageUsage : ObservableObject
             return _loadTask ??= LoadAsync();
     }
 
-    public void Refresh()
+    public void Refresh(string? bedrockWorldUserId = null)
     {
         OnPropertyChanged(nameof(CanDisplayPercentage));
         OnPropertyChanged(nameof(ModsDisplayText));
@@ -107,17 +108,34 @@ public partial class InstanceStorageUsage : ObservableObject
         OnPropertyChanged(nameof(ShaderPacksDisplayText));
         OnPropertyChanged(nameof(SavesDisplayText));
         lock (_loadLock)
-            _loadTask = LoadAsync();
+            _loadTask = LoadAsync(bedrockWorldUserId);
     }
 
-    private async Task LoadAsync()
+    public Task RefreshBedrockWorldsAsync(string userId)
+    {
+        if (_instance.BedrockConfig is not { } config)
+            return Task.CompletedTask;
+
+        return RefreshBedrockWorldsAsync(config, userId);
+    }
+
+    private async Task RefreshBedrockWorldsAsync(Portal.Bedrock.Standard.Manifest.BedrockInstanceConfig config,
+        string userId)
+    {
+        WorldsBytes = await Task.Run(() =>
+            GetDirectorySize(BedrockDataPathResolver.GetWorldsFolder(config, userId)));
+    }
+
+    private async Task LoadAsync(string? bedrockWorldUserId = null)
     {
         if (_instance.IsBedrock)
         {
             var bedrockUsage = await Task.Run(() =>
             {
                 var instanceBytes = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.InstanceFolder));
-                var worlds = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.SavesFolder));
+                var worlds = _instance.BedrockConfig is { } config
+                    ? GetDirectorySize(BedrockDataPathResolver.GetWorldsFolder(config, bedrockWorldUserId ?? "Shared"))
+                    : 0;
                 var resources = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.ResourcePacksFolder));
                 var behaviors = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.BehaviorPacksFolder));
                 var skins = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.SkinPacksFolder));

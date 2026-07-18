@@ -12,6 +12,7 @@ using MinecraftLaunch.Base.Models.Game;
 using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft;
 using Portal.Core.Minecraft.Instance;
+using Portal.Core.Minecraft.Instance.Bedrock;
 using Portal.Core.Minecraft.Instance.Java;
 using Portal.Services;
 using Portal.ViewModels;
@@ -36,6 +37,7 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
     }
 
     public MinecraftInstance Instance { get; }
+    public ObservableCollection<string> WorldUserIds { get; } = [];
 
     public string TotalPlayTime
     {
@@ -57,7 +59,8 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
         InstanceManager.Instance.InstanceIconChanged += OnInstanceIconChanged;
         Loaded += (_, _) =>
         {
-            Instance.StorageUsage.Refresh();
+            RefreshWorldUserIds();
+            Instance.StorageUsage.Refresh(WorldUserIdSelector.SelectedItem as string);
             Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
         };
         Unloaded += (_, _) =>
@@ -110,6 +113,26 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
     {
         RecentPlayTimeChart.Days = RecentPlayTimeChart.Days == 7 ? 30 : 7;
         Block.Text = RecentPlayTimeChart.Days != 7 ? "30 天" : "7 天";
+    }
+
+    private void RefreshWorldUserIds()
+    {
+        if (Instance.BedrockConfig is not { } config) return;
+
+        var selectedUserId = WorldUserIdSelector.SelectedItem as string;
+        var userIds = BedrockDataPathResolver.GetWorldUserIds(config);
+        WorldUserIds.Clear();
+        foreach (var userId in userIds) WorldUserIds.Add(userId);
+        WorldUserIdSelector.SelectedItem = selectedUserId != null && WorldUserIds.Contains(selectedUserId)
+            ? selectedUserId
+            : WorldUserIds.FirstOrDefault(userId => !string.Equals(userId, "Shared", StringComparison.OrdinalIgnoreCase))
+              ?? WorldUserIds.FirstOrDefault();
+    }
+
+    private async void WorldUserIdSelector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (WorldUserIdSelector.SelectedItem is string userId)
+            await Instance.StorageUsage.RefreshBedrockWorldsAsync(userId);
     }
 
     private void SaveIcon_Click(object? sender, RoutedEventArgs e)
