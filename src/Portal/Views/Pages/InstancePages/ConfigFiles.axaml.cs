@@ -18,6 +18,7 @@ using TioUi.Common;
 using TioUi.Common.Extensions;
 using TioUi.Controls;
 using Tomlyn;
+using Tomlyn.Model;
 
 namespace Portal.Views.Pages.InstancePages;
 
@@ -313,7 +314,8 @@ public partial class ConfigFiles : UserControl, IDisposable, INotifyPropertyChan
         {
             var extension = Path.GetExtension(SelectedTab.FilePath);
             var formatted = extension.Equals(".toml", StringComparison.OrdinalIgnoreCase)
-                ? Toml.FromModel(Toml.ToModel(SelectedTab.Document.Text, SelectedTab.FilePath))
+                ? TomlSerializer.Serialize(TomlSerializer.Deserialize<TomlTable>(SelectedTab.Document.Text)!,
+                    new TomlSerializerOptions { WriteIndented = true })
                 : FormatJson(SelectedTab.Document.Text);
             SelectedTab.Document.Text = formatted.TrimEnd() + Environment.NewLine;
         }
