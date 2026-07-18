@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Avalonia;
 using HotAvalonia;
+using Portal.Core.Minecraft;
 using Tio.Avalonia.Standard.Modules;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 
@@ -17,6 +18,10 @@ sealed class Program
     {
         Initializer.Program("Portal", "xyz.tiouo.Portal");
         Logger.Info("应用程序启动 Main()");
+
+#if WINDOWS
+        RegisterBedrockLauncher();
+#endif
         
         if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             Logger.Info("Running on Windows");
@@ -36,6 +41,14 @@ sealed class Program
             throw;
         }
     }
+
+#if WINDOWS
+    private static void RegisterBedrockLauncher()
+    {
+        MinecraftLaunchService.DefaultBedrockLauncherFactory =
+            config => new Portal.Bedrock.BedrockLaunch(config);
+    }
+#endif
 
     // Avalonia configuration, don't remove; also used by visual designer.
     private static AppBuilder BuildAvaloniaApp()

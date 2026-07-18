@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
@@ -9,6 +10,8 @@ using MinecraftLaunch.Base.Models.Game;
 using MinecraftLaunch.Components.Parser;
 using MinecraftLaunch.Extensions;
 using MinecraftLaunch.Launch;
+using Portal.Bedrock.Standard.Interface;
+using Portal.Bedrock.Standard.Manifest;
 using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Instance.Java;
 using Portal.Core.Operations.Account;
@@ -22,11 +25,12 @@ namespace Portal.Core.Minecraft;
 
 public static class MinecraftLaunchService
 {
+    public static Func<BedrockInstanceConfig, IBedrockLaunch>? DefaultBedrockLauncherFactory { get; set; }
     public static Task LaunchAsync(MinecraftInstance instance, TopLevel? topLevel, MinecraftLaunchOptions options)
     {
         topLevel?.Notice($"启动 {instance.InstanceName}");
         var launchCompleted = false;
-        MinecraftProcess? process = null;
+        Process? process = null;
         var logSession = new MinecraftLogSession(instance);
         var task = TaskManager.Instance.CreateTask(new TaskOptions
         {
@@ -54,11 +58,10 @@ public static class MinecraftLaunchService
                     Description = "结束 Minecraft 及其子进程。",
                     ExecuteAsync = (_, _) =>
                     {
-                        var nativeProcess = process?.Process;
-                        if (nativeProcess == null)
+                        if (process == null)
                             throw new InvalidOperationException("Minecraft 进程尚未创建或已无法访问。");
-                        if (!nativeProcess.HasExited)
-                            nativeProcess.Kill(entireProcessTree: true);
+                        if (!process.HasExited)
+                            process.Kill(entireProcessTree: true);
                         return Task.CompletedTask;
                     },
                     IsVisible = managedTask => launchCompleted && !managedTask.IsTerminal &&
@@ -106,10 +109,18 @@ public static class MinecraftLaunchService
 
     private static async Task RunWorkflowAsync(MinecraftInstance instance, TopLevel? topLevel, MinecraftLaunchOptions options, ManagedTask task,
         ManagedTask verifyAccount, ManagedTask selectJava, ManagedTask buildArguments, ManagedTask startGame,
-        MinecraftLogSession logSession, Action<MinecraftProcess> processStarted)
+        MinecraftLogSession logSession, Action<Process> processStarted)
     {
         try
         {
+            if (instance.Type == MinecraftInstanceType.Bedrock)
+            {
+                startGame.Start(context => LaunchBedrockAsync(context, instance, topLevel, options, task, logSession, processStarted));
+                await startGame.Completion;
+                ThrowIfFailed(startGame);
+                return;
+            }
+
             if (instance.Type != MinecraftInstanceType.Java || instance.MinecraftEntry == null)
                 throw new InvalidOperationException("当前仅支持启动 Java 版 Minecraft 实例。");
 
@@ -172,16 +183,16 @@ public static class MinecraftLaunchService
 
     private static async Task StartGameStepAsync(TaskExecutionContext context, MinecraftInstance instance,
         LaunchConfig config, TopLevel? topLevel, ManagedTask task, MinecraftLogSession logSession,
-        Action<MinecraftProcess> processStarted)
+        Action<Process> processStarted)
     {
         context.SetRunning("正在启动 Minecraft 进程");
         var parser = new MinecraftParser(instance.MinecraftEntry!.MinecraftFolderPath);
-        var process = await new MinecraftRunner(config, parser)
+        var mcProcess = await new MinecraftRunner(config, parser)
             .RunAsync(instance.MinecraftEntry, context.CancellationToken);
-        if (process == null)
+        if (mcProcess == null)
             throw new InvalidOperationException("Minecraft 启动器未返回进程信息。");
-        ObserveProcess(instance, topLevel, process, task, context, logSession);
-        processStarted(process);
+        ObserveProcess(instance, topLevel, mcProcess, task, context, logSession);
+        processStarted(mcProcess.Process);
         context.ReportProgress(1);
     }
 
@@ -311,6 +322,75 @@ public static class MinecraftLaunchService
         }
     }
 
+    private static bool IsProcessRunning(Process process)
+    {
+        try
+        {
+            return process is { HasExited: false };
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
+    }
+
+    private static async Task LaunchBedrockAsync(TaskExecutionContext context, MinecraftInstance instance,
+        TopLevel? topLevel, MinecraftLaunchOptions options, ManagedTask task, MinecraftLogSession logSession,
+        Action<Process> processStarted)
+    {
+        context.SetRunning("正在启动基岩版游戏");
+
+        if (instance.BedrockConfig == null)
+            throw new InvalidOperationException("基岩版实例配置缺失。");
+
+        var factory = options.BedrockLauncherFactory ?? DefaultBedrockLauncherFactory
+                       ?? throw new PlatformNotSupportedException("当前平台不支持启动基岩版。");
+
+        var launcher = factory(instance.BedrockConfig);
+        launcher.UpdateProgress = (text, progress) =>
+        {
+            if (!context.Task.IsTerminal)
+            {
+                context.SetRunning(text);
+                context.ReportProgress(progress / 100.0);
+            }
+        };
+
+        await launcher.Launch();
+
+        var process = launcher.GetProcess()
+                      ?? throw new InvalidOperationException("基岩版启动器未返回进程信息。");
+
+        ObserveBedrockProcess(instance, topLevel, process, task, logSession);
+        processStarted(process);
+        context.ReportProgress(1);
+    }
+
+    private static void ObserveBedrockProcess(MinecraftInstance instance, TopLevel? topLevel, Process process,
+        ManagedTask task, MinecraftLogSession logSession)
+    {
+        instance.Config.LastPlayTime = DateTime.Now;
+        instance.IncrementPlaySessions();
+        instance.StartPlayTimer();
+
+        process.Exited += (_, _) =>
+        {
+            instance.StopPlayTimer();
+            Notice(topLevel, $"{instance.InstanceName} 已退出", NotificationType.Success);
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (!task.IsTerminal)
+                    task.Complete();
+            });
+        };
+
+        if (!IsProcessRunning(process))
+        {
+            instance.StopPlayTimer();
+            task.Complete();
+        }
+    }
+
     private static MinecraftLogLevel GetLogLevel(string line)
     {
         if (line.Contains("/FATAL]", StringComparison.OrdinalIgnoreCase) ||
@@ -397,4 +477,5 @@ public sealed class MinecraftLaunchOptions
     public int MaxMemory { get; init; }
     public Action<MinecraftAccount, MinecraftAccount>? AccountRefreshed { get; init; }
     public Action<MinecraftLogSession>? OpenLog { get; init; }
+    public Func<BedrockInstanceConfig, IBedrockLaunch>? BedrockLauncherFactory { get; init; }
 }
