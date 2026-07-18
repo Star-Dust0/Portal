@@ -16,6 +16,7 @@ using Portal.ViewModels;
 using Portal.Services;
 using Tio.Avalonia.Standard.Modules.Extensions;
 using Tio.Avalonia.Standard.Tab.Entries;
+using Tio.Avalonia.Standard.Tab.Extensions;
 using Tio.Avalonia.Standard.Tab.Interface;
 using TioUi.Common.Extensions;
 
@@ -81,6 +82,14 @@ public partial class InstancesPage : DataUserControl, ITioTabPage
             Data.ConfigEntry.MinecraftFolders.Select(f => (f.FolderPath, f.FolderName))
         );
         InstancesPageViewModel.ApplyFilterAndSort();
+    }
+
+    private void OpenLitematicaPage_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var window = sender.AsTopLevel() as TioTabWindowBase;
+        var tab = new TabEntry(window, new LitematicaPage());
+        window?.CreateTab(tab);
+        window?.SelectTab(tab);
     }
 }
 
