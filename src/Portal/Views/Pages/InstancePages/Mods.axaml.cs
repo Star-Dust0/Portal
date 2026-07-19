@@ -107,7 +107,35 @@ public partial class Mods : UserControl, INotifyPropertyChanged, IDisposable
         ApplyFilter();
         IsLoading = false;
         RaiseListProperties();
-        _ = RefreshMetadataAsync(mods, _disposeCancellation.Token);
+        _ = RefreshMetadataAndFriendlyNamesAsync(mods, _disposeCancellation.Token);
+    }
+
+    private async Task RefreshMetadataAndFriendlyNamesAsync(IReadOnlyList<ModInfo> mods,
+        CancellationToken cancellationToken)
+    {
+        await RefreshMetadataAsync(mods, cancellationToken);
+        if (_isDisposed)
+            return;
+
+        try
+        {
+            await _modService.TranslateFriendlyNamesAsync(Items.Select(item => item.Info), updated =>
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    if (_isDisposed)
+                        return;
+                    Items.FirstOrDefault(item => item.Info.FilePath == updated.FilePath)?.Update(updated);
+                }), cancellationToken);
+        }
+        catch (OperationCanceledException) { }
+        catch (HttpRequestException exception)
+        {
+            Logger.Error($"翻译模组名称失败: {exception.Message}");
+        }
+        catch (Exception exception)
+        {
+            Logger.Error($"翻译模组名称失败: {exception.Message}");
+        }
     }
 
     private async Task RefreshMetadataAsync(IReadOnlyList<ModInfo> mods, CancellationToken cancellationToken)
@@ -370,7 +398,7 @@ public sealed class ModItem(ModInfo info) : INotifyPropertyChanged, IDisposable
     private ModInfo _info = info;
     public ModInfo Info => _info;
     public string DisplayName => _info.DisplayName;
-    public string FriendlyName => _info.DisplayName;
+    public string FriendlyName => _info.FriendlyName ?? _info.DisplayName;
     public string FileName => _info.FileName + ".jar";
     public string DescriptionText => _info.Description ?? "没有可用的模组描述";
     public string? IconUrl => _info.IconUrl;

@@ -60,7 +60,7 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
         Loaded += (_, _) =>
         {
             RefreshWorldUserIds();
-            Instance.StorageUsage.Refresh(WorldUserIdSelector.SelectedItem as string);
+            Instance.StorageUsage.Refresh();
             Dispatcher.UIThread.Post(() => InstanceIcon.Source = Instance[72]);
         };
         Unloaded += (_, _) =>
@@ -131,8 +131,7 @@ public partial class Dashboard : DataUserControl, INotifyPropertyChanged
 
     private async void WorldUserIdSelector_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (WorldUserIdSelector.SelectedItem is string userId)
-            await Instance.StorageUsage.RefreshBedrockWorldsAsync(userId);
+        await Instance.StorageUsage.RefreshBedrockWorldsAsync();
     }
 
     private void SaveIcon_Click(object? sender, RoutedEventArgs e)
