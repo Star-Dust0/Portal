@@ -1,15 +1,13 @@
 ﻿using Flurl.Http;
 using Newtonsoft.Json;
 using Portal.Core.Minecraft.Classes;
+using Portal.Core.Minecraft.Services;
 using Tio.Avalonia.Standard.Modules.DiskIO;
 
 namespace Portal.Core.Minecraft;
 
 public static class NewsService
 {
-    private static readonly string Root = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "xyz.tiouo.Portal");
-
     public static event EventHandler? NewsUpdated;
 
     public static List<NewsEntry> JavaNews { get; private set; } = [];
@@ -19,13 +17,10 @@ public static class NewsService
     private const string BedrockApiUrl = "https://launchercontent.mojang.com/v2/bedrockPatchNotes.json";
     private const string BaseImageUrl = "https://launchercontent.mojang.com";
 
-    private static string JavaCachePath => Path.Combine(Root, "java_news_cache.json");
-    private static string BedrockCachePath => Path.Combine(Root, "bedrock_news_cache.json");
-
     public static void InitializeFromCache()
     {
-        JavaNews = LoadCache(JavaCachePath, NewsEdition.Java);
-        BedrockNews = LoadCache(BedrockCachePath, NewsEdition.Bedrock);
+        JavaNews = LoadCache(NewsEdition.Java);
+        BedrockNews = LoadCache(NewsEdition.Bedrock);
         if (JavaNews.Count > 0 || BedrockNews.Count > 0) NewsUpdated?.Invoke(null, EventArgs.Empty);
     }
 
@@ -33,8 +28,8 @@ public static class NewsService
     {
         try
         {
-            var jTask = FetchAsync(JavaApiUrl, JavaCachePath, NewsEdition.Java);
-            var bTask = FetchAsync(BedrockApiUrl, BedrockCachePath, NewsEdition.Bedrock);
+            var jTask = FetchAsync(JavaApiUrl, NewsEdition.Java);
+            var bTask = FetchAsync(BedrockApiUrl, NewsEdition.Bedrock);
 
             var java = await jTask;
             var bedrock = await bTask;
@@ -51,12 +46,11 @@ public static class NewsService
         }
     }
 
-    private static List<NewsEntry> LoadCache(string path, NewsEdition edition)
+    private static List<NewsEntry> LoadCache(NewsEdition edition)
     {
         try
         {
-            if (!File.Exists(path)) return [];
-            return ParseJson(File.ReadAllText(path), edition);
+            return CacheDatabase.ReadNews(edition);
         }
         catch (Exception ex)
         {
@@ -65,14 +59,14 @@ public static class NewsService
         }
     }
 
-    private static async Task<List<NewsEntry>?> FetchAsync(string url, string cachePath, NewsEdition edition)
+    private static async Task<List<NewsEntry>?> FetchAsync(string url, NewsEdition edition)
     {
         try
         {
             var json = await url.GetStringAsync();
-            Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
-            File.WriteAllText(cachePath, json);
-            return ParseJson(json, edition);
+            var entries = ParseJson(json, edition);
+            CacheDatabase.WriteNews(edition, entries);
+            return entries;
         }
         catch (Exception ex)
         {

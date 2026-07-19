@@ -62,7 +62,7 @@
                     <tio:NavMenuItem IsVisible="{Binding IsBedrock}"
                         Command="{Binding NavigateTypeCommand}"
                         CommandParameter="{x:Type instancePages:BedrockWorlds}"
-                        Header="世界" />
+                        Header="存档" />
                     <tio:NavMenuItem IsVisible="{Binding IsBedrock}"
                         Command="{Binding NavigateTypeCommand}"
                         CommandParameter="{x:Type instancePages:BedrockWorldTemplates}"

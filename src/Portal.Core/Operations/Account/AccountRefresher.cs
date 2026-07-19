@@ -19,7 +19,7 @@ public static class AccountRefresher
         {
             Logger.Debug("正在刷新账号 " + account.AsJson());
             
-            var authenticator = new MicrosoftAuthenticator("c06d4d68-7751-4a8a-a2ff-d1b46688f428");
+            var authenticator = new MicrosoftAuthenticator(ServiceCredentials.MicrosoftClientId);
             var authResult = await authenticator.RefreshAsync(new MicrosoftAccount(account.Name, (Guid)account.Uuid!,
                 account.AccessToken, account.RefreshToken, account.LastLoginTime));
 

@@ -135,9 +135,7 @@
                     <tio:Descriptions Grid.Column="3" LabelPosition="Top">
                         <tio:DescriptionsItem Label="游戏版本">
                             <TextBlock TextTrimming="LeadingCharacterEllipsis" TextWrapping="NoWrap">
-                                <Run FontSize="24" Text="{Binding Instance.LoaderDescription}" />
-                                <Run FontSize="24" Text=" · " />
-                                <Run FontSize="24" Text="{Binding Instance.VersionId}" />
+                                <Run FontSize="24" Text="{Binding Instance.ShortDisplay}" />
                             </TextBlock>
                         </tio:DescriptionsItem>
                     </tio:Descriptions>
@@ -404,10 +402,22 @@
                             PointerPressed="JumpPage"
                             Tag="bedrock-worlds">
                             <StackPanel Margin="10" Spacing="4">
-                                <Label
-                                    Content="存档"
-                                    FontSize="13"
-                                    Foreground="{DynamicResource InnerForegroundColor}" />
+                                <DockPanel LastChildFill="False">
+                                    <Label
+                                        Content="存档"
+                                        DockPanel.Dock="Left"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource InnerForegroundColor}" />
+                                    <ComboBox
+                                        DisplayMemberBinding="{Binding}"
+                                        DockPanel.Dock="Right"
+                                        IsVisible="False"
+                                        ItemsSource="{Binding WorldUserIds}"
+                                        MinWidth="96"
+                                        Name="WorldUserIdSelector"
+                                        SelectionChanged="WorldUserIdSelector_OnSelectionChanged"
+                                        ToolTip.Tip="选择基岩版数据用户 ID" />
+                                </DockPanel>
                                 <TextBlock FontSize="24" Text="{Binding Instance.StorageUsage.WorldsSizeText}" />
                                 <TextBlock
                                     FontSize="12"

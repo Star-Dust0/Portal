@@ -1,16 +1,26 @@
 using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using AsyncImageLoader;
 using CommunityToolkit.Mvvm.Input;
+using Flurl.Http;
+using Portal.Const;
 using Portal.Core.Minecraft.Classes;
 using Portal.Core.Minecraft.Services;
 using Tio.Avalonia.Standard.Modules.Extensions;
+using Tio.Avalonia.Standard.Modules.DiskIO;
 using Tio.Avalonia.Standard.Tab.Gateway;
 using TioUi.Common;
 using TioUi.Common.Extensions;
@@ -18,13 +28,16 @@ using TioUi.Controls;
 
 namespace Portal.Views.Pages.InstancePages;
 
-public partial class Mods : UserControl, INotifyPropertyChanged
+public partial class Mods : UserControl, INotifyPropertyChanged, IDisposable
 {
     private readonly MinecraftInstance? _instance;
     private readonly ModService _modService = new();
     private bool _hasLoaded;
     private bool _isLoading;
+    private bool _isLoadingMetadata;
+    private bool _isDisposed;
     private string _filter = string.Empty;
+    private readonly CancellationTokenSource _disposeCancellation = new();
 
     public ObservableCollection<ModItem> Items { get; } = [];
     public ObservableCollection<ModItem> FilteredItems { get; } = [];
@@ -41,7 +54,17 @@ public partial class Mods : UserControl, INotifyPropertyChanged
     }
 
     public bool IsEmpty => !IsLoading && FilteredItems.Count == 0;
-    public string ModCountText => IsLoading ? string.Empty : $"{FilteredItems.Count} 个";
+    public string ModCountText => $"{FilteredItems.Count} 个";
+    public bool IsLoadingMetadata
+    {
+        get => _isLoadingMetadata;
+        private set
+        {
+            if (_isLoadingMetadata == value) return;
+            _isLoadingMetadata = value;
+            RaisePropertyChanged(nameof(IsLoadingMetadata));
+        }
+    }
     public int SelectedCount => Items.Count(item => item.IsSelected);
     public string SelectedCountText => $"批量操作{SelectedCount}个";
     public bool HasMultipleSelection => SelectedCount >= 1;
@@ -87,14 +110,68 @@ public partial class Mods : UserControl, INotifyPropertyChanged
 
         _hasLoaded = true;
         IsLoading = true;
-        RaiseListProperties();
-        var mods = await _modService.ScanAsync(_instance);
         Items.Clear();
+        ApplyFilter();
+        RaiseListProperties();
+        var mods = await _modService.ScanAsync(_instance, _disposeCancellation.Token);
+        if (_isDisposed)
+            return;
         foreach (var mod in mods)
             Items.Add(new ModItem(mod));
         ApplyFilter();
         IsLoading = false;
         RaiseListProperties();
+        _ = RefreshMetadataAndFriendlyNamesAsync(mods, _disposeCancellation.Token);
+    }
+
+    private async Task RefreshMetadataAndFriendlyNamesAsync(IReadOnlyList<ModInfo> mods,
+        CancellationToken cancellationToken)
+    {
+        _ = CacheFriendlyNamesQuietlyAsync(mods, cancellationToken);
+        await RefreshMetadataAsync(mods, cancellationToken);
+    }
+
+    private async Task CacheFriendlyNamesQuietlyAsync(IEnumerable<ModInfo> mods, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _modService.CacheFriendlyNamesAsync(mods, WikiEntries.FindChineseName,
+                updated => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    if (!_isDisposed)
+                        Items.FirstOrDefault(item => item.Info.FilePath == updated.FilePath)?.Update(updated);
+                }), cancellationToken);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception) { }
+    }
+
+    private async Task RefreshMetadataAsync(IReadOnlyList<ModInfo> mods, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _modService.RefreshMetadataAsync(mods, WikiEntries.FindChineseName, updated => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    if (_isDisposed)
+                        return;
+                    var item = Items.FirstOrDefault(candidate => candidate.Info.FilePath == updated.FilePath);
+                    item?.Update(updated);
+                }), isLoading => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    if (!_isDisposed)
+                        IsLoadingMetadata = isLoading;
+                }), cancellationToken);
+        }
+        catch (OperationCanceledException) { }
+        catch (FlurlHttpException exception)
+        {
+            var statusCode = exception.Call.Response?.StatusCode;
+            Logger.Error($"获取模组平台信息失败 ({statusCode?.ToString() ?? "网络错误"}): {exception.Message}");
+        }
+        catch (Exception exception)
+        {
+            Logger.Error($"获取模组平台信息失败: {exception.Message}");
+        }
     }
 
     private void ApplyFilter()
@@ -104,6 +181,7 @@ public partial class Mods : UserControl, INotifyPropertyChanged
             : Items.Where(item =>
                 item.DisplayName.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
                 item.FileName.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
+                item.FriendlyName.Contains(_filter, StringComparison.OrdinalIgnoreCase) ||
                 item.DescriptionText.Contains(_filter, StringComparison.OrdinalIgnoreCase));
         FilteredItems.Clear();
         foreach (var item in filtered)
@@ -172,7 +250,7 @@ public partial class Mods : UserControl, INotifyPropertyChanged
         if (result != DialogResult.Yes)
             return;
 
-        await RunSelectedFileActionAsync(selected, item => File.Delete(item.Info.FilePath), "删除");
+        await RunSelectedFileActionAsync(selected, item => File.Delete(item.Info.FilePath), null, "删除");
     }
 
     private async void ShowModDetails_OnClick(object? sender, RoutedEventArgs e)
@@ -207,7 +285,7 @@ public partial class Mods : UserControl, INotifyPropertyChanged
             TextWrapping = Avalonia.Media.TextWrapping.Wrap
         }, null, this.TryGetHostId(), CreateDeleteConfirmationOptions());
         if (result == DialogResult.Yes)
-            await RunSelectedFileActionAsync([item], mod => File.Delete(mod.Info.FilePath), "删除");
+            await RunSelectedFileActionAsync([item], mod => File.Delete(mod.Info.FilePath), null, "删除");
     }
 
     private async void OpenModFolder_OnClick(object? sender, RoutedEventArgs e)
@@ -235,6 +313,10 @@ public partial class Mods : UserControl, INotifyPropertyChanged
         {
             var destination = disabled ? item.Info.FilePath + ".disabled" : item.Info.FilePath[..^".disabled".Length];
             File.Move(item.Info.FilePath, destination);
+        }, item => item.Info with
+        {
+            FilePath = disabled ? item.Info.FilePath + ".disabled" : item.Info.FilePath[..^".disabled".Length],
+            IsDisabled = disabled
         }, disabled ? "禁用" : "启用");
     }
 
@@ -242,10 +324,14 @@ public partial class Mods : UserControl, INotifyPropertyChanged
         ? Task.CompletedTask
         : RunSelectedFileActionAsync([item], mod => File.Move(mod.Info.FilePath,
                 disabled ? mod.Info.FilePath + ".disabled" : mod.Info.FilePath[..^".disabled".Length]),
-            disabled ? "禁用" : "启用");
+            mod => mod.Info with
+            {
+                FilePath = disabled ? mod.Info.FilePath + ".disabled" : mod.Info.FilePath[..^".disabled".Length],
+                IsDisabled = disabled
+            }, disabled ? "禁用" : "启用");
 
-    private async Task RunSelectedFileActionAsync(IEnumerable<ModItem> selected, Action<ModItem> action,
-        string actionName)
+    private Task RunSelectedFileActionAsync(IEnumerable<ModItem> selected, Action<ModItem> action,
+        Func<ModItem, ModInfo>? localUpdate, string actionName)
     {
         var failed = 0;
         foreach (var item in selected)
@@ -253,6 +339,16 @@ public partial class Mods : UserControl, INotifyPropertyChanged
             try
             {
                 action(item);
+                if (localUpdate == null)
+                {
+                    item.Dispose();
+                    Items.Remove(item);
+                }
+                else
+                {
+                    item.Update(localUpdate(item));
+                    item.IsSelected = false;
+                }
             }
             catch (IOException)
             {
@@ -264,10 +360,11 @@ public partial class Mods : UserControl, INotifyPropertyChanged
             }
         }
 
-        _hasLoaded = false;
-        await LoadAsync();
+        ApplyFilter();
+        RaiseSelectionProperties();
         ShowNotice(failed == 0 ? $"已{actionName}所选模组" : $"{actionName}完成，但有 {failed} 个模组操作失败",
             failed == 0 ? NotificationType.Success : NotificationType.Warning);
+        return Task.CompletedTask;
     }
 
     private ModItem[] GetSelectedItems() => Items.Where(item => item.IsSelected).ToArray();
@@ -311,17 +408,84 @@ public partial class Mods : UserControl, INotifyPropertyChanged
 
     private void RaisePropertyChanged(string propertyName) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+    public void Dispose()
+    {
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
+        _disposeCancellation.Cancel();
+        foreach (var item in Items)
+            item.Dispose();
+        Items.Clear();
+        FilteredItems.Clear();
+        _disposeCancellation.Dispose();
+    }
 }
 
-public sealed class ModItem(ModInfo info) : INotifyPropertyChanged
+internal static class WikiEntries
+{
+    private static readonly Lazy<Dictionary<string, string>> Entries = new(Load);
+
+    public static string? FindChineseName(string curseForgeSlug) =>
+        Entries.Value.GetValueOrDefault(curseForgeSlug);
+
+    private static Dictionary<string, string> Load()
+    {
+        var entries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Portal.WikiEntries.txt");
+        if (stream == null)
+            return entries;
+
+        using var reader = new StreamReader(stream);
+        while (reader.ReadLine() is { } line)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+
+            foreach (var entry in line.Split('¨'))
+            {
+                var separator = entry.IndexOf('|');
+                if (separator <= 0 || separator == entry.Length - 1)
+                    continue;
+
+                var slugs = entry[..separator];
+                if (slugs.StartsWith('@'))
+                    continue;
+
+                var curseForgeSlug = slugs.Split('@')[0];
+                var chineseName = GetChineseName(entry[(separator + 1)..], curseForgeSlug);
+                if (!string.IsNullOrWhiteSpace(curseForgeSlug) && !string.IsNullOrWhiteSpace(chineseName))
+                    entries.TryAdd(curseForgeSlug, chineseName);
+            }
+        }
+
+        return entries;
+    }
+
+    private static string GetChineseName(string chineseName, string curseForgeSlug)
+    {
+        var englishName = string.Join(' ', curseForgeSlug.Split('-')
+            .Where(word => word.Length > 0)
+            .Select(word => char.ToUpperInvariant(word[0]) + word[1..]));
+        return Regex.Replace(chineseName.Replace("*", $" ({englishName})"), @"\s*\([^)]*\)\s*$", string.Empty).Trim();
+    }
+}
+
+public sealed class ModItem(ModInfo info) : INotifyPropertyChanged, IDisposable
 {
     private bool _isSelected;
-    public ModInfo Info { get; } = info;
-    public string DisplayName => info.DisplayName;
-    public string FriendlyName => info.DisplayName;
-    public string FileName => info.FileName + ".jar";
-    public string DescriptionText => info.Description ?? "没有可用的模组描述";
-    public bool IsDisabled => info.IsDisabled;
+    private ModInfo _info = info;
+    public ModInfo Info => _info;
+    public string DisplayName => _info.DisplayName;
+    public string FriendlyName => _info.FriendlyName ?? _info.DisplayName;
+    public string FileName => _info.FileName + ".jar";
+    public string DescriptionText => _info.Description ?? "没有可用的模组描述";
+    public string? IconUrl => _info.IconUrl;
+    public bool HasIcon => !string.IsNullOrWhiteSpace(IconUrl);
+    public IAsyncImageLoader ImageLoader { get; } = new ModImageLoader();
+    public bool IsDisabled => _info.IsDisabled;
     public bool IsEnabled => !IsDisabled;
 
     public bool IsSelected
@@ -335,5 +499,67 @@ public sealed class ModItem(ModInfo info) : INotifyPropertyChanged
         }
     }
 
+    public void Update(ModInfo info)
+    {
+        _info = info;
+        foreach (var propertyName in new[] { nameof(DisplayName), nameof(FriendlyName), nameof(FileName), nameof(DescriptionText),
+                     nameof(IconUrl), nameof(HasIcon), nameof(IsDisabled), nameof(IsEnabled) })
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public void Dispose() => ImageLoader.Dispose();
+}
+
+public sealed class ModImageLoader : IAsyncImageLoader
+{
+    private const int CacheImageWidth = 56;
+    private static readonly HttpClient Client = new();
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> DownloadLocks = new();
+
+    public async Task<Avalonia.Media.Imaging.Bitmap?> ProvideImageAsync(string url)
+    {
+        try
+        {
+            var cachePath = GetCachePath(url);
+            if (File.Exists(cachePath))
+                return new Bitmap(cachePath);
+
+            var downloadLock = DownloadLocks.GetOrAdd(cachePath, _ => new SemaphoreSlim(1, 1));
+            await downloadLock.WaitAsync();
+            try
+            {
+                if (File.Exists(cachePath))
+                    return new Bitmap(cachePath);
+
+                using var response = await Client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                await using var stream = await response.Content.ReadAsStreamAsync();
+                using var bitmap = Bitmap.DecodeToWidth(stream, CacheImageWidth);
+                Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
+                var temporaryPath = cachePath + ".tmp";
+                using (var output = File.Create(temporaryPath))
+                    bitmap.Save(output, PngBitmapEncoderOptions.Default);
+                File.Move(temporaryPath, cachePath, true);
+                return new Bitmap(cachePath);
+            }
+            finally
+            {
+                downloadLock.Release();
+            }
+        }
+        catch (HttpRequestException) { return null; }
+        catch (IOException) { return null; }
+        catch (UnauthorizedAccessException) { return null; }
+        catch (InvalidDataException) { return null; }
+    }
+
+    private static string GetCachePath(string url)
+    {
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(url))).ToLowerInvariant();
+        return Path.Combine(ConfigPath.CacheFolderPath, "#mod-images", hash[..2], hash + ".png");
+    }
+
+    public void Dispose() { }
 }

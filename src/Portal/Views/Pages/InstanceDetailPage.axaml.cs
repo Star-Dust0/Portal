@@ -145,5 +145,6 @@ public partial class InstanceDetailPageViewModel : ObservableObject
         foreach (var page in _pageCache.Values.OfType<IDisposable>())
             page.Dispose();
         _pageCache.Clear();
+        CurrentPage = null;
     }
 }

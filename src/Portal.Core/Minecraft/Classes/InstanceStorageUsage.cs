@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Portal.Core.Minecraft.Instance.Bedrock;
 
 namespace Portal.Core.Minecraft.Classes;
 
@@ -110,6 +111,19 @@ public partial class InstanceStorageUsage : ObservableObject
             _loadTask = LoadAsync();
     }
 
+    public Task RefreshBedrockWorldsAsync()
+    {
+        if (_instance.BedrockConfig is not { } config)
+            return Task.CompletedTask;
+
+        return RefreshBedrockWorldsAsync(config);
+    }
+
+    private async Task RefreshBedrockWorldsAsync(Portal.Bedrock.Standard.Manifest.BedrockInstanceConfig config)
+    {
+        WorldsBytes = await Task.Run(() => GetBedrockWorldsSize(config));
+    }
+
     private async Task LoadAsync()
     {
         if (_instance.IsBedrock)
@@ -117,7 +131,7 @@ public partial class InstanceStorageUsage : ObservableObject
             var bedrockUsage = await Task.Run(() =>
             {
                 var instanceBytes = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.InstanceFolder));
-                var worlds = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.SavesFolder));
+                var worlds = _instance.BedrockConfig is { } config ? GetBedrockWorldsSize(config) : 0;
                 var resources = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.ResourcePacksFolder));
                 var behaviors = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.BehaviorPacksFolder));
                 var skins = GetDirectorySize(_instance.GetSpecialFolder(MinecraftSpecialFolder.SkinPacksFolder));
@@ -235,4 +249,8 @@ public partial class InstanceStorageUsage : ObservableObject
 
         return total;
     }
+
+    private static long GetBedrockWorldsSize(Portal.Bedrock.Standard.Manifest.BedrockInstanceConfig config) =>
+        BedrockDataPathResolver.GetWorldUserIds(config)
+            .Sum(userId => GetDirectorySize(BedrockDataPathResolver.GetWorldsFolder(config, userId)));
 }
