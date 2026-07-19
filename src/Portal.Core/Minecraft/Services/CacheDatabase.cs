@@ -7,12 +7,18 @@ namespace Portal.Core.Minecraft.Services;
 internal static class CacheDatabase
 {
     private static readonly object InitializationLock = new();
+    private static readonly object ModCacheLock = new();
+    private static readonly Dictionary<uint, ModCacheEntry?> ModCache = [];
     private static bool _initialized;
     private static string DatabasePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "xyz.tiouo.Portal", "Cache", "cache.db");
 
     public static ModCacheEntry? ReadMod(uint fingerprint)
     {
+        lock (ModCacheLock)
+            if (ModCache.TryGetValue(fingerprint, out var cached)) return cached;
+
+        ModCacheEntry? entry;
         try
         {
             using var connection = OpenConnection();
@@ -24,23 +30,32 @@ internal static class CacheDatabase
                 """;
             command.Parameters.AddWithValue("$fingerprint", (long)fingerprint);
             using var reader = command.ExecuteReader();
-            if (!reader.Read()) return null;
-
-            return new ModCacheEntry
+            if (!reader.Read())
             {
-                DisplayName = reader.IsDBNull(0) ? null : reader.GetString(0),
-                Description = reader.IsDBNull(1) ? null : reader.GetString(1),
-                IconUrl = reader.IsDBNull(2) ? null : reader.GetString(2),
-                ProjectId = reader.IsDBNull(3) ? null : reader.GetInt32(3),
-                FileId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
-                FriendlyName = reader.GetInt64(8) != 0 && !reader.IsDBNull(5) ? reader.GetString(5) : null,
-                MetadataFetched = reader.GetInt64(6) != 0,
-                CurseForgeSlug = reader.IsDBNull(7) ? null : reader.GetString(7),
-                IsWikiFriendlyName = reader.GetInt64(8) != 0
-            };
+                entry = null;
+            }
+            else
+            {
+                entry = new ModCacheEntry
+                {
+                    DisplayName = reader.IsDBNull(0) ? null : reader.GetString(0),
+                    Description = reader.IsDBNull(1) ? null : reader.GetString(1),
+                    IconUrl = reader.IsDBNull(2) ? null : reader.GetString(2),
+                    ProjectId = reader.IsDBNull(3) ? null : reader.GetInt32(3),
+                    FileId = reader.IsDBNull(4) ? null : reader.GetInt32(4),
+                    FriendlyName = reader.GetInt64(8) != 0 && !reader.IsDBNull(5) ? reader.GetString(5) : null,
+                    MetadataFetched = reader.GetInt64(6) != 0,
+                    CurseForgeSlug = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    IsWikiFriendlyName = reader.GetInt64(8) != 0
+                };
+            }
         }
         catch (SqliteException) { return null; }
         catch (IOException) { return null; }
+
+        lock (ModCacheLock)
+            ModCache[fingerprint] = entry;
+        return entry;
     }
 
     public static void WriteMod(uint fingerprint, ModCacheEntry entry)
@@ -69,6 +84,8 @@ internal static class CacheDatabase
             command.Parameters.AddWithValue("$curseForgeSlug", (object?)entry.CurseForgeSlug ?? DBNull.Value);
             command.Parameters.AddWithValue("$isWikiFriendlyName", entry.IsWikiFriendlyName ? 1 : 0);
             command.ExecuteNonQuery();
+            lock (ModCacheLock)
+                ModCache[fingerprint] = entry;
         }
         catch (SqliteException) { }
         catch (IOException) { }
@@ -179,7 +196,7 @@ internal static class CacheDatabase
             connection.Open();
             using var command = connection.CreateCommand();
             command.CommandText = """
-                PRAGMA journal_mode = WAL;
+                PRAGMA journal_mode = DELETE;
                 PRAGMA busy_timeout = 5000;
                 CREATE TABLE IF NOT EXISTS mod_cache (
                     fingerprint INTEGER PRIMARY KEY, display_name TEXT NULL, description TEXT NULL, icon_url TEXT NULL,
