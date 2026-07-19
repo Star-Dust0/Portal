@@ -21,12 +21,84 @@ public sealed class ModService
     private const int TranslationBatchCharacterLimit = 45_000;
     private const string TranslationAuthEndpoint = "https://edge.microsoft.com/translate/auth";
     private const string TranslationEndpoint = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=zh-Hans&textType=plain";
-    private static readonly JsonSerializerOptions CacheJsonOptions = new() { WriteIndented = false };
     private static readonly HttpClient TranslationClient = new();
 
-    public Task<IReadOnlyList<ModInfo>> ScanAsync(MinecraftInstance instance,
-        CancellationToken cancellationToken = default) =>
-        Task.Run(() => Scan(instance, cancellationToken), cancellationToken);
+    public async Task<IReadOnlyList<ModInfo>> ScanAsync(MinecraftInstance instance,
+        CancellationToken cancellationToken = default)
+    {
+        var paths = await Task.Run(() => FindModFiles(instance), cancellationToken);
+        var candidates = await Task.WhenAll(paths.Select(async path =>
+        {
+            try
+            {
+                return (Path: path,
+                    Fingerprint: await Task.Run(() => CalculateCurseForgeFingerprint(path, cancellationToken), cancellationToken));
+            }
+            catch (IOException)
+            {
+                return (Path: path, Fingerprint: (uint?)null);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return (Path: path, Fingerprint: (uint?)null);
+            }
+        }));
+
+        var results = new Dictionary<string, ModInfo>(StringComparer.OrdinalIgnoreCase);
+        var unresolved = new List<(string Path, uint Fingerprint)>();
+        foreach (var candidate in candidates)
+        {
+            if (candidate.Fingerprint is { } fingerprint && ReadCache(fingerprint) is { MetadataFetched: not false } cached)
+                results[candidate.Path] = CreateModInfo(candidate.Path, cached);
+            else if (candidate.Fingerprint is { } missingFingerprint)
+                unresolved.Add((candidate.Path, missingFingerprint));
+            else
+                results[candidate.Path] = ReadMod(candidate.Path, cancellationToken);
+        }
+
+        var apiEntries = new Dictionary<uint, ModCacheEntry?>();
+        if (unresolved.Count > 0 && ServiceCredentials.CurseForgeApiKey is not null)
+        {
+            try
+            {
+                foreach (var batch in unresolved.Select(item => item.Fingerprint).Distinct().Chunk(FingerprintBatchSize))
+                    foreach (var (fingerprint, entry) in await FetchMetadataBatchAsync(batch, cancellationToken))
+                        apiEntries[fingerprint] = entry;
+            }
+            catch (FlurlHttpException exception)
+            {
+                Logger.Error($"CurseForge 指纹请求失败，改为读取本地模组元数据: {exception.Message}");
+            }
+            catch (HttpRequestException exception)
+            {
+                Logger.Error($"CurseForge 指纹请求失败，改为读取本地模组元数据: {exception.Message}");
+            }
+            catch (JsonException exception)
+            {
+                Logger.Error($"CurseForge 指纹响应无效，改为读取本地模组元数据: {exception.Message}");
+            }
+        }
+
+        foreach (var (path, fingerprint) in unresolved)
+        {
+            if (apiEntries.TryGetValue(fingerprint, out var entry) && entry != null)
+            {
+                WriteCache(fingerprint, entry);
+                results[path] = CreateModInfo(path, entry);
+                continue;
+            }
+
+            // Only inspect the archive after neither the local cache nor CurseForge can identify it.
+            var mod = ReadMod(path, cancellationToken);
+            WriteCache(fingerprint, CreateLocalCacheEntry(mod));
+            results[path] = mod;
+        }
+
+        return results.Values
+            .OrderBy(mod => mod.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(mod => mod.FileName, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
 
     public async Task RefreshMetadataAsync(IEnumerable<ModInfo> mods, Action<ModInfo> metadataUpdated,
         CancellationToken cancellationToken = default)
@@ -81,7 +153,7 @@ public sealed class ModService
         }));
     }
 
-    private static IReadOnlyList<ModInfo> Scan(MinecraftInstance instance, CancellationToken cancellationToken)
+    private static IReadOnlyList<string> FindModFiles(MinecraftInstance instance)
     {
         if (instance.Type != MinecraftInstanceType.Java)
             return [];
@@ -94,9 +166,6 @@ public sealed class ModService
         {
             return Directory.EnumerateFiles(modsPath, "*.*", SearchOption.AllDirectories)
                 .Where(IsModFile)
-                .Select(path => ReadMod(path, cancellationToken))
-                .OrderBy(mod => mod.DisplayName, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(mod => mod.FileName, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
         }
         catch (IOException)
@@ -123,57 +192,83 @@ public sealed class ModService
             .Equals(".disabled", StringComparison.OrdinalIgnoreCase), file.Length, file.LastWriteTime);
     }
 
+    private static ModInfo CreateModInfo(string path, ModCacheEntry entry)
+    {
+        var file = new FileInfo(path);
+        var fileName = GetFileName(path);
+        return new ModInfo(path, fileName, entry.DisplayName ?? fileName, entry.Description,
+            Path.GetExtension(path).Equals(".disabled", StringComparison.OrdinalIgnoreCase), file.Length,
+            file.LastWriteTime, entry.IconUrl, entry.FriendlyName);
+    }
+
+    private static ModCacheEntry CreateLocalCacheEntry(ModInfo mod) => new()
+    {
+        DisplayName = mod.DisplayName,
+        Description = mod.Description,
+        IconUrl = mod.IconUrl,
+        FriendlyName = mod.FriendlyName,
+        MetadataFetched = true
+    };
+
     private static async Task FetchBatchAsync((ModInfo Mod, uint Fingerprint)[] batch, Action<ModInfo> metadataUpdated,
         CancellationToken cancellationToken)
     {
-        CurseForgeFingerprintResponse response;
-        try
-        {
-            response = await CurseForgeFingerprintEndpoint
-                .WithHeader("Accept", "application/json")
-                .WithHeader("x-api-key", ServiceCredentials.CurseForgeApiKey!)
-                .PostJsonAsync(new { fingerprints = batch.Select(item => item.Fingerprint).ToArray() },
-                    cancellationToken: cancellationToken)
-                .ReceiveJson<CurseForgeFingerprintResponse>();
-        }
-        catch (FlurlHttpException exception)
-        {
-            var responseBody = await exception.GetResponseStringAsync();
-            Logger.Error($"CurseForge 指纹请求失败: 状态 {exception.Call.Response?.StatusCode}，数量 {batch.Length}，响应 {responseBody}");
-            throw;
-        }
-        var matches = response.Data?.ExactMatches
-            ?.Where(match => match.File != null)
-            .ToDictionary(match => match.File!.Fingerprint) ?? [];
+        var entries = await FetchMetadataBatchAsync(batch.Select(item => item.Fingerprint).ToArray(), cancellationToken);
 
         foreach (var item in batch)
         {
-            matches.TryGetValue(item.Fingerprint, out var match);
-            var cached = match?.File == null
-                ? new ModCacheEntry { MetadataFetched = true }
-                : new ModCacheEntry
-                {
-                    DisplayName = match.File.DisplayName,
-                    ProjectId = match.File.ModId,
-                    FileId = match.File.Id,
-                    MetadataFetched = true
-                };
-            if (match?.File != null)
+            entries.TryGetValue(item.Fingerprint, out var entry);
+            var cached = (entry ?? CreateLocalCacheEntry(item.Mod)) with
             {
-                try
-                {
-                    cached = await GetMetadataAsync(match.File, cancellationToken);
-                }
-                catch (FlurlHttpException)
-                {
-                }
-            }
-
-            cached = cached with { FriendlyName = ReadCache(item.Fingerprint)?.FriendlyName };
+                FriendlyName = ReadCache(item.Fingerprint)?.FriendlyName
+            };
 
             WriteCache(item.Fingerprint, cached);
             metadataUpdated(ApplyMetadata(item.Mod, cached));
         }
+    }
+
+    private static async Task<Dictionary<uint, ModCacheEntry?>> FetchMetadataBatchAsync(IEnumerable<uint> fingerprints,
+        CancellationToken cancellationToken)
+    {
+        var requested = fingerprints.Distinct().ToArray();
+        var response = await CurseForgeFingerprintEndpoint
+            .WithHeader("Accept", "application/json")
+            .WithHeader("x-api-key", ServiceCredentials.CurseForgeApiKey!)
+            .PostJsonAsync(new { fingerprints = requested }, cancellationToken: cancellationToken)
+            .ReceiveJson<CurseForgeFingerprintResponse>();
+        var matches = response.Data?.ExactMatches
+            ?.Where(match => match.File != null)
+            .ToDictionary(match => match.File!.Fingerprint) ?? [];
+        var entries = new Dictionary<uint, ModCacheEntry?>();
+        foreach (var fingerprint in requested)
+        {
+            matches.TryGetValue(fingerprint, out var match);
+            if (match?.File == null)
+            {
+                entries[fingerprint] = null;
+                continue;
+            }
+
+            var entry = new ModCacheEntry
+            {
+                DisplayName = match.File.DisplayName,
+                ProjectId = match.File.ModId,
+                FileId = match.File.Id,
+                MetadataFetched = true
+            };
+            try
+            {
+                entry = await GetMetadataAsync(match.File, cancellationToken);
+            }
+            catch (FlurlHttpException)
+            {
+            }
+
+            entries[fingerprint] = entry;
+        }
+
+        return entries;
     }
 
     public async Task TranslateFriendlyNamesAsync(IEnumerable<ModInfo> mods, Action<ModInfo> friendlyNameUpdated,
@@ -347,45 +442,9 @@ public sealed class ModService
         hash ^= value;
     }
 
-    private static string GetCachePath(uint fingerprint)
-    {
-        var key = fingerprint.ToString("x8");
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "xyz.tiouo.Portal",
-            "Cache", "mods", key[..2], key + ".json");
-    }
+    private static ModCacheEntry? ReadCache(uint fingerprint) => CacheDatabase.ReadMod(fingerprint);
 
-    private static ModCacheEntry? ReadCache(uint fingerprint)
-    {
-        try
-        {
-            var path = GetCachePath(fingerprint);
-            return File.Exists(path) ? JsonSerializer.Deserialize<ModCacheEntry>(File.ReadAllText(path)) : null;
-        }
-        catch (IOException)
-        {
-            return null;
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
-    }
-
-    private static void WriteCache(uint fingerprint, ModCacheEntry entry)
-    {
-        try
-        {
-            var path = GetCachePath(fingerprint);
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            File.WriteAllText(path, JsonSerializer.Serialize(entry, CacheJsonOptions));
-        }
-        catch (IOException)
-        {
-        }
-        catch (UnauthorizedAccessException)
-        {
-        }
-    }
+    private static void WriteCache(uint fingerprint, ModCacheEntry entry) => CacheDatabase.WriteMod(fingerprint, entry);
 
     private static string GetFileName(string path)
     {
